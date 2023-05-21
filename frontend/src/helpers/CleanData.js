@@ -9,7 +9,21 @@ const getLocation = (event) => {
 }
 
 const getStartTime = (event) => {
-  return event["Start Date & Time"].slice(-8);
+  const ogTime = event["Start Date & Time"].slice(-8);
+
+  var hours = Number(ogTime.match(/^(\d+)/)[1]);
+  var minutes = Number(ogTime.match(/:(\d+)/)[1]);
+  var AMPM = ogTime.match(/\s(.*)$/)[1];
+  if(AMPM == "PM" && hours<12) hours = hours+12;
+  if(AMPM == "AM" && hours==12) hours = hours-12;
+  var sHours = hours.toString();
+  var sMinutes = minutes.toString();
+  if(hours<10) sHours = "0" + sHours;
+  if(minutes<10) sMinutes = "0" + sMinutes;
+
+  const newTime = sHours + ":" + sMinutes;
+
+  return newTime;
 }
 
 export default function cleanData () {

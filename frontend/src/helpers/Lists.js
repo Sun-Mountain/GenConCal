@@ -1,0 +1,1 @@
+import Events from '@/assets/data/events.json';
