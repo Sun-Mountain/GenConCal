@@ -10,16 +10,39 @@ export default function Home() {
   const [eventsList, setEventsList] = useState(data.events);
   const [choices, setChoices] = useState([]);
 
-  // const filterEvents = (choices) => {
-  //   choices.map(choice => {
-  //     var chosenEvent = eventsList.filter(event => event.gameId === choice);
-  //     console.log(chosenEvent[0])
-  //   })
-  // }
-
   const findEvent = (id) => {
-    const event = eventsList.filter(event => event.gameId === id);
-    return event[0]
+    const event = eventsList.find(event => event.gameId === id);
+    return event;
+  }
+
+  const noConflict = (choice, event) => {
+    if (
+      event.timeStart.getTime() >= choice.timeStart.getTime() &&
+      event.timeEnd.getTime() <= choice.timeEnd.getTime()
+    ) {
+      return false;
+    }
+
+    if (
+      choice.timeStart.getTime() >= event.timeStart.getTime() &&
+      choice.timeEnd.getTime() <= event.timeEnd.getTime()
+    ) {
+      return false;
+    }
+
+    return true;
+  }
+
+  const filterEvents = () => {
+    var filteredList
+
+    choices.map(choice => {
+      filteredList = eventsList.filter(event => ( noConflict(choice, event) ? event : null ));
+    })
+
+    filteredList.sort(function(a,b){ return b.timeStart - a.timeStart; }).reverse()
+
+    setEventsList(filteredList);
   }
 
   const handleChoices = (e, gameId) => {
@@ -36,7 +59,7 @@ export default function Home() {
       setChoices([...newChoices])
     }
 
-    console.log(choices)
+    filterEvents();
   }
 
 
