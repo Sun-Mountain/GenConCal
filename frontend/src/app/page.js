@@ -8,16 +8,31 @@ import DateContainer from '@/components/DateContainer';
 import cleanData from '@/helpers/CleanData';
 
 export default function Home() {
-  const [currentState, setCurrentState] = useState('Unchecked')
-  const data = cleanData();
-  const dates = Object.keys(data).sort();
+  const { data, eventList } = cleanData();
+  const dateList = data.dates.sort();
+
+  const [dates, setDates] = useState(
+    dateList.map(date => ({ isChecked: false, value: date }))
+  )
 
   return (
     <div>
-      <div>Current State Is: {currentState}</div>
-      <CheckboxComponent setCurrentState={setCurrentState} />
       {dates.map(date => {
-        return <DateContainer id={`${date}-container`} key={date} date={date} dateData={data[date]} />
+        return <CheckboxComponent
+                  checked={date.isChecked}
+                  key={date.value}
+                  set={setDates}
+                  value={date.value}
+                />
+      })}
+      {dates.map(date => {
+        if (date.checked) {
+          return <DateContainer
+                    date={date.value}
+                    dateData={eventList[date.value]}
+                    key={`${date.value}-container`}
+                  />
+        }
       })}
     </div>
   )

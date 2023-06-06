@@ -1,21 +1,26 @@
-function CheckboxComponent({ setCurrentState }) {
-  const handleClick = (event) => {
-    if (event.target.checked === true) {
-      setCurrentState('Checked')
-    } else {
-      setCurrentState('Unchecked')
-    }
+function CheckboxComponent({ value, set, checked }) {
+  const handleClick = (e) => {
+    const { value, checked } = e.target;
+    console.log(value, checked)
+    set((prev) =>
+      prev.map((item) => {
+        if (item.value === value) item.checked = checked;
+        return item;
+      })
+    );
   }
 
   return (
-    <>
-      <label htmlFor="example_checkbox">Set state to: </label>
+    <div>
+      <label htmlFor="example_checkbox">{ value }: </label>
       <input
         type="checkbox"
         id="example_checkbox"
-        onClick={(event) => handleClick(event)}
+        onClick={handleClick}
+        defaultChecked={checked}
+        value={value}
       />
-    </>
+    </div>
   )
 }
 

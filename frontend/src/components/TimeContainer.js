@@ -6,6 +6,9 @@ function TimeContainer({time, events}) {
         return (
           <div>
             {event.Title}
+            <div>
+              {event.Duration}
+            </div>
           </div>
         )
       })}
