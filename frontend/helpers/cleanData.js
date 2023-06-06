@@ -8,8 +8,7 @@ export default function cleanData () {
   const data = {
     ageReqs: [],
     costs: [],
-    dates: [],
-    events: [],
+    events: {},
     experience: [],
     groups: [],
     locations: [],
@@ -47,14 +46,6 @@ export default function cleanData () {
     newEvent.cost = eventCost;
 
     // Date and Time
-    if (eventTimeStart && isNotInArray(data.dates, eventTimeStart)) {
-      data.dates.push(eventTimeStart);
-    }
-
-    if (eventTimeEnd && isNotInArray(data.dates, eventTimeEnd)) {
-      data.dates.push(eventTimeEnd);
-    };
-
     newEvent.timeStart = eventTimeStart;
     newEvent.timeEnd = eventTimeEnd;
 
@@ -112,12 +103,15 @@ export default function cleanData () {
 
     newEvent.type = eventType;
 
-    data.events.push(newEvent);
+    if (!data.events[eventTimeStart.toLocaleDateString()]) {
+      data.events[eventTimeStart.toLocaleDateString()] = [];
+    }
+
+    data.events[eventTimeStart.toLocaleDateString()].push(newEvent);
   })
 
   data.costs.sort(function(a,b){ return b - a; }).reverse();
-  data.dates.sort(function(a,b){ return b - a; }).reverse();
-  data.events.sort(function(a,b){ return b.timeStart - a.timeStart; }).reverse();
+  data.events;
   data.groups.sort();
   data.locations.sort();
   data.systems.sort();
