@@ -1,14 +1,12 @@
 function TimeContainer({time, events}) {
+  console.log(events)
   return (
     <>
       <h4>{time}</h4>
       {events.map(event => {
         return (
           <div>
-            {event.Title}
-            <div>
-              {event.Duration}
-            </div>
+            {event.title}
           </div>
         )
       })}

@@ -1,7 +1,6 @@
 function CheckboxComponent({ value, set, checked }) {
   const handleClick = (e) => {
     const { value, checked } = e.target;
-    console.log(value, checked)
     set((prev) =>
       prev.map((item) => {
         if (item.value === value) item.checked = checked;
