@@ -1,3 +1,17 @@
+h2 {
+  margin: 0 auto;
+}
+
+.flex-row {
+  display: flex;
+  flex-direction: row;
+}
+
+.search-params-cont {
+  min-width: 150px;
+  padding-right: 20px;
+}
+
 #date-container {
   display: flex;
   flex-direction: column;
