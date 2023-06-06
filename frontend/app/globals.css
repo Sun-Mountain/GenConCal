@@ -1,0 +1,34 @@
+:root {
+  --red: #CE0E2D;
+}
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+main {
+  display: flex;
+  flex-direction: row;
+}
+
+h4 {
+  margin: 5px 0;
+}
+
+#event-list {
+  margin-right: 8px;
+}
+
+.event-container {
+  border: 1px solid black;
+  padding: 0 8px 5px 8px;
+  max-width: 500px;
+}
+
+.event-container:hover {
+  cursor: pointer;
+}
+
+.event-container + .event-container {
+  margin-top: 12px;
+}
