@@ -6,8 +6,17 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+main {
+  display: flex;
+  flex-direction: row;
+}
+
 h4 {
   margin: 5px 0;
+}
+
+#event-list {
+  margin-right: 8px;
 }
 
 .event-container {

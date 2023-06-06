@@ -11,28 +11,12 @@ function Event ({
   timeStart,
   title,
   type,
-  choices,
-  setChoices
+  handleChoices
 }) {
 
   const date = `${timeStart.toDateString()}`
   const startTime = `${timeStart.toLocaleTimeString()}`;
   const endTime = `${timeEnd.toLocaleTimeString()}`;
-
-  const handleChoices = () => {
-    if (isNotInArray(choices, gameId)) {
-      var newChoices = choices;
-      newChoices.push(gameId);
-      setChoices(newChoices);
-    } else {
-      var index = choices.indexOf(gameId),
-          newChoices = choices;
-      newChoices.splice(index, 1)
-      setChoices(newChoices)
-    }
-
-    console.log(choices);
-  }
 
   return (
     <div
