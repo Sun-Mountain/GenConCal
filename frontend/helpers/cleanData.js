@@ -45,7 +45,6 @@ export default function cleanData () {
 
     newEvent.cost = eventCost;
 
-    // Date and Time
     newEvent.timeStart = eventTimeStart;
     newEvent.timeEnd = eventTimeEnd;
 
@@ -111,7 +110,6 @@ export default function cleanData () {
   })
 
   data.costs.sort(function(a,b){ return b - a; }).reverse();
-  data.events;
   data.groups.sort();
   data.locations.sort();
   data.systems.sort();
