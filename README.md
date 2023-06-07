@@ -9,18 +9,6 @@ This documentation will guide you through the installation process, explain the 
 1. Installation
    * Prerequisites
    * Installation Steps
-<!-- 2. Usage 
-   * Event Browsing and Filtering
-3. Code Structure
-   * Pages
-   * Components
-   * Styles
-   * Data Management
-4. Deploment
-5. Future Enhancements
-6. Troubleshooting
-7. FAQ
-8. Conclusion -->
 
 ## 1. Installation
 
@@ -55,4 +43,4 @@ or
 yarn dev
 ```
 
-5. 
+5. Open your web browser and navigate to `http://localhost:3000` to access the GenCon Calendar App.
