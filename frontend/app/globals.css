@@ -75,3 +75,16 @@ h3 {
   background-color: rgb(100, 100, 100, 0.3);
   cursor: pointer;
 }
+
+.time-list {
+  color:rgb(100, 100, 100);
+  font-style: normal;
+  text-align: center;
+}
+
+.time-title {
+  color: rgb(0, 0, 69);
+  font-style: normal;
+  font-weight: 700;
+  width: 100%;
+}
