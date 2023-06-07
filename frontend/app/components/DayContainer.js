@@ -63,39 +63,6 @@ function DayContainer ({
           />
         ))}
       </div>
-      {/* <div id="choices-list">
-        {choices.map(event => (
-          <Event
-            key={`${event.gameId}`}
-            system={event.system}
-            timeEnd={event.timeEnd}
-            timeStart={event.timeStart}
-            title={event.title}
-            handleChoice={e => removeChoice(e, event.gameId)}
-          />
-        ))}
-      </div>
-      <hr />
-      <div id="event-list">
-        <div>
-          {eventsList.length} events
-        </div>
-        {eventsList.map(event => (
-          <Event
-            key={`${event.gameId}`}
-            cost={event.cost}
-            experience={event.experience}
-            gameId={event.gameId}
-            group={event.group}
-            system={event.system}
-            timeEnd={event.timeEnd}
-            timeStart={event.timeStart}
-            title={event.title}
-            type={event.type}
-            handleChoice={e => addChoice(e, event.gameId)}
-          />
-        ))}
-      </div> */}
     </li>
   )
 };
