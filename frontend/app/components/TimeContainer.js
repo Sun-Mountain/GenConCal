@@ -4,11 +4,21 @@ import dynamic from 'next/dynamic';
 import Event from './Event';
 
 function TimeContainer ({
+  choices,
+  setChoices,
   events,
-  hiddenReqs,
   time
 }) {
   const [eventList, setEventList] = useState(events);
+
+  // const handleChoice = (id) => {
+  //   var selectedEvent = eventList.find(event => event.gameId === id),
+  //       newChoices = choices;
+  //   if (isNotInArray(choices, selectedEvent)) {
+  //     newChoices.push(selectedEvent)
+  //   }
+  //   setChoices([...newChoices])
+  // }
 
   if (events) {
     return (
@@ -18,23 +28,21 @@ function TimeContainer ({
         </span>
         <div id="event-list">
           {eventList.map(event => {
-            var showEvent = hiddenReqs.length === 0 || hiddenReqs.includes(event.ageReq);
             return (
               <>
-                { showEvent && (
+                { ageReq && (
                   <Event
-                        key={`${event.gameId}`}
-                        ageReq={event.ageReq}
-                        cost={event.cost}
-                        experience={event.experience}
-                        gameId={event.gameId}
-                        group={event.group}
-                        system={event.system}
-                        timeEnd={event.timeEnd}
-                        timeStart={event.timeStart}
-                        title={event.title}
-                        type={event.type}
-                      />
+                    key={`${event.gameId}`}
+                    cost={event.cost}
+                    experience={event.experience}
+                    gameId={event.gameId}
+                    group={event.group}
+                    system={event.system}
+                    timeEnd={event.timeEnd}
+                    timeStart={event.timeStart}
+                    title={event.title}
+                    type={event.type}
+                  />
                 )}
               </>
             )}

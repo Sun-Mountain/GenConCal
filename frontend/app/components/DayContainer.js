@@ -1,33 +1,57 @@
 import { useEffect, useState } from 'react';
 import { isNotInArray } from '@/helpers/cleanData';
 import TimeContainer from './TimeContainer';
-
-const filterTime = (startTime, timesList, setTimesList) => {
-  if (!isNotInArray(timesList, startTime)) {
-    var index = timesList.indexOf(startTime),
-        newTimes = timesList;
-    if(index !== -1) {
-        return newTimes.splice(index, newTimes.length - 1);
-    }
-    setTimesList(newTimes);
-  }
-}
+import Event from './Event';
 
 function DayContainer ({
   events,
   date,
-  hiddenReqs,
   timesList
 }) {
+  const [choices, setChoices] = useState([])
+  const noChoices = choices.length === 0;
+
+  const handleChoice = (id) => {
+    var selectedEvent = choices.find(event => event.gameId === id),
+        newChoices = choices;
+    newChoices.splice(selectedEvent, 1);
+    setChoices([...newChoices])
+  }
+
   return (
     <li>
       <h3>{date}</h3>
+      { noChoices ? (
+        <>
+          No choices have been selected for today.
+        </>
+      ) : (
+        <>
+          {choices.map(event => 
+            <Event
+              key={`${event.gameId}`}
+              handleChoice={handleChoice}
+              cost={event.cost}
+              experience={event.experience}
+              gameId={event.gameId}
+              group={event.group}
+              system={event.system}
+              timeEnd={event.timeEnd}
+              timeStart={event.timeStart}
+              title={event.title}
+              type={event.type}
+            />
+          )}
+        </>
+      ) }
+      <hr />
       <div className="time-list">
         {timesList.map(time => (
           <TimeContainer
             key={time}
+            choices={choices}
+            setChoices={setChoices}
             events={events[time]}
-            hiddenReqs={hiddenReqs}
             time={time}
           />
         ))}
