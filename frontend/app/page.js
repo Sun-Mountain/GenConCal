@@ -27,17 +27,10 @@ export default function Home() {
     }
   }
 
-  const filterStartTime = (newStartTime) => {
-    setStartTime(newStartTime);
-    var indexOfElement = rawTimes.indexOf(newStartTime),
-        newTimes = rawTimes.slice(indexOfElement);
-    setTimesList(newTimes);
-  }
-
-  const filterEndTime = (newEndTime) => {
-    setEndTime(newEndTime);
-    var indexOfElement = rawTimes.indexOf(newEndTime),
-        newTimes = rawTimes.slice(0, indexOfElement + 1);
+  const filterTimeRange = (startTime, endTime) => {
+    var endIndex = rawTimes.indexOf(endTime),
+        startIndex = rawTimes.indexOf(startTime),
+        newTimes = rawTimes.slice(startIndex, endIndex);
     setTimesList(newTimes);
   }
 
@@ -59,7 +52,8 @@ export default function Home() {
         Select Start Time: <select
                               value={startTime}
                               onChange={(e) => {
-                                filterStartTime(e.target.value);
+                                setStartTime(e.target.value);
+                                filterTimeRange(e.target.value, endTime);
                               }}
                             >
                               {rawTimes.map(time => {
@@ -71,7 +65,8 @@ export default function Home() {
         Select End Time: <select
                               value={endTime}
                               onChange={(e) => {
-                                filterEndTime(e.target.value);
+                                setEndTime(e.target.value);
+                                filterTimeRange(startTime, e.target.value);
                               }}
                             >
                               {rawTimes.map(time => {
