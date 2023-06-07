@@ -30,7 +30,7 @@ export default function Home() {
   const filterTimeRange = (startTime, endTime) => {
     var endIndex = rawTimes.indexOf(endTime),
         startIndex = rawTimes.indexOf(startTime),
-        newTimes = rawTimes.slice(startIndex, endIndex);
+        newTimes = rawTimes.slice(startIndex, endIndex + 1);
     setTimesList(newTimes);
   }
 

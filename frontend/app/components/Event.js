@@ -1,11 +1,18 @@
 import { isNotInArray } from "@/helpers/cleanData";
 
 function Event ({
+  ageReq,
+  cost,
+  experience,
+  gameId,
+  group,
   system,
   timeEnd,
   timeStart,
   title,
-  handleChoice
+  type,
+  choices,
+  setChoices
 }) {
 
   const date = `${timeStart.toDateString()}`
@@ -15,7 +22,6 @@ function Event ({
   return (
     <div
       className="event-container"
-      onClick={handleChoice}
     >
       <h4>
         {title}
