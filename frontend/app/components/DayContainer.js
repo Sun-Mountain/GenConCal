@@ -1,7 +1,10 @@
 import { useEffect, useState } from 'react';
 import { isNotInArray } from '@/helpers/cleanData';
-import TimeContainer from './TimeContainer';
+import dynamic from 'next/dynamic';
 import Event from './Event';
+import handleChoice from '@/helpers/handleChoice';
+
+const TimeContainer = dynamic(() => import('./TimeContainer'));
 
 function DayContainer ({
   events,
@@ -10,6 +13,17 @@ function DayContainer ({
 }) {
   const [choices, setChoices] = useState([])
   const noChoices = choices.length === 0;
+
+  const selectEvent = (gameId) => {
+    var selectedEvent = choices.find(event => event.gameId === gameId)
+    handleChoice({
+      action: 'removeChoice',
+      choices,
+      setChoices,
+      selectedEvent,
+      gameId
+    })
+  }
 
   return (
     <li>
@@ -32,6 +46,7 @@ function DayContainer ({
               timeStart={event.timeStart}
               title={event.title}
               type={event.type}
+              selectEvent={selectEvent}
             />
           )}
         </>

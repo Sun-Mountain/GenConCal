@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { isNotInArray } from '@/helpers/cleanData';
 import dynamic from 'next/dynamic';
-import Event from './Event';
+import handleChoice from '@/helpers/handleChoice';
+
+const Event = dynamic(() => import('./Event'));
 
 function TimeContainer ({
   choices,
@@ -11,14 +12,16 @@ function TimeContainer ({
 }) {
   const [eventList, setEventList] = useState(events);
 
-  // const handleChoice = (id) => {
-  //   var selectedEvent = eventList.find(event => event.gameId === id),
-  //       newChoices = choices;
-  //   if (isNotInArray(choices, selectedEvent)) {
-  //     newChoices.push(selectedEvent)
-  //   }
-  //   setChoices([...newChoices])
-  // }
+  const selectEvent = (gameId) => {
+    var selectedEvent = eventList.find(event => event.gameId === gameId)
+    handleChoice({
+      action: 'addChoice',
+      choices,
+      setChoices,
+      selectedEvent,
+      gameId
+    })
+  }
 
   if (events) {
     return (
@@ -39,7 +42,7 @@ function TimeContainer ({
                     timeStart={event.timeStart}
                     title={event.title}
                     type={event.type}
-                    // handleChoice={handleChoice}
+                    selectEvent={selectEvent}
                   />
             }
           )}
