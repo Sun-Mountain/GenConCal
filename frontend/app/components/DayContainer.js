@@ -6,6 +6,16 @@ import handleChoice from '@/helpers/handleChoice';
 
 const TimeContainer = dynamic(() => import('./TimeContainer'));
 
+const resetDailies = (choices, setDailyTimes, timesList) => {
+  choices.map(choice => {
+    setDailyTimes(timesList.filter(time => {
+      if (!(time >= choice.timeStart && time < choice.timeEnd)) {
+        return time;
+      }
+    }));
+  })
+}
+
 function DayContainer ({
   events,
   date,
@@ -17,15 +27,18 @@ function DayContainer ({
   const [dailyTimes, setDailyTimes] = useState(timesList);
   const noChoices = choices.length === 0;
 
-  const selectEvent = (gameId) => {
+  async function selectEvent (gameId) {
     var selectedEvent = choices.find(event => event.gameId === gameId)
-    handleChoice({
+    await handleChoice({
       action: 'removeChoice',
       choices,
       setChoices,
       selectedEvent,
+      dailyTimes: timesList,
+      setDailyTimes,
       gameId
     })
+    await resetDailies(choices, setDailyTimes, timesList);
   }
 
   return (

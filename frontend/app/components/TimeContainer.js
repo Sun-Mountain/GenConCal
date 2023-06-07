@@ -24,6 +24,14 @@ function TimeContainer ({
       setDailyTimes,
       selectedEvent
     })
+
+    choices.map(choice => {
+      setDailyTimes(dailyTimes.filter(time => {
+        if (!(time >= choice.timeStart && time < choice.timeEnd)) {
+          return time;
+        }
+      }));
+    })
   }
 
   if (events) {

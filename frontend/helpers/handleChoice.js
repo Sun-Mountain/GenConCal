@@ -11,13 +11,7 @@ export default function handleChoice ({
   if (action === 'addChoice') {
     var newChoices = choices;
     if (isNotInArray(choices, selectedEvent)) {
-      newChoices.push(selectedEvent)
-
-      setDailyTimes(dailyTimes.filter(time => {
-        if (!(time >= selectedEvent.timeStart && time < selectedEvent.timeEnd)) {
-          return time;
-        }
-      }));
+      newChoices.push(selectedEvent);
     }
     setChoices([...newChoices])
   }
@@ -28,6 +22,6 @@ export default function handleChoice ({
     if (index > -1) {
       newChoices.splice(index, 1);
     }
-    setChoices([...newChoices])
+    setChoices([...newChoices]);
   }
 }
