@@ -1,5 +1,15 @@
 import Events from '@/assets/events.json';
 
+const getTime = (time) => {
+  const hours = time.getHours();
+  const minutes = time.getMinutes();
+  var sHours = hours.toString();
+  var sMinutes = minutes.toString();
+  if(hours<10) sHours = "0" + sHours;
+  if(minutes<10) sMinutes = "0" + sMinutes;
+  return `${sHours}:${sMinutes}`
+}
+
 export const isNotInArray = (array, item) => {
   return !array.includes(item)
 }
@@ -8,13 +18,13 @@ export default function cleanData () {
   const data = {
     ageReqs: [],
     costs: [],
-    dates: [],
-    events: [],
+    events: {},
     experience: [],
     groups: [],
     locations: [],
     systems: [],
     tickets: [],
+    times: [],
     types: [],
   }
 
@@ -31,6 +41,7 @@ export default function cleanData () {
     const eventTimeStart = new Date(event["Start Date & Time"]);
     const eventTimeEnd = new Date(event["End Date & Time"]);
     const eventType = event["Event Type"].trim();
+    const startTime = getTime(eventTimeStart);
 
     // Age Requirements
     if (eventAgeReq && isNotInArray(data.ageReqs, eventAgeReq)) {
@@ -46,13 +57,10 @@ export default function cleanData () {
 
     newEvent.cost = eventCost;
 
-    // Date and Time
-    if (eventTimeStart && isNotInArray(data.dates, eventTimeStart)) {
-      data.dates.push(eventTimeStart);
-    }
+    // Dates & Times
 
-    if (eventTimeEnd && isNotInArray(data.dates, eventTimeEnd)) {
-      data.dates.push(eventTimeEnd);
+    if (startTime && isNotInArray(data.times, startTime)) {
+      data.times.push(startTime);
     };
 
     newEvent.timeStart = eventTimeStart;
@@ -112,16 +120,23 @@ export default function cleanData () {
 
     newEvent.type = eventType;
 
-    data.events.push(newEvent);
+    if (!data.events[eventTimeStart.toLocaleDateString()]) {
+      data.events[eventTimeStart.toLocaleDateString()] = {};
+    }
+
+    if (!data.events[eventTimeStart.toLocaleDateString()][startTime]) {
+      data.events[eventTimeStart.toLocaleDateString()][startTime] = []
+    }
+
+    data.events[eventTimeStart.toLocaleDateString()][startTime].push(newEvent);
   })
 
   data.costs.sort(function(a,b){ return b - a; }).reverse();
-  data.dates.sort(function(a,b){ return b - a; }).reverse();
-  data.events.sort(function(a,b){ return b.timeStart - a.timeStart; }).reverse();
   data.groups.sort();
   data.locations.sort();
   data.systems.sort();
   data.tickets.sort(function(a,b){ return b - a; }).reverse();
+  data.times.sort();
   data.types.sort();
 
   return data;

@@ -1,106 +1,96 @@
 'use client';
 import { useState } from 'react';
-import Event from './components/Event';
-
-import cleanData, { isNotInArray } from '@/helpers/cleanData';
+import { isNotInArray } from '@/helpers/cleanData';
+import cleanData from '@/helpers/cleanData';
+import DayContainer from './components/DayContainer';
 
 export default function Home() {
   const data = cleanData();
+  const dates = Object.keys(data.events).sort();
+  const rawTimes = data.times;
 
-  const [eventsList, setEventsList] = useState(data.events);
-  const [choices, setChoices] = useState([]);
+  const [hiddenDates, setHiddenDates] = useState([]);
+  const [timesList, setTimesList] = useState(rawTimes);
+  const [startTime, setStartTime] = useState(timesList[0])
+  const [endTime, setEndTime] = useState(timesList[timesList.length - 1])
 
-  const findEvent = (id) => {
-    const event = eventsList.find(event => event.gameId === id);
-    return event;
-  }
-
-  const noConflict = (choice, event) => {
-    if (
-      event.timeStart.getTime() >= choice.timeStart.getTime() &&
-      event.timeEnd.getTime() <= choice.timeEnd.getTime()
-    ) {
-      return false;
-    }
-
-    if (
-      choice.timeStart.getTime() >= event.timeStart.getTime() &&
-      choice.timeEnd.getTime() <= event.timeEnd.getTime()
-    ) {
-      return false;
-    }
-
-    return true;
-  }
-
-  const filterEvents = () => {
-    var filteredList
-
-    choices.map(choice => {
-      filteredList = eventsList.filter(event => ( noConflict(choice, event) ? event : null ));
-    })
-
-    filteredList.sort(function(a,b){ return b.timeStart - a.timeStart; }).reverse()
-
-    setEventsList(filteredList);
-  }
-
-  const handleChoices = (e, gameId) => {
-    e.preventDefault();
-    const chosenEvent = findEvent(gameId);
-    if (isNotInArray(choices, chosenEvent)) {
-      var newChoices = choices;
-      newChoices.push(chosenEvent);
-      setChoices([...newChoices]);
+  const hideDate = (date) => {
+    if (isNotInArray(hiddenDates, date)) {
+      var newHidden = hiddenDates;
+      newHidden.push(date);
+      setHiddenDates([...newHidden]);
     } else {
-      var index = choices.indexOf(chosenEvent),
-          newChoices = choices;
-      newChoices.splice(index, 1)
-      setChoices([...newChoices])
+      var index = hiddenDates.indexOf(date),
+          newHidden = hiddenDates;
+      newHidden.splice(index, 1);
+      setHiddenDates([...newHidden])
     }
-
-    filterEvents();
   }
 
+  const filterTimeRange = (startTime, endTime) => {
+    var endIndex = rawTimes.indexOf(endTime),
+        startIndex = rawTimes.indexOf(startTime),
+        newTimes = rawTimes.slice(startIndex, endIndex + 1);
+    setTimesList(newTimes);
+  }
 
   return (
     <main>
-      <div id="event-list">
-        {eventsList.map(event => (
-          <Event
-            key={`${event.gameId}`}
-            ageReq={event.ageReq}
-            cost={event.cost}
-            experience={event.experience}
-            gameId={event.gameId}
-            group={event.group}
-            system={event.system}
-            timeEnd={event.timeEnd}
-            timeStart={event.timeStart}
-            title={event.title}
-            type={event.type}
-            handleChoices={e => handleChoices(e, event.gameId)}
-          />
-        ))}
+      <div className='button-container'>
+        {dates.map((date, index) => {
+          const show = hiddenDates.includes(date) ? 'hidden' : 'visible';
+          return (<button
+                    key={index}
+                    className={`btn ${show}`}
+                    onClick={() => hideDate(date)}
+                  >
+                    {date}
+                  </button>)
+        })}
       </div>
       <div>
-        {choices.map(event => (
-          <Event
-            key={`${event.gameId}`}
-            ageReq={event.ageReq}
-            cost={event.cost}
-            experience={event.experience}
-            gameId={event.gameId}
-            group={event.group}
-            system={event.system}
-            timeEnd={event.timeEnd}
-            timeStart={event.timeStart}
-            title={event.title}
-            type={event.type}
-            handleChoices={e => handleChoices(e, event.gameId)}
-          />
-        ))}
+        Select Start Time: <select
+                              value={startTime}
+                              onChange={(e) => {
+                                setStartTime(e.target.value);
+                                filterTimeRange(e.target.value, endTime);
+                              }}
+                            >
+                              {rawTimes.map(time => {
+                                return (<option key={time} value={time}>{time}</option>)
+                              })}
+                            </select>
       </div>
+      <div>
+        Select End Time: <select
+                              value={endTime}
+                              onChange={(e) => {
+                                setEndTime(e.target.value);
+                                filterTimeRange(startTime, e.target.value);
+                              }}
+                            >
+                              {rawTimes.map(time => {
+                                return (<option key={time} value={time}>{time}</option>)
+                              })}
+                            </select>
+      </div>
+      <ul id="schedules-container">
+        {dates.map(date => {
+          var showDate = hiddenDates.includes(date);
+          return (
+            <>
+              { !showDate &&
+                <DayContainer 
+                  key={date}
+                  events={data.events[date]}
+                  date={date}
+                  timesList={timesList}
+                />
+              }
+            </>
+          )
+        })}
+      </ul>
     </main>
   )
 }

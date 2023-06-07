@@ -1,34 +1,110 @@
-:root {
-  --red: #CE0E2D;
-}
-
 body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-main {
+button {
+  border: 2px solid black;
+  border-radius: 8px 8px;
+  font-size: 20px;
+  margin: 5px 8px;
+}
+
+button:hover {
+  cursor: pointer;
+}
+
+ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+li {
+  color: silver;
+  font-style: italic;
+  min-width: 150px;
+  padding: 0 8px;
+}
+
+li:nth-child(even) {
+  background-color: lightyellow;
+}
+
+h3 {
+  color: darkblue;
+  font-style: normal;
+  text-align: center;
+}
+
+h4 {
+  margin-top: 0;
+  margin-bottom: 8px;
+}
+
+#choices-list {
+  margin-bottom: 21px;
+}
+
+#schedules-container {
   display: flex;
   flex-direction: row;
 }
 
-h4 {
-  margin: 5px 0;
+.button-container {
+  padding: 8px 0 16px 0;
 }
 
-#event-list {
-  margin-right: 8px;
+.btn {
+  background-color: rgb(17, 145, 0, .08);
+  border: 2px solid rgb(17, 145, 0);
+  padding-left: 15px;
+}
+
+.hidden {
+  background-color: rgb(206, 14, 45);
+  border: 2px solid rgb(206, 14, 45);
+  color: white;
+}
+
+.hidden:before {
+  position: relative;
+  left: -8px;
+  content: "✖";
+}
+
+.visible:before {
+  position: relative;
+  left: -8px;
+  content: "✔";
+  color:rgb(17, 145, 0);
+}
+
+.column-container {
+  display: flex;
+  flex-direction: column;
 }
 
 .event-container {
-  border: 1px solid black;
-  padding: 0 8px 5px 8px;
-  max-width: 500px;
+  color: rgb(100, 100, 100);
+  font-style: normal;
+  margin: 8px 0;
+  padding: 8px;
 }
 
 .event-container:hover {
+  background-color: rgb(100, 100, 100, 0.3);
   cursor: pointer;
 }
 
-.event-container + .event-container {
-  margin-top: 12px;
+.time-list {
+  color:rgb(100, 100, 100);
+  font-style: normal;
+  text-align: center;
+}
+
+.time-title {
+  color: rgb(0, 0, 69);
+  font-style: normal;
+  font-weight: 700;
+  width: 100%;
 }
