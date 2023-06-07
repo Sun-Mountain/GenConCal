@@ -54,26 +54,29 @@ h4 {
   padding: 8px 0 16px 0;
 }
 
-.date-btn {
-  background-color: rgb(206, 14, 45, .1);
-  border: 2px solid rgb(206, 14, 45);
+.btn {
+  background-color: rgb(17, 145, 0, .08);
+  border: 2px solid rgb(17, 145, 0);
+  padding-left: 15px;
 }
 
-.hidden-date {
+.hidden {
   background-color: rgb(206, 14, 45);
   border: 2px solid rgb(206, 14, 45);
   color: white;
 }
 
-.req-btn {
-  background-color: rgb(102, 51, 153, .1);
-  border: 2px solid rgb(102, 51, 153);
+.hidden:before {
+  position: relative;
+  left: -8px;
+  content: "✖";
 }
 
-.hidden-req {
-  background-color: rgb(102, 51, 153);
-  border: 2px solid rgb(102, 51, 153);
-  color: white;
+.visible:before {
+  position: relative;
+  left: -8px;
+  content: "✔";
+  color:rgb(17, 145, 0);
 }
 
 .column-container {

@@ -38,10 +38,10 @@ export default function Home() {
     <main>
       <div className='button-container'>
         {dates.map((date, index) => {
-          const hidden = hiddenDates.includes(date) ? 'hidden-date' : '';
+          const show = hiddenDates.includes(date) ? 'hidden' : 'visible';
           return (<button
                     key={index}
-                    className={`btn date-btn ${hidden}`}
+                    className={`btn ${show}`}
                     onClick={() => hideDate(date)}
                   >
                     {date}
@@ -57,7 +57,7 @@ export default function Home() {
                               }}
                             >
                               {rawTimes.map(time => {
-                                return (<option id={time} value={time}>{time}</option>)
+                                return (<option key={time} value={time}>{time}</option>)
                               })}
                             </select>
       </div>
@@ -70,16 +70,16 @@ export default function Home() {
                               }}
                             >
                               {rawTimes.map(time => {
-                                return (<option id={time} value={time}>{time}</option>)
+                                return (<option key={time} value={time}>{time}</option>)
                               })}
                             </select>
       </div>
       <ul id="schedules-container">
         {dates.map(date => {
-          var showDate = hiddenDates.includes(date) || hiddenDates.length === 0;
+          var showDate = hiddenDates.includes(date);
           return (
             <>
-              { showDate &&
+              { !showDate &&
                 <DayContainer 
                   key={date}
                   events={data.events[date]}
