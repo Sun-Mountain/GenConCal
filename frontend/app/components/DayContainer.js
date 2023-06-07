@@ -14,6 +14,7 @@ function DayContainer ({
   timesList
 }) {
   const [choices, setChoices] = useState([])
+  const [dailyTimes, setDailyTimes] = useState(timesList);
   const noChoices = choices.length === 0;
 
   const selectEvent = (gameId) => {
@@ -36,35 +37,37 @@ function DayContainer ({
         </>
       ) : (
         <>
-          {choices.map(event => 
-            <Event
-              key={`${event.gameId}`}
-              cost={event.cost}
-              experience={event.experience}
-              gameId={event.gameId}
-              group={event.group}
-              system={event.system}
-              timeEnd={event.timeEnd}
-              timeStart={event.timeStart}
-              title={event.title}
-              type={event.type}
-              selectEvent={selectEvent}
-            />
-          )}
+          {choices.map(event => {
+            return (
+              <Event
+                key={`${event.gameId}`}
+                cost={event.cost}
+                experience={event.experience}
+                gameId={event.gameId}
+                group={event.group}
+                system={event.system}
+                timeEnd={event.timeEnd}
+                timeStart={event.timeStart}
+                title={event.title}
+                type={event.type}
+                selectEvent={selectEvent}
+              />
+            )
+          })}
         </>
       ) }
       <hr />
       <div className="time-list">
-        {timesList.map(time => {
+        {dailyTimes.map(time => {
           if (time >= dayStart && time <= dayEnd) {
             return (
               <TimeContainer
                 key={time}
                 choices={choices}
                 setChoices={setChoices}
+                dailyTimes={dailyTimes}
+                setDailyTimes={setDailyTimes}
                 events={events[time]}
-                dayStart={dayStart}
-                dayEnd={dayEnd}
                 time={time}
               />
             )

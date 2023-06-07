@@ -4,12 +4,20 @@ export default function handleChoice ({
   action,
   choices,
   setChoices,
+  dailyTimes,
+  setDailyTimes,
   selectedEvent
 }) {
   if (action === 'addChoice') {
     var newChoices = choices;
     if (isNotInArray(choices, selectedEvent)) {
       newChoices.push(selectedEvent)
+
+      setDailyTimes(dailyTimes.filter(time => {
+        if (!(time >= selectedEvent.timeStart && time < selectedEvent.timeEnd)) {
+          return time;
+        }
+      }));
     }
     setChoices([...newChoices])
   }
