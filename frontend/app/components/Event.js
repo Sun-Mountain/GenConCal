@@ -12,9 +12,8 @@ function Event ({
   type,
   selectEvent
 }) {
-  const date = `${timeStart.toDateString()}`
-  const startTime = `${timeStart.toLocaleTimeString()}`;
-  const endTime = `${timeEnd.toLocaleTimeString()}`;
+  const startTime = timeStart;
+  const endTime = timeEnd;
 
   return (
     <div
@@ -26,9 +25,6 @@ function Event ({
       </h4>
       <div>
         {system}
-      </div>
-      <div>
-        {date}
       </div>
       <div>
         {startTime} - {endTime}
