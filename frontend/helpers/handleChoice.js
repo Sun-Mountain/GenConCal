@@ -4,12 +4,14 @@ export default function handleChoice ({
   action,
   choices,
   setChoices,
+  dailyTimes,
+  setDailyTimes,
   selectedEvent
 }) {
   if (action === 'addChoice') {
     var newChoices = choices;
     if (isNotInArray(choices, selectedEvent)) {
-      newChoices.push(selectedEvent)
+      newChoices.push(selectedEvent);
     }
     setChoices([...newChoices])
   }
@@ -20,6 +22,6 @@ export default function handleChoice ({
     if (index > -1) {
       newChoices.splice(index, 1);
     }
-    setChoices([...newChoices])
+    setChoices([...newChoices]);
   }
 }

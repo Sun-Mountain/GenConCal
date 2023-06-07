@@ -7,6 +7,8 @@ const Event = dynamic(() => import('./Event'));
 function TimeContainer ({
   choices,
   setChoices,
+  dailyTimes,
+  setDailyTimes,
   events,
   time
 }) {
@@ -18,8 +20,17 @@ function TimeContainer ({
       action: 'addChoice',
       choices,
       setChoices,
-      selectedEvent,
-      gameId
+      dailyTimes,
+      setDailyTimes,
+      selectedEvent
+    })
+
+    choices.map(choice => {
+      setDailyTimes(dailyTimes.filter(time => {
+        if (!(time >= choice.timeStart && time < choice.timeEnd)) {
+          return time;
+        }
+      }));
     })
   }
 

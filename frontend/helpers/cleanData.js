@@ -42,6 +42,7 @@ export default function cleanData () {
     const eventTimeEnd = new Date(event["End Date & Time"]);
     const eventType = event["Event Type"].trim();
     const startTime = getTime(eventTimeStart);
+    const endTime = getTime(eventTimeEnd);
 
     // Age Requirements
     if (eventAgeReq && isNotInArray(data.ageReqs, eventAgeReq)) {
@@ -63,8 +64,8 @@ export default function cleanData () {
       data.times.push(startTime);
     };
 
-    newEvent.timeStart = eventTimeStart;
-    newEvent.timeEnd = eventTimeEnd;
+    newEvent.timeStart = startTime;
+    newEvent.timeEnd = endTime;
 
     // Experience
     if (eventExp && isNotInArray(data.experience, eventExp)) {

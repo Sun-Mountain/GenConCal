@@ -6,23 +6,39 @@ import handleChoice from '@/helpers/handleChoice';
 
 const TimeContainer = dynamic(() => import('./TimeContainer'));
 
+const resetDailies = (choices, setDailyTimes, timesList) => {
+  choices.map(choice => {
+    setDailyTimes(timesList.filter(time => {
+      if (!(time >= choice.timeStart && time < choice.timeEnd)) {
+        return time;
+      }
+    }));
+  })
+}
+
 function DayContainer ({
   events,
   date,
+  dayStart,
+  dayEnd,
   timesList
 }) {
   const [choices, setChoices] = useState([])
+  const [dailyTimes, setDailyTimes] = useState(timesList);
   const noChoices = choices.length === 0;
 
-  const selectEvent = (gameId) => {
+  async function selectEvent (gameId) {
     var selectedEvent = choices.find(event => event.gameId === gameId)
-    handleChoice({
+    await handleChoice({
       action: 'removeChoice',
       choices,
       setChoices,
       selectedEvent,
+      dailyTimes: timesList,
+      setDailyTimes,
       gameId
     })
+    await resetDailies(choices, setDailyTimes, timesList);
   }
 
   return (
@@ -34,68 +50,43 @@ function DayContainer ({
         </>
       ) : (
         <>
-          {choices.map(event => 
-            <Event
-              key={`${event.gameId}`}
-              cost={event.cost}
-              experience={event.experience}
-              gameId={event.gameId}
-              group={event.group}
-              system={event.system}
-              timeEnd={event.timeEnd}
-              timeStart={event.timeStart}
-              title={event.title}
-              type={event.type}
-              selectEvent={selectEvent}
-            />
-          )}
+          {choices.map(event => {
+            return (
+              <Event
+                key={`${event.gameId}`}
+                cost={event.cost}
+                experience={event.experience}
+                gameId={event.gameId}
+                group={event.group}
+                system={event.system}
+                timeEnd={event.timeEnd}
+                timeStart={event.timeStart}
+                title={event.title}
+                type={event.type}
+                selectEvent={selectEvent}
+              />
+            )
+          })}
         </>
       ) }
       <hr />
       <div className="time-list">
-        {timesList.map(time => (
-          <TimeContainer
-            key={time}
-            choices={choices}
-            setChoices={setChoices}
-            events={events[time]}
-            time={time}
-          />
-        ))}
+        {dailyTimes.map(time => {
+          if (time >= dayStart && time <= dayEnd) {
+            return (
+              <TimeContainer
+                key={time}
+                choices={choices}
+                setChoices={setChoices}
+                dailyTimes={dailyTimes}
+                setDailyTimes={setDailyTimes}
+                events={events[time]}
+                time={time}
+              />
+            )
+          }
+        })}
       </div>
-      {/* <div id="choices-list">
-        {choices.map(event => (
-          <Event
-            key={`${event.gameId}`}
-            system={event.system}
-            timeEnd={event.timeEnd}
-            timeStart={event.timeStart}
-            title={event.title}
-            handleChoice={e => removeChoice(e, event.gameId)}
-          />
-        ))}
-      </div>
-      <hr />
-      <div id="event-list">
-        <div>
-          {eventsList.length} events
-        </div>
-        {eventsList.map(event => (
-          <Event
-            key={`${event.gameId}`}
-            cost={event.cost}
-            experience={event.experience}
-            gameId={event.gameId}
-            group={event.group}
-            system={event.system}
-            timeEnd={event.timeEnd}
-            timeStart={event.timeStart}
-            title={event.title}
-            type={event.type}
-            handleChoice={e => addChoice(e, event.gameId)}
-          />
-        ))}
-      </div> */}
     </li>
   )
 };
