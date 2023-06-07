@@ -13,9 +13,8 @@ export default function Home() {
   const rawTimes = data.times;
 
   const [hiddenDates, setHiddenDates] = useState([]);
-  const [timesList, setTimesList] = useState(rawTimes);
-  const [startTime, setStartTime] = useState(timesList[0])
-  const [endTime, setEndTime] = useState(timesList[timesList.length - 1])
+  const [startTime, setStartTime] = useState(rawTimes[0])
+  const [endTime, setEndTime] = useState(rawTimes[rawTimes.length - 1])
 
   const hideDate = (date) => {
     if (isNotInArray(hiddenDates, date)) {
@@ -30,12 +29,12 @@ export default function Home() {
     }
   }
 
-  const filterTimeRange = (startTime, endTime) => {
-    var endIndex = rawTimes.indexOf(endTime),
-        startIndex = rawTimes.indexOf(startTime),
-        newTimes = rawTimes.slice(startIndex, endIndex + 1);
-    setTimesList(newTimes);
-  }
+  // const filterTimeRange = (startTime, endTime) => {
+  //   var endIndex = rawTimes.indexOf(endTime),
+  //       startIndex = rawTimes.indexOf(startTime),
+  //       newTimes = rawTimes.slice(startIndex, endIndex + 1);
+  //   setTimesList(newTimes);
+  // }
 
   return (
     <main>
@@ -56,7 +55,6 @@ export default function Home() {
                               value={startTime}
                               onChange={(e) => {
                                 setStartTime(e.target.value);
-                                filterTimeRange(e.target.value, endTime);
                               }}
                             >
                               {rawTimes.map(time => {
@@ -69,7 +67,6 @@ export default function Home() {
                               value={endTime}
                               onChange={(e) => {
                                 setEndTime(e.target.value);
-                                filterTimeRange(startTime, e.target.value);
                               }}
                             >
                               {rawTimes.map(time => {
@@ -87,7 +84,9 @@ export default function Home() {
                   key={date}
                   events={data.events[date]}
                   date={date}
-                  timesList={timesList}
+                  dayStart={startTime}
+                  dayEnd={endTime}
+                  timesList={rawTimes}
                 />
               }
             </>

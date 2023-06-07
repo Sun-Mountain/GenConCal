@@ -9,6 +9,8 @@ const TimeContainer = dynamic(() => import('./TimeContainer'));
 function DayContainer ({
   events,
   date,
+  dayStart,
+  dayEnd,
   timesList
 }) {
   const [choices, setChoices] = useState([])
@@ -53,15 +55,21 @@ function DayContainer ({
       ) }
       <hr />
       <div className="time-list">
-        {timesList.map(time => (
-          <TimeContainer
-            key={time}
-            choices={choices}
-            setChoices={setChoices}
-            events={events[time]}
-            time={time}
-          />
-        ))}
+        {timesList.map(time => {
+          if (time >= dayStart && time <= dayEnd) {
+            return (
+              <TimeContainer
+                key={time}
+                choices={choices}
+                setChoices={setChoices}
+                events={events[time]}
+                dayStart={dayStart}
+                dayEnd={dayEnd}
+                time={time}
+              />
+            )
+          }
+        })}
       </div>
     </li>
   )
