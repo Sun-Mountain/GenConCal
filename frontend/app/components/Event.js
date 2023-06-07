@@ -9,8 +9,7 @@ function Event ({
   timeEnd,
   timeStart,
   title,
-  type,
-  handleChoice
+  type
 }) {
   const date = `${timeStart.toDateString()}`
   const startTime = `${timeStart.toLocaleTimeString()}`;

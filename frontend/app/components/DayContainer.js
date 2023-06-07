@@ -11,13 +11,6 @@ function DayContainer ({
   const [choices, setChoices] = useState([])
   const noChoices = choices.length === 0;
 
-  const handleChoice = (id) => {
-    var selectedEvent = choices.find(event => event.gameId === id),
-        newChoices = choices;
-    newChoices.splice(selectedEvent, 1);
-    setChoices([...newChoices])
-  }
-
   return (
     <li>
       <h3>{date}</h3>
@@ -30,7 +23,6 @@ function DayContainer ({
           {choices.map(event => 
             <Event
               key={`${event.gameId}`}
-              handleChoice={handleChoice}
               cost={event.cost}
               experience={event.experience}
               gameId={event.gameId}

@@ -57,7 +57,7 @@ export default function Home() {
                               }}
                             >
                               {rawTimes.map(time => {
-                                return (<option value={time}>{time}</option>)
+                                return (<option id={time} value={time}>{time}</option>)
                               })}
                             </select>
       </div>
@@ -70,7 +70,7 @@ export default function Home() {
                               }}
                             >
                               {rawTimes.map(time => {
-                                return (<option value={time}>{time}</option>)
+                                return (<option id={time} value={time}>{time}</option>)
                               })}
                             </select>
       </div>

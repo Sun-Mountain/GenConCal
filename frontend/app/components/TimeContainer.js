@@ -28,10 +28,7 @@ function TimeContainer ({
         </span>
         <div id="event-list">
           {eventList.map(event => {
-            return (
-              <>
-                { ageReq && (
-                  <Event
+            return <Event
                     key={`${event.gameId}`}
                     cost={event.cost}
                     experience={event.experience}
@@ -42,10 +39,9 @@ function TimeContainer ({
                     timeStart={event.timeStart}
                     title={event.title}
                     type={event.type}
+                    // handleChoice={handleChoice}
                   />
-                )}
-              </>
-            )}
+            }
           )}
         </div>
       </div>
