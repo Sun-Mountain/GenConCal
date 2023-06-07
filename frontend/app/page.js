@@ -2,7 +2,10 @@
 import { useState } from 'react';
 import { isNotInArray } from '@/helpers/cleanData';
 import cleanData from '@/helpers/cleanData';
-import DayContainer from './components/DayContainer';
+import dynamic from 'next/dynamic';
+// import DayContainer from './components/DayContainer';
+
+const DayContainer = dynamic(() => import('./components/DayContainer'));
 
 export default function Home() {
   const data = cleanData();

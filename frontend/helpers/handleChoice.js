@@ -1,16 +1,25 @@
-export default function handleChoice (
-  action,
-  choice,
-  setChoice,
-  gameId,
-  list,
-  setList
-) {
-  switch(action) {
-    case 'addChoice':
+import { isNotInArray } from "./cleanData";
 
-    case 'removeChoice':
-    default:
-      return console.log(ERROR);
+export default function handleChoice ({
+  action,
+  choices,
+  setChoices,
+  selectedEvent
+}) {
+  if (action === 'addChoice') {
+    var newChoices = choices;
+    if (isNotInArray(choices, selectedEvent)) {
+      newChoices.push(selectedEvent)
+    }
+    setChoices([...newChoices])
+  }
+
+  if (action === 'removeChoice') {
+    var newChoices = choices,
+        index = newChoices.indexOf(selectedEvent);
+    if (index > -1) {
+      newChoices.splice(index, 1);
+    }
+    setChoices([...newChoices])
   }
 }

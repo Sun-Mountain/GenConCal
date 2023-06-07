@@ -9,7 +9,8 @@ function Event ({
   timeEnd,
   timeStart,
   title,
-  type
+  type,
+  selectEvent
 }) {
   const date = `${timeStart.toDateString()}`
   const startTime = `${timeStart.toLocaleTimeString()}`;
@@ -18,7 +19,7 @@ function Event ({
   return (
     <div
       className="event-container"
-      onClick={() => handleChoice(gameId)}
+      onClick={() => selectEvent(gameId)}
     >
       <h4>
         {title}
