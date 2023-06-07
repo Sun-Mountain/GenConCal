@@ -6,10 +6,12 @@ import DayContainer from './components/DayContainer';
 
 export default function Home() {
   const data = cleanData();
+  const ageReqs = data.ageReqs;
+  const dates = Object.keys(data.events).sort();
   const rawTimes = data.times;
 
-  const [dates, setDates] = useState(Object.keys(data.events).sort());
   const [hiddenDates, setHiddenDates] = useState([]);
+  const [hiddenReqs, setHiddenReqs] = useState([]);
   const [timesList, setTimesList] = useState(rawTimes);
   const [startTime, setStartTime] = useState(timesList[0])
   const [endTime, setEndTime] = useState(timesList[timesList.length - 1])
@@ -25,6 +27,21 @@ export default function Home() {
       newHidden.splice(index, 1);
       setHiddenDates([...newHidden])
     }
+  }
+
+  const hideReq = (req) => {
+    if (isNotInArray(hiddenReqs, req)) {
+      var newHidden = hiddenReqs;
+      newHidden.push(req);
+      setHiddenReqs([...newHidden]);
+    } else {
+      var index = hiddenReqs.indexOf(req),
+          newHidden = hiddenReqs;
+      newHidden.splice(index, 1);
+      setHiddenReqs([...newHidden])
+    }
+
+    console.log(hiddenReqs)
   }
 
   const filterTimeRange = (startTime, endTime) => {
@@ -74,6 +91,18 @@ export default function Home() {
                               })}
                             </select>
       </div>
+      <div className='button-container'>
+        {ageReqs.map((req, index) => {
+          const hidden = hiddenReqs.includes(req) ? 'hidden-req' : '';
+          return (<button
+                    key={index}
+                    className={`btn req-btn ${hidden}`}
+                    onClick={() => hideReq(req)}
+                  >
+                    {req}
+                  </button>)
+        })}
+      </div>
       <ul id="schedules-container">
         {dates.map(date => {
           return (
@@ -83,6 +112,7 @@ export default function Home() {
                   key={date}
                   events={data.events[date]}
                   date={date}
+                  hiddenReqs={hiddenReqs}
                   timesList={timesList}
                 />}
             </>

@@ -36,6 +36,11 @@ h3 {
   text-align: center;
 }
 
+h4 {
+  margin-top: 0;
+  margin-bottom: 8px;
+}
+
 #choices-list {
   margin-bottom: 21px;
 }
@@ -60,6 +65,17 @@ h3 {
   color: white;
 }
 
+.req-btn {
+  background-color: rgb(102, 51, 153, .1);
+  border: 2px solid rgb(102, 51, 153);
+}
+
+.hidden-req {
+  background-color: rgb(102, 51, 153);
+  border: 2px solid rgb(102, 51, 153);
+  color: white;
+}
+
 .column-container {
   display: flex;
   flex-direction: column;
@@ -68,7 +84,8 @@ h3 {
 .event-container {
   color: rgb(100, 100, 100);
   font-style: normal;
-  padding: 5px;
+  margin: 8px 0;
+  padding: 8px;
 }
 
 .event-container:hover {
