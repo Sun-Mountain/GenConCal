@@ -46,7 +46,6 @@ interface newEvent {
   experienceRequirement: string,
   startDate: string,
   startTime: string,
-  endDate: string,
   endTime: string,
   tournament: boolean,
   cost: number,
@@ -69,10 +68,9 @@ interface FilterTypes {
   gameSystems: UniqueFilter,
   ageRequirements: UniqueFilter,
   experienceRequirements: UniqueFilter,
-  startDate: UniqueFilter,
-  startTime: UniqueFilter,
-  endDate: UniqueFilter,
-  endTime: UniqueFilter,
+  startDates: UniqueFilter,
+  startTimes: UniqueFilter,
+  endTimes: UniqueFilter,
   ifTournament: TournamentFilter,
   costs: UniqueFilter,
   locations: UniqueFilter,
@@ -111,10 +109,9 @@ const cleanData = (events: Array<rawEvent>) => {
       gameSystems: {},
       ageRequirements: {},
       experienceRequirements: {},
-      startDate: {},
-      startTime: {},
-      endDate: {},
-      endTime: {},
+      startDates: {},
+      startTimes: {},
+      endTimes: {},
       ifTournament: {
         true: [],
         false: []
@@ -137,13 +134,13 @@ const cleanData = (events: Array<rawEvent>) => {
       experienceRequirement: '',
       startDate: '',
       startTime: '',
-      endDate: '',
       endTime: '',
       tournament: false,
       cost: 0,
       location: '',
       ticketsAvailable: 0
     };
+
     const rawStart = new Date(event["Start Date & Time"]);
     const rawEnd = new Date(event["End Date & Time"]);
 
@@ -152,6 +149,13 @@ const cleanData = (events: Array<rawEvent>) => {
     const gameSystem = event["Game System"];
     const ageReq = event["Age Required"];
     const exp = event["Experience Required"];
+    const eventStartDate = rawStart.toLocaleDateString();
+    const eventStartTime = getTime(rawStart);
+    const eventEndTime = getTime(rawEnd);
+    const isTourny = isTournament(event["Tournament?"]);
+    const eventCost = Number(event["Cost $"]);
+    const eventLocation = event["Location"];
+    const eventTickets = Number(event["Tickets Available"]);
 
     newEvent.id = index;
     newEvent.gameId = event["Game ID"];
@@ -203,14 +207,61 @@ const cleanData = (events: Array<rawEvent>) => {
     }
     newEvent.experienceRequirement = exp;
 
-    newEvent.startDate = rawStart.toLocaleDateString();
-    newEvent.startTime = getTime(rawStart);
-    newEvent.endDate = rawEnd.toLocaleDateString();
-    newEvent.endTime = getTime(rawEnd);
-    newEvent.tournament = isTournament(event["Tournament?"]);
-    newEvent.cost = Number(event["Cost $"]);
-    newEvent.location = event["Location"];
-    newEvent.ticketsAvailable = Number(event["Tickets Available"]);
+    // Start Date
+    if (eventStartDate) {
+      if (!data.filters.startDates[eventStartDate]) {
+        data.filters.startDates[eventStartDate] = []
+      }
+      data.filters.startDates[eventStartDate].push(index);
+    }
+    newEvent.startDate = eventStartDate;
+
+    // Start Time
+    if (eventStartTime) {
+      if (!data.filters.startTimes[eventStartTime]) {
+        data.filters.startTimes[eventStartTime] = []
+      }
+      data.filters.startTimes[eventStartTime].push(index);
+    }
+    newEvent.startTime = eventStartTime;
+
+    // End Time
+    if (eventEndTime) {
+      if (!data.filters.endTimes[eventEndTime]) {
+        data.filters.endTimes[eventEndTime] = []
+      }
+      data.filters.endTimes[eventEndTime].push(index);
+    }
+    newEvent.endTime = eventEndTime;
+
+    // Tournament
+    data.filters.ifTournament[`${isTourny}`].push(index);
+    newEvent.tournament = isTourny;
+
+    // Costs
+    if (!data.filters.costs[eventCost]) {
+      data.filters.costs[eventCost] = []
+    }
+    data.filters.costs[eventCost].push(index);
+    newEvent.cost = eventCost;
+
+    // Locations
+    if (eventLocation) {
+      if (!data.filters.locations[eventLocation]) {
+        data.filters.locations[eventLocation] = []
+      }
+      data.filters.locations[eventLocation].push(index);
+    }
+    newEvent.location = eventLocation;
+
+    // Tickets
+    if (eventTickets) {
+      if (!data.filters.ticketsAvailable[eventTickets]) {
+        data.filters.ticketsAvailable[eventTickets] = []
+      }
+      data.filters.ticketsAvailable[eventTickets].push(index);
+    }
+    newEvent.ticketsAvailable = eventTickets;
 
     data.eventData.push(newEvent);
   })

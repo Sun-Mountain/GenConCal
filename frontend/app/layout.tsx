@@ -1,4 +1,4 @@
-import './globals.module.scss'
+import './globals.css'
 
 export const metadata = {
   title: 'GenCon Cal',
@@ -15,7 +15,7 @@ export default function RootLayout({
       <head>
         <link rel='icon' href='/favicon.ico'/>
       </head>
-      <body>
+      <body id="body">
         {children}
       </body>
     </html>
