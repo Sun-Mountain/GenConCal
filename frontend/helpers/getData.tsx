@@ -81,7 +81,6 @@ export interface FilterTypes {
 
 interface Data {
   eventData: Array<newEvent>,
-  eventIndexes: Array<number>,
   filters: FilterTypes
 }
 
@@ -106,7 +105,6 @@ const isTournament = (eventTournament: string) => {
 const cleanData = (events: Array<rawEvent>) => {
   const data: Data = {
     eventData: [],
-    eventIndexes: [],
     filters: {
       groups: {},
       eventTypes: {},
@@ -166,8 +164,6 @@ const cleanData = (events: Array<rawEvent>) => {
 
     newEvent.id = index;
     newEvent.gameId = event["Game ID"];
-
-    data.eventIndexes.push(index);
 
     // Group Name
     if (groupName) {

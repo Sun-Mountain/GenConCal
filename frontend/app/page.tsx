@@ -7,12 +7,9 @@ import getData from "@/helpers/getData";
 import DailyTabs from "@/components/DailyTabs";
 import FilterButtons from "@/components/FilterButtons";
 
-import { filterEvents } from "@/interfaces/filterEvents";
-
 export default function Home() {
-  const {eventData, eventIndexes, filters} = getData();
+  const {eventData, filters} = getData();
   const filterList = filters;
-  const allEvents = eventIndexes;
 
   const [choices, setChoices] = useState([]);
 
