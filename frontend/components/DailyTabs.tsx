@@ -1,10 +1,12 @@
-import * as React from 'react';
+import { ReactNode, SyntheticEvent, useState } from 'react';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
 
+import { UniqueFilter } from '@/helpers/getData';
+
 interface TabPanelProps {
-  children?: React.ReactNode;
+  children?: ReactNode;
   index: number;
   value: number;
 }
@@ -36,23 +38,19 @@ function a11yProps(index: number) {
   };
 }
 
-interface DateList {
-  [index: string]: Array<number>
-}
-
 interface DailyTabs {
-  dateList: DateList,
-  allBaseFilters: number[]
+  allBaseFilters: number[],
+  dateList: UniqueFilter,
 }
 
 export default function DailyTabs({
+  allBaseFilters,
   dateList,
-  allBaseFilters
 }: DailyTabs) {
-  const [tab, setTab] = React.useState(0);
+  const [tab, setTab] = useState(0);
   const dates = Object.keys(dateList).sort();
 
-  const handleChange = (event: React.SyntheticEvent, newValue: number) => {
+  const handleChange = (event: SyntheticEvent, newValue: number) => {
     setTab(newValue);
   };
 

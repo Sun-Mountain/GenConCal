@@ -16,7 +16,6 @@ export default function Home() {
   // Dates and times
   const dateList = filterList.startDates;
   const timeList = filterList.startTimes;
-  const times = Object.keys(timeList).sort();
 
   // Basic filters
   const [ageFilters, setAgeFilters] = useState<number[]>([]);
@@ -40,11 +39,12 @@ export default function Home() {
         groupLabel={'Experience Requirements'}
       />
       <DailyTabs
-        dateList={dateList}
         allBaseFilters={[
           ...ageFilters,
           ...experienceFilters
         ]}
+        dateList={dateList}
+        timeList={timeList}
       />
     </main>
   )
