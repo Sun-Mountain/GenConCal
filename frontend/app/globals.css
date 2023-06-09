@@ -1,3 +1,38 @@
 #body {
   font-family: Arial, Helvetica, sans-serif;
 }
+
+.btn-container {
+  padding: 8px 0 16px 0;
+}
+
+.btn {
+  background-color: rgb(17, 145, 0, .08);
+  border: 2px solid rgb(17, 145, 0);
+  border-radius: 8px 8px;
+  margin: 5px 8px;
+  padding-left: 15px;
+}
+
+.btn:hover {
+  cursor: pointer;
+}
+
+.hidden {
+  background-color: rgb(206, 14, 45);
+  border: 2px solid rgb(206, 14, 45);
+  color: white;
+}
+
+.hidden:before {
+  position: relative;
+  left: -8px;
+  content: "✖";
+}
+
+.visible:before {
+  position: relative;
+  left: -8px;
+  content: "✔";
+  color:rgb(17, 145, 0);
+}

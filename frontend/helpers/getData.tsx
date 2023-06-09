@@ -46,6 +46,7 @@ interface newEvent {
   experienceRequirement: string,
   startDate: string,
   startTime: string,
+  endDate: string,
   endTime: string,
   tournament: boolean,
   cost: number,
@@ -53,7 +54,7 @@ interface newEvent {
   ticketsAvailable?: number
 }
 
-interface UniqueFilter {
+export interface UniqueFilter {
   [index: string]: Array<number>
 }
 
@@ -62,7 +63,7 @@ interface TournamentFilter {
   false: Array<number>
 }
 
-interface FilterTypes {
+export interface FilterTypes {
   groups: UniqueFilter,
   eventTypes: UniqueFilter,
   gameSystems: UniqueFilter,
@@ -70,6 +71,7 @@ interface FilterTypes {
   experienceRequirements: UniqueFilter,
   startDates: UniqueFilter,
   startTimes: UniqueFilter,
+  endDates: UniqueFilter,
   endTimes: UniqueFilter,
   ifTournament: TournamentFilter,
   costs: UniqueFilter,
@@ -79,6 +81,7 @@ interface FilterTypes {
 
 interface Data {
   eventData: Array<newEvent>,
+  eventIndexes: Array<number>,
   filters: FilterTypes
 }
 
@@ -103,6 +106,7 @@ const isTournament = (eventTournament: string) => {
 const cleanData = (events: Array<rawEvent>) => {
   const data: Data = {
     eventData: [],
+    eventIndexes: [],
     filters: {
       groups: {},
       eventTypes: {},
@@ -111,6 +115,7 @@ const cleanData = (events: Array<rawEvent>) => {
       experienceRequirements: {},
       startDates: {},
       startTimes: {},
+      endDates: {},
       endTimes: {},
       ifTournament: {
         true: [],
@@ -134,6 +139,7 @@ const cleanData = (events: Array<rawEvent>) => {
       experienceRequirement: '',
       startDate: '',
       startTime: '',
+      endDate: '',
       endTime: '',
       tournament: false,
       cost: 0,
@@ -151,6 +157,7 @@ const cleanData = (events: Array<rawEvent>) => {
     const exp = event["Experience Required"];
     const eventStartDate = rawStart.toLocaleDateString();
     const eventStartTime = getTime(rawStart);
+    const eventEndDate = rawEnd.toLocaleDateString();
     const eventEndTime = getTime(rawEnd);
     const isTourny = isTournament(event["Tournament?"]);
     const eventCost = Number(event["Cost $"]);
@@ -159,6 +166,8 @@ const cleanData = (events: Array<rawEvent>) => {
 
     newEvent.id = index;
     newEvent.gameId = event["Game ID"];
+
+    data.eventIndexes.push(index);
 
     // Group Name
     if (groupName) {
@@ -224,6 +233,15 @@ const cleanData = (events: Array<rawEvent>) => {
       data.filters.startTimes[eventStartTime].push(index);
     }
     newEvent.startTime = eventStartTime;
+
+    // End Date
+    if (eventEndDate) {
+      if (!data.filters.endDates[eventEndDate]) {
+        data.filters.endDates[eventEndDate] = []
+      }
+      data.filters.endDates[eventEndDate].push(index);
+    }
+    newEvent.startDate = eventEndDate;
 
     // End Time
     if (eventEndTime) {

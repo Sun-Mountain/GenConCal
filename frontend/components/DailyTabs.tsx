@@ -41,11 +41,13 @@ interface DateList {
 }
 
 interface DailyTabs {
-  dateList: DateList
+  dateList: DateList,
+  allBaseFilters: number[]
 }
 
 export default function DailyTabs({
-  dateList
+  dateList,
+  allBaseFilters
 }: DailyTabs) {
   const [tab, setTab] = React.useState(0);
   const dates = Object.keys(dateList).sort();
@@ -54,12 +56,20 @@ export default function DailyTabs({
     setTab(newValue);
   };
 
+  const getEventsList = (date: string) => {
+    const dayEvents = dateList[date]
+
+    var eventsForDay = dayEvents.filter(val => !allBaseFilters.includes(val));
+
+    return eventsForDay;
+  }
+
   return (
     <Box sx={{ width: '100%' }}>
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
         <Tabs value={tab} onChange={handleChange} aria-label="basic tabs example" centered>
           {dates.map((date: string, index: number) => {
-            const eventCount = dateList[date].length.toLocaleString("en-US");
+            const eventCount = getEventsList(date).length.toLocaleString("en-US");
             const dateLabel = <>{date}<br />{eventCount} events</>;
 
             return <Tab key={date} label={dateLabel} {...a11yProps(index)} />
@@ -67,7 +77,7 @@ export default function DailyTabs({
         </Tabs>
       </Box>
       {dates.map((date: string, index: number) => {
-        const dateEvents = dateList[date];
+        const dateEvents = getEventsList(date);
 
         return (
           <TabPanel key={index} value={tab} index={index}>
