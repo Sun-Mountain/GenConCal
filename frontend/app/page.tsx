@@ -7,15 +7,14 @@ import getData from "@/helpers/getData";
 import DailyTabs from "@/components/DailyTabs";
 import FilterButtons from "@/components/FilterButtons";
 
+import { filterEvents } from "@/interfaces/filterEvents";
+
 export default function Home() {
   const {eventData, eventIndexes, filters} = getData();
   const filterList = filters;
-
-  console.log(eventIndexes);
+  const allEvents = eventIndexes;
 
   const [choices, setChoices] = useState([]);
-  const [eventList, setEventList] = useState(eventData);
-  const [filterEvents, setFilterEvents] = useState(eventIndexes);
 
   // Dates and times
   const dateList = filterList.startDates;
@@ -23,6 +22,8 @@ export default function Home() {
   const times = Object.keys(timeList).sort();
 
   // Basic filters
+  const [ageFilters, setAgeFilters] = useState<number[]>([]);
+  const [experienceFilters, setExperienceFilters] = useState<number[]>([]);
   // Buttons
   const ageRequirements = filterList.ageRequirements;
   const experienceRequirements = filterList.experienceRequirements;
@@ -31,14 +32,14 @@ export default function Home() {
     <main>
       <FilterButtons
         filter={ageRequirements}
-        filterEvents={filterEvents}
-        setFilterEvents={setFilterEvents}
+        filterFor={ageFilters}
+        setFilterFor={setAgeFilters}
         groupLabel={'Age Requirements'}
       />
       <FilterButtons
         filter={experienceRequirements}
-        filterEvents={filterEvents}
-        setFilterEvents={setFilterEvents}
+        filterFor={experienceFilters}
+        setFilterFor={setExperienceFilters}
         groupLabel={'Experience Requirements'}
       />
       <DailyTabs dateList={dateList} />

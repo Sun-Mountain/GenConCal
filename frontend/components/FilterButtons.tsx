@@ -1,32 +1,53 @@
 import { Dispatch, SetStateAction, useState } from 'react';
 
 import { UniqueFilter } from '@/helpers/getData';
+import { filterEvents } from "@/interfaces/filterEvents";
 
 export default function FilterButtons({
   filter,
-  groupLabel,
-  filterEvents,
-  setFilterEvents
+  filterFor,
+  setFilterFor,
+  groupLabel
 }: {
   filter: UniqueFilter,
-  filterEvents: Array<number>,
-  setFilterEvents: Dispatch<SetStateAction<number[]>>,
+  filterFor: Array<number>,
+  setFilterFor: Dispatch<SetStateAction<number[]>>,
   groupLabel: string
 }) {
   const labels = Object.keys(filter);
 
-  const [hiddenLabels, setHiddenLabels] = useState<string[]>([])
+  const [hiddenLabels, setHiddenLabels] = useState<string[]>([]);
+
+  const addEventsToFilter = (eventIds: number[]) => {
+    var newFilters = [...filterFor, ...eventIds];
+    setFilterFor(newFilters);
+  }
+
+  const removeEventsFromFilter = (eventIds: number[]) => {
+    var newFilters = filterFor.filter(val => !eventIds.includes(val));
+    setFilterFor(newFilters);
+  }
+
+  const addLabel = (label: string) => {
+    var newHidden = hiddenLabels;
+    newHidden.push(label);
+    setHiddenLabels([...newHidden]);
+  }
+
+  const removeLabel = (label: string) => {
+    var index = hiddenLabels.indexOf(label),
+        newHidden = hiddenLabels;
+    newHidden.splice(index, 1);
+    setHiddenLabels([...newHidden])
+  }
 
   const handleFilter = (label: string) => {
     if (!hiddenLabels.includes(label)) {
-      var newHidden = hiddenLabels;
-      newHidden.push(label);
-      setHiddenLabels([...newHidden]);
+      addLabel(label);
+      addEventsToFilter(filter[label]);
     } else {
-      var index = hiddenLabels.indexOf(label),
-          newHidden = hiddenLabels;
-      newHidden.splice(index, 1);
-      setHiddenLabels([...newHidden])
+      removeLabel(label);
+      removeEventsFromFilter(filter[label]);
     }
   }
 

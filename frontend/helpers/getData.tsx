@@ -63,7 +63,7 @@ interface TournamentFilter {
   false: Array<number>
 }
 
-interface FilterTypes {
+export interface FilterTypes {
   groups: UniqueFilter,
   eventTypes: UniqueFilter,
   gameSystems: UniqueFilter,
