@@ -42,7 +42,13 @@ export default function Home() {
         setFilterFor={setExperienceFilters}
         groupLabel={'Experience Requirements'}
       />
-      <DailyTabs dateList={dateList} />
+      <DailyTabs
+        dateList={dateList}
+        allBaseFilters={[
+          ...ageFilters,
+          ...experienceFilters
+        ]}
+      />
     </main>
   )
 }
