@@ -1,8 +1,6 @@
-import { Dispatch, FormEvent, SetStateAction, useState } from 'react';
-import Chip from '@mui/material/Chip';
+import { Dispatch, SetStateAction } from 'react';
 import Autocomplete from '@mui/material/Autocomplete';
 import TextField from '@mui/material/TextField';
-import Stack from '@mui/material/Stack';
 
 import { UniqueFilter } from '@/helpers/getData';
 
@@ -43,6 +41,13 @@ export default function FilterAutoList({
           placeholder={`Filter For ${label}`}
         />
       )}
+      renderOption={(props, option) => {
+        return (
+          <li {...props} key={option}>
+            {option}
+          </li>
+        );
+      }}
     />
   );
 }
