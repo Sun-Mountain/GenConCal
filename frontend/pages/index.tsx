@@ -1,5 +1,3 @@
-'use client'
-
 import { useState } from "react";
 
 import getData from "@/helpers/getData";
@@ -7,11 +5,11 @@ import getData from "@/helpers/getData";
 import DailyTabs from "@/components/DailyTabs";
 import FilterAutoList from "@/components/FilterAutoList";
 import FilterButtons from "@/components/FilterButtons";
+import TimeSlider from "@/components/TimeSlider";
 
 export default function Home() {
   const {eventData, filters} = getData();
   const filterList = filters;
-  console.log(filterList);
 
   const [choices, setChoices] = useState([]);
 
@@ -28,13 +26,17 @@ export default function Home() {
 
   // Multi filters
   const [eventTypeFilters, setEventTypeFilters] = useState<number[]>([]);
+  const [groupFilter, setGroupFilter] = useState<number[]>([]);
+  const [locationFilter, setLocationFilter] = useState<number[]>([]);
   const [systemFilters, setSystemFilters] = useState<number[]>([]);
   // Lists
   const eventTypes = filterList.eventTypes;
   const gameSystems = filterList.gameSystems;
+  const groups = filterList.groups;
+  const locations = filterList.locations;
 
   return (
-    <main>
+    <main id='main-content'>
       <FilterButtons
         filter={ageRequirements}
         filterFor={ageFilters}
@@ -57,6 +59,17 @@ export default function Home() {
         setFilterFor={setSystemFilters}
         label={'Game System'}
       />
+      <FilterAutoList
+        filter={groups}
+        setFilterFor={setGroupFilter}
+        label={'Company / Group'}
+      />
+      <FilterAutoList
+        filter={locations}
+        setFilterFor={setLocationFilter}
+        label={'Location'}
+      />
+      <TimeSlider />
       <DailyTabs
         allBaseFilters={[
           ...ageFilters,
@@ -64,7 +77,9 @@ export default function Home() {
         ]}
         showOnly={[
           ...eventTypeFilters,
-          ...systemFilters
+          ...systemFilters,
+          ...groupFilter,
+          ...locationFilter
         ]}
         dateList={dateList}
         timeList={timeList}

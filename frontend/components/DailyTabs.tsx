@@ -3,6 +3,8 @@ import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
 
+import TimeComponent from './DailyTimeComponent';
+
 import { UniqueFilter } from '@/helpers/getData';
 
 interface TabPanelProps {
@@ -88,8 +90,19 @@ export default function DailyTabs({
 
         return (
           <TabPanel key={index} value={tab} index={index}>
-            {dateEvents.map((date: number, index: number) => {
-              return (<div key={index}>{date}</div>)
+            {times.map(time => {
+              const timeEvents = timeList[time];
+              const events = dateEvents.filter(val => timeEvents.includes(val));
+
+              if (events.length > 0) {
+                return (
+                  <TimeComponent
+                    key={time}
+                    events={events}
+                    time={time}
+                  />
+                )
+              }
             })}
           </TabPanel>
         )

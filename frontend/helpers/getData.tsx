@@ -102,6 +102,15 @@ const isTournament = (eventTournament: string) => {
   return false;
 }
 
+const toTitleCase = (str: string) => {
+  return str.replace(
+    /\w\S*/g,
+    function(txt) {
+      return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+    }
+  );
+}
+
 const cleanData = (events: Array<rawEvent>) => {
   const data: Data = {
     eventData: [],
@@ -159,7 +168,7 @@ const cleanData = (events: Array<rawEvent>) => {
     const eventEndTime = getTime(rawEnd);
     const isTourny = isTournament(event["Tournament?"]);
     const eventCost = Number(event["Cost $"]);
-    const eventLocation = event["Location"];
+    const eventLocation = event["Location"]?.toUpperCase();
     const eventTickets = Number(event["Tickets Available"]);
 
     newEvent.id = index;
