@@ -28,8 +28,10 @@ export default function Home() {
 
   // Multi filters
   const [eventTypeFilters, setEventTypeFilters] = useState<number[]>([]);
+  const [systemFilters, setSystemFilters] = useState<number[]>([]);
   // Lists
   const eventTypes = filterList.eventTypes;
+  const gameSystems = filterList.gameSystems;
 
   return (
     <main>
@@ -50,12 +52,20 @@ export default function Home() {
         setFilterFor={setEventTypeFilters}
         label={'Event Type'}
       />
+      <FilterAutoList
+        filter={gameSystems}
+        setFilterFor={setSystemFilters}
+        label={'Game System'}
+      />
       <DailyTabs
         allBaseFilters={[
           ...ageFilters,
           ...experienceFilters
         ]}
-        showOnly={[...eventTypeFilters]}
+        showOnly={[
+          ...eventTypeFilters,
+          ...systemFilters
+        ]}
         dateList={dateList}
         timeList={timeList}
       />
