@@ -40,15 +40,20 @@ function a11yProps(index: number) {
 
 interface DailyTabs {
   allBaseFilters: number[],
+  showOnly: number[],
   dateList: UniqueFilter,
+  timeList: UniqueFilter
 }
 
 export default function DailyTabs({
   allBaseFilters,
+  showOnly,
   dateList,
+  timeList
 }: DailyTabs) {
   const [tab, setTab] = useState(0);
   const dates = Object.keys(dateList).sort();
+  const times = Object.keys(timeList).sort();
 
   const handleChange = (event: SyntheticEvent, newValue: number) => {
     setTab(newValue);
@@ -58,6 +63,10 @@ export default function DailyTabs({
     const dayEvents = dateList[date]
 
     var eventsForDay = dayEvents.filter(val => !allBaseFilters.includes(val));
+
+    if (showOnly.length > 0) {
+      eventsForDay = eventsForDay.filter(val => showOnly.includes(val));
+    };
 
     return eventsForDay;
   }

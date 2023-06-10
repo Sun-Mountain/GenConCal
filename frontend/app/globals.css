@@ -36,3 +36,8 @@
   content: "✔";
   color:rgb(17, 145, 0);
 }
+
+.flex-row {
+  display: flex;
+  flex-direction: row;
+}

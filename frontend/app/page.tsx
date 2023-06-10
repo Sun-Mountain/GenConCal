@@ -5,11 +5,13 @@ import { useState } from "react";
 import getData from "@/helpers/getData";
 
 import DailyTabs from "@/components/DailyTabs";
+import FilterAutoList from "@/components/FilterAutoList";
 import FilterButtons from "@/components/FilterButtons";
 
 export default function Home() {
   const {eventData, filters} = getData();
   const filterList = filters;
+  console.log(filterList);
 
   const [choices, setChoices] = useState([]);
 
@@ -23,6 +25,11 @@ export default function Home() {
   // Buttons
   const ageRequirements = filterList.ageRequirements;
   const experienceRequirements = filterList.experienceRequirements;
+
+  // Multi filters
+  const [eventTypeFilters, setEventTypeFilters] = useState<number[]>([]);
+  // Lists
+  const eventTypes = filterList.eventTypes;
 
   return (
     <main>
@@ -38,11 +45,17 @@ export default function Home() {
         setFilterFor={setExperienceFilters}
         groupLabel={'Experience Requirements'}
       />
+      <FilterAutoList
+        filter={eventTypes}
+        setFilterFor={setEventTypeFilters}
+        label={'Event Type'}
+      />
       <DailyTabs
         allBaseFilters={[
           ...ageFilters,
           ...experienceFilters
         ]}
+        showOnly={[...eventTypeFilters]}
         dateList={dateList}
         timeList={timeList}
       />
