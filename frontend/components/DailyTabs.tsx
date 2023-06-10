@@ -42,7 +42,7 @@ function a11yProps(index: number) {
 
 interface DailyTabs {
   allBaseFilters: number[],
-  showOnly: number[],
+  showOnly: Array<number[]>,
   dateList: UniqueFilter,
   timeList: UniqueFilter
 }
@@ -66,9 +66,11 @@ export default function DailyTabs({
 
     var eventsForDay = dayEvents.filter(val => !allBaseFilters.includes(val));
 
-    if (showOnly.length > 0) {
-      eventsForDay = eventsForDay.filter(val => showOnly.includes(val));
-    };
+    showOnly.map(array => {
+      if (array.length > 0) {
+        eventsForDay = eventsForDay.filter(val => array.includes(val));
+      }
+    })
 
     return eventsForDay;
   }

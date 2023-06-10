@@ -14,14 +14,16 @@ nav {
   justify-content: space-between;
   margin-bottom: 18px;
   min-height: 64px;
-  padding: 8px 12px;
   width: dvw;
 }
 
 ul {
   list-style: none;
-  margin: 0 25px 0 0;
   padding: 0
+}
+
+#logo-container {
+  margin: 8px 16px;
 }
 
 #nav-links {
@@ -29,8 +31,11 @@ ul {
   flex-direction: row;
 }
 
+.link-container {
+  margin: auto 8px;
+}
+
 .nav-link, .nav-link:visited {
-  margin-left: 8px;
   text-decoration: none;
 }
 

@@ -76,10 +76,10 @@ export default function Home() {
           ...experienceFilters
         ]}
         showOnly={[
-          ...eventTypeFilters,
-          ...systemFilters,
-          ...groupFilter,
-          ...locationFilter
+          eventTypeFilters,
+          systemFilters,
+          groupFilter,
+          locationFilter
         ]}
         dateList={dateList}
         timeList={timeList}
