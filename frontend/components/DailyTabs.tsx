@@ -1,4 +1,4 @@
-import { ReactNode, SyntheticEvent, useState } from 'react';
+import { ReactNode, SyntheticEvent, useEffect, useState } from 'react';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
@@ -44,7 +44,7 @@ interface DailyTabs {
   allBaseFilters: number[],
   showOnly: Array<number[]>,
   dateList: UniqueFilter,
-  timesAndEvents: UniqueFilter,
+  timeFilter: UniqueFilter,
   timeLabels: string[]
 }
 
@@ -52,7 +52,7 @@ export default function DailyTabs({
   allBaseFilters,
   showOnly,
   dateList,
-  timesAndEvents,
+  timeFilter,
   timeLabels
 }: DailyTabs) {
   const [tab, setTab] = useState(0);
@@ -76,6 +76,10 @@ export default function DailyTabs({
     return eventsForDay;
   }
 
+  const filterForTime = (timeFilter: UniqueFilter) => {
+    console.log(timeFilter);
+  }
+
   return (
     <Box sx={{ width: '100%' }}>
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
@@ -90,11 +94,12 @@ export default function DailyTabs({
       </Box>
       {dates.map((date: string, index: number) => {
         const dateEvents = getEventsList(date);
+        const forTime = filterForTime(timeFilter);
 
         return (
           <TabPanel key={index} value={tab} index={index}>
             {timeLabels.map(time => {
-              const timeEvents = timesAndEvents[time];
+              const timeEvents = timeFilter[time];
               const events = dateEvents.filter(val => timeEvents.includes(val));
               const timeEventCount = events.length;
 

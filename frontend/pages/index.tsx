@@ -5,6 +5,7 @@ import getData from "@/helpers/getData";
 import DailyTabs from "@/components/DailyTabs";
 import FilterAutoList from "@/components/FilterAutoList";
 import FilterButtons from "@/components/FilterButtons";
+import TimeRange from "@/components/TimeRange";
 
 export default function Home() {
   const {eventData, filters} = getData();
@@ -15,8 +16,9 @@ export default function Home() {
   // Dates and times
   const dateList = filterList.startDates;
   const timesAndEvents = filterList.startTimes;
-  const allTimeList = Object.keys(timesAndEvents).sort();
-  const [timeLabels, setTimeLabels] = useState(allTimeList);
+  const allTimeLabels = Object.keys(timesAndEvents).sort();
+  const [timeLabels, setTimeLabels] = useState(allTimeLabels);
+  const [timeFilter, setTimeFilter] = useState(timesAndEvents);
 
   // Basic filters
   const [ageFilters, setAgeFilters] = useState<number[]>([]);
@@ -70,6 +72,11 @@ export default function Home() {
         setFilterFor={setLocationFilter}
         label={'Location'}
       />
+      <TimeRange
+        timesAndEvents={timesAndEvents}
+        setTimeFilter={setTimeFilter}
+        setTimeLabels={setTimeLabels}
+      />
       <DailyTabs
         allBaseFilters={[
           ...ageFilters,
@@ -82,7 +89,7 @@ export default function Home() {
           locationFilter
         ]}
         dateList={dateList}
-        timesAndEvents={timesAndEvents}
+        timeFilter={timeFilter}
         timeLabels={timeLabels}
       />
     </main>

@@ -8,7 +8,7 @@ main {
 }
 
 nav {
-  background-color: rgb(255, 221, 141);
+  background-color: rgb(50, 223, 235);
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -92,4 +92,9 @@ ul {
 
 .event-list {
   margin: 12px 0;
+}
+
+.time-divider {
+  margin: auto 25px;
+  vertical-align: center;
 }
