@@ -1,10 +1,14 @@
-import * as React from 'react';
+import { ReactNode, SyntheticEvent, useEffect, useState } from 'react';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
 
+import TimeComponent from './DailyTimeComponent';
+
+import { UniqueFilter } from '@/helpers/getData';
+
 interface TabPanelProps {
-  children?: React.ReactNode;
+  children?: ReactNode;
   index: number;
   value: number;
 }
@@ -36,23 +40,25 @@ function a11yProps(index: number) {
   };
 }
 
-interface DateList {
-  [index: string]: Array<number>
-}
-
 interface DailyTabs {
-  dateList: DateList,
-  allBaseFilters: number[]
+  allBaseFilters: number[],
+  showOnly: Array<number[]>,
+  dateList: UniqueFilter,
+  timeFilter: UniqueFilter,
+  timeLabels: string[]
 }
 
 export default function DailyTabs({
+  allBaseFilters,
+  showOnly,
   dateList,
-  allBaseFilters
+  timeFilter,
+  timeLabels
 }: DailyTabs) {
-  const [tab, setTab] = React.useState(0);
+  const [tab, setTab] = useState(0);
   const dates = Object.keys(dateList).sort();
 
-  const handleChange = (event: React.SyntheticEvent, newValue: number) => {
+  const handleChange = (event: SyntheticEvent, newValue: number) => {
     setTab(newValue);
   };
 
@@ -61,7 +67,22 @@ export default function DailyTabs({
 
     var eventsForDay = dayEvents.filter(val => !allBaseFilters.includes(val));
 
+    showOnly.map(array => {
+      if (array.length > 0) {
+        eventsForDay = eventsForDay.filter(val => array.includes(val));
+      }
+    })
+
     return eventsForDay;
+  }
+
+  const filterForTime = (timeFilter: UniqueFilter) => {
+    var filtered: number[] = [];
+    Object.keys(timeFilter).forEach(key => {
+      var events: number[] = timeFilter[key]
+      filtered = [...filtered, ...events];
+    })
+    return filtered;
   }
 
   return (
@@ -69,8 +90,12 @@ export default function DailyTabs({
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
         <Tabs value={tab} onChange={handleChange} aria-label="basic tabs example" centered>
           {dates.map((date: string, index: number) => {
-            const eventCount = getEventsList(date).length.toLocaleString("en-US");
-            const dateLabel = <>{date}<br />{eventCount} events</>;
+            const dateEvents = getEventsList(date);
+            const forTime = filterForTime(timeFilter);
+
+            const finalEventList = dateEvents.filter(val => forTime.includes(val))
+            const eventCount = finalEventList.length;
+            const dateLabel = <>{date}<br />{eventCount.toLocaleString("en-US")} events</>;
 
             return <Tab key={date} label={dateLabel} {...a11yProps(index)} />
           })}
@@ -78,11 +103,26 @@ export default function DailyTabs({
       </Box>
       {dates.map((date: string, index: number) => {
         const dateEvents = getEventsList(date);
+        const forTime = filterForTime(timeFilter);
+
+        const finalEventList = dateEvents.filter(val => forTime.includes(val))
 
         return (
           <TabPanel key={index} value={tab} index={index}>
-            {dateEvents.map((date: number, index: number) => {
-              return (<div key={index}>{date}</div>)
+            {timeLabels.map(time => {
+              const timeEvents = timeFilter[time];
+              const events = finalEventList.filter(val => timeEvents.includes(val));
+              const timeEventCount = events.length;
+
+              if (timeEventCount > 0) {
+                return (
+                  <TimeComponent
+                    key={time}
+                    events={events}
+                    time={time}
+                  />
+                )
+              }
             })}
           </TabPanel>
         )
