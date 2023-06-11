@@ -77,7 +77,12 @@ export default function DailyTabs({
   }
 
   const filterForTime = (timeFilter: UniqueFilter) => {
-    console.log(timeFilter);
+    var filtered: number[] = [];
+    Object.keys(timeFilter).forEach(key => {
+      var events: number[] = timeFilter[key]
+      filtered = [...filtered, ...events];
+    })
+    return filtered;
   }
 
   return (
@@ -85,7 +90,11 @@ export default function DailyTabs({
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
         <Tabs value={tab} onChange={handleChange} aria-label="basic tabs example" centered>
           {dates.map((date: string, index: number) => {
-            let eventCount = getEventsList(date).length;
+            const dateEvents = getEventsList(date);
+            const forTime = filterForTime(timeFilter);
+
+            const finalEventList = dateEvents.filter(val => forTime.includes(val))
+            const eventCount = finalEventList.length;
             const dateLabel = <>{date}<br />{eventCount.toLocaleString("en-US")} events</>;
 
             return <Tab key={date} label={dateLabel} {...a11yProps(index)} />
@@ -96,11 +105,13 @@ export default function DailyTabs({
         const dateEvents = getEventsList(date);
         const forTime = filterForTime(timeFilter);
 
+        const finalEventList = dateEvents.filter(val => forTime.includes(val))
+
         return (
           <TabPanel key={index} value={tab} index={index}>
             {timeLabels.map(time => {
               const timeEvents = timeFilter[time];
-              const events = dateEvents.filter(val => timeEvents.includes(val));
+              const events = finalEventList.filter(val => timeEvents.includes(val));
               const timeEventCount = events.length;
 
               if (timeEventCount > 0) {

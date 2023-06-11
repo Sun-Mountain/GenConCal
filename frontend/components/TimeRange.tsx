@@ -75,7 +75,8 @@ export default function TimeRange({
         }}
         inputValue={startInput}
         onInputChange={(event, newInputValue) => {
-          setStartInput(newInputValue);
+          var newStart = newInputValue ? newInputValue : defaultStart;
+          setStartInput(newStart);
         }}
         defaultValue={defaultStart}
         renderInput={(params) => <TextField {...params} label="Earliest Start Time" />}
@@ -96,7 +97,8 @@ export default function TimeRange({
         }}
         inputValue={endInput}
         onInputChange={(event, newInputValue) => {
-          setEndInput(newInputValue);
+          var newEnd = newInputValue ? newInputValue : defaultStart;
+          setEndInput(newEnd);
         }}
         renderInput={(params) => <TextField {...params} label="Latest Start Time" />}
       />
