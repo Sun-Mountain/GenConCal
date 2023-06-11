@@ -30,6 +30,7 @@ export default function FilterAutoList({
     <Autocomplete
       multiple
       id="tags-outlined"
+      disableCloseOnSelect
       options={options}
       getOptionLabel={(option) => option}
       onChange={(event, value) => handleFilters(value)}

@@ -44,18 +44,19 @@ interface DailyTabs {
   allBaseFilters: number[],
   showOnly: Array<number[]>,
   dateList: UniqueFilter,
-  timeList: UniqueFilter
+  timesAndEvents: UniqueFilter,
+  timeLabels: string[]
 }
 
 export default function DailyTabs({
   allBaseFilters,
   showOnly,
   dateList,
-  timeList
+  timesAndEvents,
+  timeLabels
 }: DailyTabs) {
   const [tab, setTab] = useState(0);
   const dates = Object.keys(dateList).sort();
-  const times = Object.keys(timeList).sort();
 
   const handleChange = (event: SyntheticEvent, newValue: number) => {
     setTab(newValue);
@@ -80,8 +81,8 @@ export default function DailyTabs({
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
         <Tabs value={tab} onChange={handleChange} aria-label="basic tabs example" centered>
           {dates.map((date: string, index: number) => {
-            const eventCount = getEventsList(date).length.toLocaleString("en-US");
-            const dateLabel = <>{date}<br />{eventCount} events</>;
+            let eventCount = getEventsList(date).length;
+            const dateLabel = <>{date}<br />{eventCount.toLocaleString("en-US")} events</>;
 
             return <Tab key={date} label={dateLabel} {...a11yProps(index)} />
           })}
@@ -92,11 +93,12 @@ export default function DailyTabs({
 
         return (
           <TabPanel key={index} value={tab} index={index}>
-            {times.map(time => {
-              const timeEvents = timeList[time];
+            {timeLabels.map(time => {
+              const timeEvents = timesAndEvents[time];
               const events = dateEvents.filter(val => timeEvents.includes(val));
+              const timeEventCount = events.length;
 
-              if (events.length > 0) {
+              if (timeEventCount > 0) {
                 return (
                   <TimeComponent
                     key={time}
