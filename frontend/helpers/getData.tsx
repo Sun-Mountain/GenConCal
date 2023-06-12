@@ -52,7 +52,8 @@ export interface NewEvent {
   tournament: boolean,
   cost: number,
   location?: string,
-  ticketsAvailable?: number
+  ticketsAvailable?: number,
+  maxTickets?: number
 }
 
 export interface UniqueFilter {
@@ -153,7 +154,8 @@ const cleanData = (events: Array<rawEvent>) => {
       tournament: false,
       cost: 0,
       location: '',
-      ticketsAvailable: 0
+      ticketsAvailable: 0,
+      maxTickets: 0
     };
 
     const rawStart = new Date(event["Start Date & Time"]);
@@ -176,6 +178,7 @@ const cleanData = (events: Array<rawEvent>) => {
     newEvent.id = index;
     newEvent.gameId = event["Game ID"];
     newEvent.duration = Number(event["Duration"]);
+    newEvent.maxTickets = Number(event['Maximum Players']);
 
     // Group Name
     if (groupName) {

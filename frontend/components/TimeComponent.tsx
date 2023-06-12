@@ -26,6 +26,9 @@ export default function DailyTimeComponent ({
             Title
           </div>
           <div className='event-details'>
+            <div className='tickets-column'>
+              Tickets
+            </div>
             <div className='duration-column'>
               Duration
             </div>

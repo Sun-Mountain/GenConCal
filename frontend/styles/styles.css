@@ -182,3 +182,8 @@ h2 {
   padding: 2px 14px 2px 4px;
   font-weight: 700;
 }
+
+.tickets-column {
+  text-align: left;
+  width: 55px;
+}

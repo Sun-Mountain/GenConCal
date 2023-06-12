@@ -3,7 +3,18 @@ import { eventData } from "@/pages";
 import { Suspense } from "react";
 
 export default function EventCard({eventIndex}: {eventIndex: number}) {
-  const { gameId, title, startTime, endTime, eventType, gameSystem, duration, cost } = eventData[eventIndex];
+  const {
+    gameId,
+    title,
+    startTime,
+    endTime,
+    eventType,
+    gameSystem,
+    duration,
+    cost,
+    maxTickets,
+    ticketsAvailable
+  } = eventData[eventIndex];
 
   const iconPath = `/icons/${eventType.substring(0,3)}.gif`
 
@@ -15,6 +26,9 @@ export default function EventCard({eventIndex}: {eventIndex: number}) {
         {title}
       </div>
       <div className='event-details'>
+        <div className='tickets-column'>
+          {ticketsAvailable}/{maxTickets}
+        </div>
         <div className='duration-column'>
           {startTime} - {endTime} <strong>/</strong> {duration} {durationPrefix}
         </div>
@@ -23,29 +37,5 @@ export default function EventCard({eventIndex}: {eventIndex: number}) {
         </div>
       </div>
     </div>
-    // <div className='event-card'>
-    //   <div className='event-title-type'>
-    //     <div className='card-text-secondary'>
-    //       {gameId.slice(7)}
-    //     </div>
-    //     <h3 className='event-card-title'>
-    //       {title}
-    //     </h3>
-    //     {gameSystem && (
-    //       <div className='event-card-sub-title'>
-    //         {gameSystem}
-    //       </div>
-    //     )}
-    //   </div>
-    //   <div className='event-details'>
-    //     <div className='event-detail margin-auto'>
-    //       ${cost}
-    //     </div>
-    //     <div className='event-detail event-time margin-auto'>
-    //       <strong>Time / Duration</strong><br />
-    //       {startTime} - {endTime} / {duration} {durationPrefix}
-    //     </div>
-    //   </div>
-    // </div>
   );
 }
