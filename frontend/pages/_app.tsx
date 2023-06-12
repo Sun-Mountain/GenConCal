@@ -5,7 +5,6 @@ import type { NextPage } from 'next'
 import type { AppProps } from 'next/app'
 import { useEffect, useState } from 'react'
 import Head from 'next/head'
-import Loading from '@/components/Loading'
 import Navigation from '@/components/Navigation'
 
 import '@/styles/styles.css'
@@ -33,7 +32,7 @@ export default function MyApp(
   }, []);
 
   if (!hasMounted) {
-    return <Loading />;
+    return 'Loading...'
   }
 
   return (
