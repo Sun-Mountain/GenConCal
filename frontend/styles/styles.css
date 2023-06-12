@@ -22,6 +22,11 @@ ul {
   padding: 0
 }
 
+h2 {
+  display: flex;
+  justify-content: center;
+}
+
 #logo-container {
   margin: 8px 16px;
 }
@@ -106,4 +111,32 @@ ul {
 .no-choices {
   color: rgb(131, 131, 131) !important;
   font-style: italic !important;
+}
+
+.event-card {
+  border: 1px solid rgb(217, 217, 217);
+  border-radius: 5px;
+  padding: 18px
+}
+
+.event-card+.event-card {
+  margin-top: 15px;
+}
+
+.event-container {
+  margin-top: 19px;
+}
+
+.event-card-sub-title {
+  color: rgb(123, 123, 123);
+  margin-top: 3px;
+}
+
+.event-card-title {
+  margin-top: 19px;
+  margin-bottom: 0;
+}
+
+.card-text-secondary {
+  color: rgb(154, 154, 154);
 }

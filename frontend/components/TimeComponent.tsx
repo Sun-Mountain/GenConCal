@@ -1,30 +1,29 @@
-import { Dispatch, SetStateAction, Suspense } from 'react';
+import dynamic from 'next/dynamic';
 import { NewEvent } from '@/helpers/getData';
-import EventCard from './EventCard';
+// import EventCard from './EventCard';
+
+const EventCard = dynamic(() => import("./EventCard"), {
+  loading: () => <b>Loading...</b>,
+});
 
 interface TimeComponent {
   events: number[],
-  eventData: NewEvent[],
   time: string
 }
 
 export default function DailyTimeComponent ({
   events,
-  eventData,
   time
 }: TimeComponent) {
   return (
     <div>
-      <span className="time-title">
+      <h2 className="time-title">
         {time}
-      </span>
+      </h2>
       <div className="event-list">
-        {events.map((event: number, index: number) => {
-          const singleEvent = eventData[event];
+        {events.map((eventIndex: number) => {
           return (
-            <Suspense key={index}>
-              <EventCard {...singleEvent} />
-            </Suspense>
+              <EventCard key={eventIndex} eventIndex={eventIndex} />
           )
         })}
       </div>

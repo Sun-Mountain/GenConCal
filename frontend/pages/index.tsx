@@ -7,8 +7,9 @@ import FilterAutoList from "@/components/FilterAutoList";
 import FilterButtons from "@/components/FilterButtons";
 import TimeRange from "@/components/TimeRange";
 
+export const { eventData, filters } = getData();
+
 export default function Home() {
-  const {eventData, filters} = getData();
   const filterList = filters;
 
   // Dates and times
@@ -89,7 +90,6 @@ export default function Home() {
           locationFilter
         ]}
         dateList={dateList}
-        eventData={eventData}
         filteredEvents={filteredEvents}
         timeFilter={timeFilter}
         timeLabels={timeLabels}

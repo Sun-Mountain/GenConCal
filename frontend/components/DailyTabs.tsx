@@ -5,7 +5,7 @@ import Box from '@mui/material/Box';
 
 import TimeComponent from './TimeComponent';
 
-import { NewEvent, UniqueFilter } from '@/helpers/getData';
+import { UniqueFilter } from '@/helpers/getData';
 
 interface TabPanelProps {
   children?: ReactNode;
@@ -44,7 +44,6 @@ interface DailyTabs {
   allBaseFilters: number[],
   showOnly: Array<number[]>,
   dateList: UniqueFilter,
-  eventData: NewEvent[],
   filteredEvents: number[],
   timeFilter: UniqueFilter,
   timeLabels: string[]
@@ -54,7 +53,6 @@ export default function DailyTabs({
   allBaseFilters,
   showOnly,
   dateList,
-  eventData,
   filteredEvents,
   timeFilter,
   timeLabels
@@ -122,7 +120,6 @@ export default function DailyTabs({
                   <TimeComponent
                     key={time}
                     events={events}
-                    eventData={eventData}
                     time={time}
                   />
                 )
