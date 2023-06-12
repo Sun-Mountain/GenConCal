@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 
 import getData from "@/helpers/getData";
 
@@ -19,6 +19,7 @@ export default function Home() {
   const allTimeLabels = Object.keys(timesAndEvents).sort();
   const [timeLabels, setTimeLabels] = useState(allTimeLabels);
   const [timeFilter, setTimeFilter] = useState(timesAndEvents);
+  const [filteredEvents, setFilteredEvents] = useState<number[]>([]);
 
   // Basic filters
   const [ageFilters, setAgeFilters] = useState<number[]>([]);
@@ -73,6 +74,7 @@ export default function Home() {
         label={'Location'}
       />
       <TimeRange
+        setFilteredEvents={setFilteredEvents}
         timesAndEvents={timesAndEvents}
         setTimeFilter={setTimeFilter}
         setTimeLabels={setTimeLabels}
@@ -89,6 +91,7 @@ export default function Home() {
           locationFilter
         ]}
         dateList={dateList}
+        filteredEvents={filteredEvents}
         timeFilter={timeFilter}
         timeLabels={timeLabels}
       />
