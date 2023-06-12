@@ -117,7 +117,7 @@ h2 {
   border: 1px solid rgb(217, 217, 217);
   border-radius: 5px;
   display: flex;
-  flex-direction: row;
+  flex-wrap: wrap;
   justify-content: space-between;
   padding: 18px
 }
@@ -144,16 +144,21 @@ h2 {
   margin-bottom: 0;
 }
 
-.event-time-container {
-  width: 145px;
-}
-
 .card-text-secondary {
   color: rgb(154, 154, 154);
 }
 
-.icon {
-  margin-left: 50px !important;
+.event-details {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.event-detail+.event-detail {
+  margin: auto 15px;
+}
+
+.event-time {
+  width: 175px;
 }
 
 .margin-auto {

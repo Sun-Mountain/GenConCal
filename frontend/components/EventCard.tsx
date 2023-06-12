@@ -3,7 +3,7 @@ import { eventData } from "@/pages";
 import { Suspense } from "react";
 
 export default function EventCard({eventIndex}: {eventIndex: number}) {
-  const { gameId, title, startTime, endTime, eventType, gameSystem, duration } = eventData[eventIndex];
+  const { gameId, title, startTime, endTime, eventType, gameSystem, duration, cost } = eventData[eventIndex];
 
   const iconPath = `/icons/${eventType.substring(0,3)}.gif`
 
@@ -24,8 +24,11 @@ export default function EventCard({eventIndex}: {eventIndex: number}) {
           </div>
         )}
       </div>
-      <div className=''>
-        <div className='event-time-container margin-auto'>
+      <div className='event-details'>
+        <div className='event-detail margin-auto'>
+          ${cost}
+        </div>
+        <div className='event-detail event-time margin-auto'>
           <strong>Time / Duration</strong><br />
           {startTime} - {endTime} / {duration} {durationPrefix}
         </div>
