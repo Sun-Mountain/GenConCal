@@ -3,7 +3,7 @@ import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
 
-import TimeComponent from './DailyTimeComponent';
+import TimeComponent from './TimeComponent';
 
 import { UniqueFilter } from '@/helpers/getData';
 
@@ -58,6 +58,7 @@ export default function DailyTabs({
   timeLabels
 }: DailyTabs) {
   const [tab, setTab] = useState(0);
+
   const dates = Object.keys(dateList).sort();
 
   const handleChange = (event: SyntheticEvent, newValue: number) => {

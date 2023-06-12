@@ -7,11 +7,10 @@ import FilterAutoList from "@/components/FilterAutoList";
 import FilterButtons from "@/components/FilterButtons";
 import TimeRange from "@/components/TimeRange";
 
-export default function Home() {
-  const {eventData, filters} = getData();
-  const filterList = filters;
+export const { eventData, filters } = getData();
 
-  const [choices, setChoices] = useState([]);
+export default function Home() {
+  const filterList = filters;
 
   // Dates and times
   const dateList = filterList.startDates;

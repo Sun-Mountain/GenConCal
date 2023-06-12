@@ -35,7 +35,7 @@ interface rawEvent {
   'Last Modified': string
 }
 
-interface newEvent {
+export interface NewEvent {
   id: number,
   gameId: string,
   group?: string,
@@ -48,6 +48,7 @@ interface newEvent {
   startTime: string,
   endDate: string,
   endTime: string,
+  duration: number,
   tournament: boolean,
   cost: number,
   location?: string,
@@ -80,7 +81,7 @@ export interface FilterTypes {
 }
 
 interface Data {
-  eventData: Array<newEvent>,
+  eventData: Array<NewEvent>,
   filters: FilterTypes
 }
 
@@ -135,7 +136,7 @@ const cleanData = (events: Array<rawEvent>) => {
   }
 
   events.map((event, index) => {
-    const newEvent: newEvent = {
+    const newEvent: NewEvent = {
       id: 0,
       gameId: '',
       group: '',
@@ -148,6 +149,7 @@ const cleanData = (events: Array<rawEvent>) => {
       startTime: '',
       endDate: '',
       endTime: '',
+      duration: 0,
       tournament: false,
       cost: 0,
       location: '',
@@ -173,6 +175,7 @@ const cleanData = (events: Array<rawEvent>) => {
 
     newEvent.id = index;
     newEvent.gameId = event["Game ID"];
+    newEvent.duration = Number(event["Duration"]);
 
     // Group Name
     if (groupName) {
@@ -246,7 +249,7 @@ const cleanData = (events: Array<rawEvent>) => {
       }
       data.filters.endDates[eventEndDate].push(index);
     }
-    newEvent.startDate = eventEndDate;
+    newEvent.endDate = eventEndDate;
 
     // End Time
     if (eventEndTime) {
