@@ -39,7 +39,7 @@ export default function Home() {
   const locations = filterList.locations;
 
   return (
-    <main id='main-content'>
+    <main>
       <FilterButtons
         filter={ageRequirements}
         filterFor={ageFilters}
