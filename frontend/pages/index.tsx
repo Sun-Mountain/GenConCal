@@ -11,8 +11,6 @@ export default function Home() {
   const {eventData, filters} = getData();
   const filterList = filters;
 
-  const [choices, setChoices] = useState([]);
-
   // Dates and times
   const dateList = filterList.startDates;
   const timesAndEvents = filterList.startTimes;
@@ -91,6 +89,7 @@ export default function Home() {
           locationFilter
         ]}
         dateList={dateList}
+        eventData={eventData}
         filteredEvents={filteredEvents}
         timeFilter={timeFilter}
         timeLabels={timeLabels}

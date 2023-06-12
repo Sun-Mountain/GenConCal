@@ -35,7 +35,7 @@ interface rawEvent {
   'Last Modified': string
 }
 
-interface newEvent {
+export interface NewEvent {
   id: number,
   gameId: string,
   group?: string,
@@ -80,7 +80,7 @@ export interface FilterTypes {
 }
 
 interface Data {
-  eventData: Array<newEvent>,
+  eventData: Array<NewEvent>,
   filters: FilterTypes
 }
 
@@ -135,7 +135,7 @@ const cleanData = (events: Array<rawEvent>) => {
   }
 
   events.map((event, index) => {
-    const newEvent: newEvent = {
+    const newEvent: NewEvent = {
       id: 0,
       gameId: '',
       group: '',
@@ -246,7 +246,7 @@ const cleanData = (events: Array<rawEvent>) => {
       }
       data.filters.endDates[eventEndDate].push(index);
     }
-    newEvent.startDate = eventEndDate;
+    newEvent.endDate = eventEndDate;
 
     // End Time
     if (eventEndTime) {

@@ -98,3 +98,12 @@ ul {
   margin: auto 25px;
   vertical-align: center;
 }
+
+.choice-container {
+  margin: 12px;
+}
+
+.no-choices {
+  color: rgb(131, 131, 131) !important;
+  font-style: italic !important;
+}

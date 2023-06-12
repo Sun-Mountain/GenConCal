@@ -3,9 +3,9 @@ import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
 
-import TimeComponent from './DailyTimeComponent';
+import TimeComponent from './TimeComponent';
 
-import { UniqueFilter } from '@/helpers/getData';
+import { NewEvent, UniqueFilter } from '@/helpers/getData';
 
 interface TabPanelProps {
   children?: ReactNode;
@@ -44,6 +44,7 @@ interface DailyTabs {
   allBaseFilters: number[],
   showOnly: Array<number[]>,
   dateList: UniqueFilter,
+  eventData: NewEvent[],
   filteredEvents: number[],
   timeFilter: UniqueFilter,
   timeLabels: string[]
@@ -53,11 +54,14 @@ export default function DailyTabs({
   allBaseFilters,
   showOnly,
   dateList,
+  eventData,
   filteredEvents,
   timeFilter,
   timeLabels
 }: DailyTabs) {
+  const [choices, setChoices] = useState([]);
   const [tab, setTab] = useState(0);
+
   const dates = Object.keys(dateList).sort();
 
   const handleChange = (event: SyntheticEvent, newValue: number) => {
@@ -95,6 +99,14 @@ export default function DailyTabs({
           })}
         </Tabs>
       </Box>
+      <div className={`choice-container ${choices.length > 0 ? 'choices' : 'no-choices'}`}>
+        {choices.length > 0 ? (
+          'Yay'
+        ) : (
+          'No choices.'
+        )}
+      </div>
+      <hr />
       {dates.map((date: string, index: number) => {
         const dateEvents = getEventsList(date);
 
@@ -110,6 +122,7 @@ export default function DailyTabs({
                   <TimeComponent
                     key={time}
                     events={events}
+                    eventData={eventData}
                     time={time}
                   />
                 )

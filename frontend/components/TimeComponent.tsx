@@ -1,12 +1,16 @@
-import { Dispatch, SetStateAction } from 'react';
+import { Dispatch, SetStateAction, Suspense } from 'react';
+import { NewEvent } from '@/helpers/getData';
+import EventCard from './EventCard';
 
 interface TimeComponent {
   events: number[],
+  eventData: NewEvent[],
   time: string
 }
 
 export default function DailyTimeComponent ({
   events,
+  eventData,
   time
 }: TimeComponent) {
   return (
@@ -16,10 +20,11 @@ export default function DailyTimeComponent ({
       </span>
       <div className="event-list">
         {events.map((event: number, index: number) => {
+          const singleEvent = eventData[event];
           return (
-            <div key={index}>
-              {event}
-            </div>
+            <Suspense key={index}>
+              <EventCard {...singleEvent} />
+            </Suspense>
           )
         })}
       </div>
