@@ -91,10 +91,7 @@ export default function DailyTabs({
         <Tabs value={tab} onChange={handleChange} aria-label="basic tabs example" centered>
           {dates.map((date: string, index: number) => {
             const dateEvents = getEventsList(date);
-            const forTime = filterForTime(timeFilter);
-
-            const finalEventList = dateEvents.filter(val => forTime.includes(val))
-            const eventCount = finalEventList.length;
+            const eventCount = dateEvents.length;
             const dateLabel = <>{date}<br />{eventCount.toLocaleString("en-US")} events</>;
 
             return <Tab key={date} label={dateLabel} {...a11yProps(index)} />
@@ -103,15 +100,12 @@ export default function DailyTabs({
       </Box>
       {dates.map((date: string, index: number) => {
         const dateEvents = getEventsList(date);
-        const forTime = filterForTime(timeFilter);
-
-        const finalEventList = dateEvents.filter(val => forTime.includes(val))
 
         return (
           <TabPanel key={index} value={tab} index={index}>
             {timeLabels.map(time => {
               const timeEvents = timeFilter[time];
-              const events = finalEventList.filter(val => timeEvents.includes(val));
+              const events = dateEvents.filter(val => timeEvents.includes(val));
               const timeEventCount = events.length;
 
               if (timeEventCount > 0) {
