@@ -44,12 +44,13 @@ export default function TimeRange({
 
 
   const handleStartTime = (newStart: string) => {
+    console.log(newStart);
     var newTimesAndEvents = timesAndEvents;
     Object.keys(newTimesAndEvents).forEach(key => {
       var afterStart = key >= newStart,
           ending = endTime ? endTime : defaultEnd,
-          beforeEnd = key < ending;
-      if (!afterStart || !beforeEnd) {
+          afterEnd = key > ending;
+      if (!afterStart || afterEnd) {
         delete newTimesAndEvents[key];
       }
     })
@@ -103,13 +104,13 @@ export default function TimeRange({
         sx={{ width: 300 }}
         defaultValue={defaultEnd}
         onChange={(event: any, newValue: string | null) => {
-          var newEnd = newValue ? newValue : defaultStart;
+          var newEnd = newValue ? newValue : defaultEnd;
           setEndTime(newEnd);
           handleEndTime(newEnd);
         }}
         inputValue={endInput}
         onInputChange={(event, newInputValue) => {
-          var newEnd = newInputValue ? newInputValue : defaultStart;
+          var newEnd = newInputValue ? newInputValue : defaultEnd;
           setEndInput(newEnd);
         }}
         renderInput={(params) => <TextField {...params} label="Latest Start Time" />}

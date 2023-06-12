@@ -3,7 +3,9 @@ import React, { Component } from "react";
 class About extends Component {
   state = {};
   render() {
-    return <>Haha</>
+    return <main>
+      Haha
+    </main>
   }
 }
 

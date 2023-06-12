@@ -19,10 +19,10 @@ export default function Navigation () {
       </Link>
 
       <ul id='nav-links'>
-        <li className={router.pathname == "/" ? "link-container active" : "link-container"}>
+        <li className={`link-container ${router.pathname == "/" ? "active" : null}`}>
           <Link className='nav-link' href="/">Home</Link>
         </li>
-        <li className={router.pathname == "/about" ? "link-container active" : "link-container"}>
+        <li className={`link-container ${router.pathname == "/about" ? "active" : null}`}>
           <Link className='nav-link' href="/about">About</Link>
         </li>
       </ul>

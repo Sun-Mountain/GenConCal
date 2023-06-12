@@ -8,7 +8,7 @@ main {
 }
 
 nav {
-  background-color: rgb(50, 223, 235);
+  background-color: rgb(235, 235, 235);
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -37,11 +37,19 @@ h2 {
 }
 
 .link-container {
-  margin: auto 8px;
+  margin: auto;
+  padding: 15px;
 }
 
 .nav-link, .nav-link:visited {
+  color: rgb(245, 124, 0);
+  font-weight: 700;
+  padding: 15px;
   text-decoration: none;
+}
+
+.active {
+  background-color: rgb(255, 221, 141);
 }
 
 .btn-container {

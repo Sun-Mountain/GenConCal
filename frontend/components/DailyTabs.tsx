@@ -25,9 +25,9 @@ function TabPanel(props: TabPanelProps) {
       {...other}
     >
       {value === index && (
-        <Box sx={{ p: 3 }}>
+        <>
           {children}
-        </Box>
+        </>
       )}
     </div>
   );
@@ -86,7 +86,7 @@ export default function DailyTabs({
   return (
     <Box sx={{ width: '100%' }}>
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-        <Tabs value={tab} onChange={handleChange} aria-label="basic tabs example" centered>
+        <Tabs value={tab} onChange={handleChange} variant='scrollable' aria-label="basic tabs example">
           {dates.map((date: string, index: number) => {
             const dateEvents = getEventsList(date);
             const eventCount = dateEvents.length;
