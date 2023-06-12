@@ -48,6 +48,7 @@ export interface NewEvent {
   startTime: string,
   endDate: string,
   endTime: string,
+  duration: number,
   tournament: boolean,
   cost: number,
   location?: string,
@@ -148,6 +149,7 @@ const cleanData = (events: Array<rawEvent>) => {
       startTime: '',
       endDate: '',
       endTime: '',
+      duration: 0,
       tournament: false,
       cost: 0,
       location: '',
@@ -173,6 +175,7 @@ const cleanData = (events: Array<rawEvent>) => {
 
     newEvent.id = index;
     newEvent.gameId = event["Game ID"];
+    newEvent.duration = Number(event["Duration"]);
 
     // Group Name
     if (groupName) {

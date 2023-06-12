@@ -57,7 +57,6 @@ export default function DailyTabs({
   timeFilter,
   timeLabels
 }: DailyTabs) {
-  const [choices, setChoices] = useState([]);
   const [tab, setTab] = useState(0);
 
   const dates = Object.keys(dateList).sort();
@@ -97,14 +96,6 @@ export default function DailyTabs({
           })}
         </Tabs>
       </Box>
-      <div className={`choice-container ${choices.length > 0 ? 'choices' : 'no-choices'}`}>
-        {choices.length > 0 ? (
-          'Yay'
-        ) : (
-          'No choices.'
-        )}
-      </div>
-      <hr />
       {dates.map((date: string, index: number) => {
         const dateEvents = getEventsList(date);
 

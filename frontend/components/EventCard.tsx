@@ -1,22 +1,37 @@
+import Image from "next/image";
 import { eventData } from "@/pages";
+import { Suspense } from "react";
 
 export default function EventCard({eventIndex}: {eventIndex: number}) {
-  const { gameId, title, startTime, endTime, gameSystem } = eventData[eventIndex];
+  const { gameId, title, startTime, endTime, eventType, gameSystem, duration } = eventData[eventIndex];
+
+  const iconPath = `/icons/${eventType.substring(0,3)}.gif`
+
+  const durationPrefix = duration > 1 ? 'hrs' : 'hr';
+
   return (
     <div className='event-card'>
-      <div className='card-text-secondary'>
-        {gameId.slice(7)}
-      </div>
-      <h3 className='event-card-title'>
-        {title}
-      </h3>
-      {gameSystem && (
-        <div className='event-card-sub-title'>
-          {gameSystem}
+      <div className='event-title-type'>
+        <div className='card-text-secondary'>
+          {gameId.slice(7)}
         </div>
-      )}
-      <div className='event-container'>
-        {startTime} - {endTime}
+        <h3 className='event-card-title'>
+          {title}
+        </h3>
+        {gameSystem && (
+          <div className='event-card-sub-title'>
+            {gameSystem}
+          </div>
+        )}
+      </div>
+      <div className=''>
+        <div className='event-time-container margin-auto'>
+          <strong>Time / Duration</strong><br />
+          {startTime} - {endTime} / {duration} {durationPrefix}
+        </div>
+        <Suspense>
+          <Image alt={`${eventType} Logo`} className='icon margin-auto' src={iconPath} width={64} height={64} />
+        </Suspense>
       </div>
     </div>
   );

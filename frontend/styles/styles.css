@@ -116,6 +116,9 @@ h2 {
 .event-card {
   border: 1px solid rgb(217, 217, 217);
   border-radius: 5px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
   padding: 18px
 }
 
@@ -132,11 +135,27 @@ h2 {
   margin-top: 3px;
 }
 
+.event-title-type {
+  max-width: 500px;
+}
+
 .event-card-title {
   margin-top: 19px;
   margin-bottom: 0;
 }
 
+.event-time-container {
+  width: 145px;
+}
+
 .card-text-secondary {
   color: rgb(154, 154, 154);
+}
+
+.icon {
+  margin-left: 50px !important;
+}
+
+.margin-auto {
+  margin: auto 0;
 }
