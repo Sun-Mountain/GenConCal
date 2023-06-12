@@ -5,10 +5,12 @@ import { UniqueFilter } from '@/helpers/getData';
 
 export default function TimeRange({
   timesAndEvents,
+  setFilteredEvents,
   setTimeFilter,
   setTimeLabels
 }: {
   timesAndEvents: UniqueFilter,
+  setFilteredEvents: Dispatch<SetStateAction<number[]>>,
   setTimeFilter: Dispatch<SetStateAction<UniqueFilter>>,
   setTimeLabels: Dispatch<SetStateAction<string[]>>
 }) {
@@ -32,6 +34,14 @@ export default function TimeRange({
   const [endTime, setEndTime] = useState<string | null>(defaultEnd);
   const [endInput, setEndInput] = useState(defaultEnd);
 
+  const filterEvents = (eventList: UniqueFilter) => {
+    var newFiltered: number [] = [];
+    Object.keys(eventList).forEach(key => {
+      newFiltered = [...newFiltered, ...eventList[key]];
+    })
+    setFilteredEvents(newFiltered);
+  }
+
 
   const handleStartTime = (newStart: string) => {
     var newTimesAndEvents = timesAndEvents;
@@ -43,6 +53,7 @@ export default function TimeRange({
         delete newTimesAndEvents[key];
       }
     })
+    filterEvents(newTimesAndEvents);
     setTimeFilter(newTimesAndEvents);
     setTimeLabels(Object.keys(newTimesAndEvents).sort());
   }
@@ -57,6 +68,7 @@ export default function TimeRange({
         delete newTimesAndEvents[key];
       }
     })
+    filterEvents(newTimesAndEvents);
     setTimeFilter(newTimesAndEvents);
     setTimeLabels(Object.keys(newTimesAndEvents).sort());
   }

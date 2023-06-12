@@ -44,6 +44,7 @@ interface DailyTabs {
   allBaseFilters: number[],
   showOnly: Array<number[]>,
   dateList: UniqueFilter,
+  filteredEvents: number[],
   timeFilter: UniqueFilter,
   timeLabels: string[]
 }
@@ -52,6 +53,7 @@ export default function DailyTabs({
   allBaseFilters,
   showOnly,
   dateList,
+  filteredEvents,
   timeFilter,
   timeLabels
 }: DailyTabs) {
@@ -67,6 +69,10 @@ export default function DailyTabs({
 
     var eventsForDay = dayEvents.filter(val => !allBaseFilters.includes(val));
 
+    if (filteredEvents.length > 0) {
+      eventsForDay = eventsForDay.filter(val => filteredEvents.includes(val));
+    };
+
     showOnly.map(array => {
       if (array.length > 0) {
         eventsForDay = eventsForDay.filter(val => array.includes(val));
@@ -74,15 +80,6 @@ export default function DailyTabs({
     })
 
     return eventsForDay;
-  }
-
-  const filterForTime = (timeFilter: UniqueFilter) => {
-    var filtered: number[] = [];
-    Object.keys(timeFilter).forEach(key => {
-      var events: number[] = timeFilter[key]
-      filtered = [...filtered, ...events];
-    })
-    return filtered;
   }
 
   return (
