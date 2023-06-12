@@ -75,10 +75,10 @@ export interface FilterTypes {
   startTimes: UniqueFilter,
   endDates: UniqueFilter,
   endTimes: UniqueFilter,
-  ifTournament: TournamentFilter,
+  tournament: Array<number>,
   costs: UniqueFilter,
   locations: UniqueFilter,
-  ticketsAvailable: UniqueFilter
+  ticketsAvailable: Array<number>
 }
 
 interface Data {
@@ -126,13 +126,10 @@ const cleanData = (events: Array<rawEvent>) => {
       startTimes: {},
       endDates: {},
       endTimes: {},
-      ifTournament: {
-        true: [],
-        false: []
-      },
+      tournament: [],
       costs: {},
       locations: {},
-      ticketsAvailable: {}
+      ticketsAvailable: []
     }
   }
 
@@ -264,7 +261,9 @@ const cleanData = (events: Array<rawEvent>) => {
     newEvent.endTime = eventEndTime;
 
     // Tournament
-    data.filters.ifTournament[`${isTourny}`].push(index);
+    if (isTourny) {
+      data.filters.tournament.push(index);
+    };
     newEvent.tournament = isTourny;
 
     // Costs
@@ -285,10 +284,7 @@ const cleanData = (events: Array<rawEvent>) => {
 
     // Tickets
     if (eventTickets) {
-      if (!data.filters.ticketsAvailable[eventTickets]) {
-        data.filters.ticketsAvailable[eventTickets] = []
-      }
-      data.filters.ticketsAvailable[eventTickets].push(index);
+      data.filters.ticketsAvailable.push(index);
     }
     newEvent.ticketsAvailable = eventTickets;
 

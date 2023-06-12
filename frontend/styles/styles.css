@@ -187,3 +187,7 @@ h2 {
   text-align: left;
   width: 55px;
 }
+
+.sold-out {
+  background-color: rgb(215, 215, 215) !important;
+}

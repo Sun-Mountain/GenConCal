@@ -11,6 +11,7 @@ export const { eventData, filters } = getData();
 
 export default function Home() {
   const filterList = filters;
+  console.log(filters);
 
   // Dates and times
   const dateList = filterList.startDates;

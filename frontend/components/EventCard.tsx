@@ -16,12 +16,12 @@ export default function EventCard({eventIndex}: {eventIndex: number}) {
     ticketsAvailable
   } = eventData[eventIndex];
 
-  const iconPath = `/icons/${eventType.substring(0,3)}.gif`
-
   const durationPrefix = duration > 1 ? 'hrs' : 'hr';
 
+  const noTickets = ticketsAvailable === 0;
+
   return (
-    <div className='event-listing'>
+    <div className={`event-listing${noTickets ? ' sold-out' : ''}`}>
       <div>
         {title}
       </div>
