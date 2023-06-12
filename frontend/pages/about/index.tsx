@@ -10,7 +10,7 @@ class About extends Component {
           Acknowledgements
         </h3>
         <p>
-          This website was inspired by Jon Schultz's <Link href='https://gencon.eventdb.us/' target='_blank'>GenCon Event Database</Link>.
+          This website was inspired by Jon Schultz&apos;s <Link href='https://gencon.eventdb.us/' target='_blank'>GenCon Event Database</Link>.
         </p>
       </main>
     )
