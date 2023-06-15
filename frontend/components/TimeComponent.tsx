@@ -21,7 +21,7 @@ export default function DailyTimeComponent ({
         {time}
       </h2>
       <div className="event-list">
-        <div className='listing-header'>
+        <div className='event-listing listing-header'>
           <div>
             Title
           </div>

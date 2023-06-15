@@ -1,7 +1,6 @@
 import { Dispatch, SetStateAction, useState } from 'react';
 
 import { UniqueFilter } from '@/helpers/getData';
-import { filterEvents } from "@/interfaces/filterEvents";
 
 export default function FilterButtons({
   filter,
@@ -52,8 +51,10 @@ export default function FilterButtons({
   }
 
   return (
-    <div>
-      {groupLabel}<br />
+    <div className='filter-component-container'>
+      <strong>
+        {groupLabel}
+      </strong>
       <div className='btn-container'>
         {labels.map((label: string) => {
           const showLabel = !hiddenLabels.includes(label) ? 'visible' : 'hidden';
