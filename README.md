@@ -1,5 +1,7 @@
 # GenCon Calendar
 
+<img alt='vercel deployment shield' src='https://img.shields.io/github/deployments/Sun-Mountain/GenConCal/production?label=vercel&logo=vercel&logoColor=vercel&style=flat-square' />
+
 ## Introduction
 The Gencon Calendar Application is a web application built with Next.js framework that aims to assist users in choosing events for their GenCon gaming convention event registration. The applications provides features to browse and filter events based on a number of paramaters including conflicting times.
 
