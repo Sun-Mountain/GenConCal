@@ -78,7 +78,7 @@ export interface FilterTypes {
   tournament: Array<number>,
   costs: UniqueFilter,
   locations: UniqueFilter,
-  ticketsAvailable: Array<number>
+  noTickets: Array<number>
 }
 
 interface Data {
@@ -129,7 +129,7 @@ const cleanData = (events: Array<rawEvent>) => {
       tournament: [],
       costs: {},
       locations: {},
-      ticketsAvailable: []
+      noTickets: []
     }
   }
 
@@ -283,8 +283,8 @@ const cleanData = (events: Array<rawEvent>) => {
     newEvent.location = eventLocation;
 
     // Tickets
-    if (eventTickets) {
-      data.filters.ticketsAvailable.push(index);
+    if (!eventTickets) {
+      data.filters.noTickets.push(index);
     }
     newEvent.ticketsAvailable = eventTickets;
 

@@ -121,6 +121,11 @@ h2 {
   margin-bottom: 12px;
 }
 
+.MuiFormControlLabel-root {
+  display: flex;
+  flex-direction: row-reverse;
+}
+
 .time-title {
   background-color: rgb(43, 179, 129, .1);
   color: rgb(43, 179, 129);
@@ -190,4 +195,8 @@ h2 {
 
 .sold-out {
   background-color: rgb(215, 215, 215) !important;
+}
+
+.switch-container {
+  margin: 15px 0 20px 0;
 }
