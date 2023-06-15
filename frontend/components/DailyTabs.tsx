@@ -41,12 +41,14 @@ function a11yProps(index: number) {
 }
 
 interface DailyTabs {
-  allBaseFilters: number[],
-  showOnly: Array<number[]>,
-  dateList: UniqueFilter,
-  filteredEvents: number[],
-  timeFilter: UniqueFilter,
-  timeLabels: string[]
+  allBaseFilters: number[];
+  showOnly: Array<number[]>;
+  dateList: UniqueFilter;
+  filteredEvents: number[];
+  hideSoldOut: boolean;
+  soldOutEvents: number[];
+  timeFilter: UniqueFilter;
+  timeLabels: string[];
 }
 
 export default function DailyTabs({
@@ -54,6 +56,8 @@ export default function DailyTabs({
   showOnly,
   dateList,
   filteredEvents,
+  hideSoldOut,
+  soldOutEvents,
   timeFilter,
   timeLabels
 }: DailyTabs) {
@@ -69,6 +73,10 @@ export default function DailyTabs({
     const dayEvents = dateList[date]
 
     var eventsForDay = dayEvents.filter(val => !allBaseFilters.includes(val));
+
+    if (hideSoldOut) {
+      eventsForDay = eventsForDay.filter(val => !soldOutEvents.includes(val));
+    }
 
     if (filteredEvents.length > 0) {
       eventsForDay = eventsForDay.filter(val => filteredEvents.includes(val));

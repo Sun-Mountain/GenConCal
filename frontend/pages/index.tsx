@@ -5,6 +5,7 @@ import getData from "@/helpers/getData";
 import DailyTabs from "@/components/DailyTabs";
 import FilterAutoList from "@/components/FilterAutoList";
 import FilterButtons from "@/components/FilterButtons";
+import Switch from "@/components/SwitchComponent";
 import TimeRange from "@/components/TimeRange";
 
 export const { eventData, filters } = getData();
@@ -15,6 +16,7 @@ export default function Home() {
   // Dates and times
   const dateList = filterList.startDates;
   const timesAndEvents = filterList.startTimes;
+  const soldOutEvents = filterList.noTickets;
   const allTimeLabels = Object.keys(timesAndEvents).sort();
   const [timeLabels, setTimeLabels] = useState(allTimeLabels);
   const [timeFilter, setTimeFilter] = useState(timesAndEvents);
@@ -26,6 +28,9 @@ export default function Home() {
   // Buttons
   const ageRequirements = filterList.ageRequirements;
   const experienceRequirements = filterList.experienceRequirements;
+
+  // Switches
+  const [hideSoldOut, setHideSoldOut] = useState(false);
 
   // Multi filters
   const [eventTypeFilters, setEventTypeFilters] = useState<number[]>([]);
@@ -72,6 +77,11 @@ export default function Home() {
         setFilterFor={setLocationFilter}
         label={'Location'}
       />
+      <Switch
+        switchLabel={'Sold Out Events'}
+        hide={hideSoldOut}
+        setHide={setHideSoldOut}
+      />
       <TimeRange
         setFilteredEvents={setFilteredEvents}
         timesAndEvents={timesAndEvents}
@@ -91,6 +101,8 @@ export default function Home() {
         ]}
         dateList={dateList}
         filteredEvents={filteredEvents}
+        hideSoldOut={hideSoldOut}
+        soldOutEvents={soldOutEvents}
         timeFilter={timeFilter}
         timeLabels={timeLabels}
       />
