@@ -13,35 +13,29 @@ export const { eventData, filters } = getData();
 export default function Home() {
   const filterList = filters;
 
-  // Dates and times
-  const dateList = filterList.startDates;
-  const timesAndEvents = filterList.startTimes;
-  const soldOutEvents = filterList.noTickets;
-  const allTimeLabels = Object.keys(timesAndEvents).sort();
-  const [timeLabels, setTimeLabels] = useState(allTimeLabels);
-  const [timeFilter, setTimeFilter] = useState(timesAndEvents);
-  const [filteredEvents, setFilteredEvents] = useState<number[]>([]);
-
-  // Basic filters
-  const [ageFilters, setAgeFilters] = useState<number[]>([]);
-  const [experienceFilters, setExperienceFilters] = useState<number[]>([]);
-  // Buttons
-  const ageRequirements = filterList.ageRequirements;
-  const experienceRequirements = filterList.experienceRequirements;
-
-  // Switches
-  const [hideSoldOut, setHideSoldOut] = useState(false);
-
-  // Multi filters
-  const [eventTypeFilters, setEventTypeFilters] = useState<number[]>([]);
-  const [groupFilter, setGroupFilter] = useState<number[]>([]);
-  const [locationFilter, setLocationFilter] = useState<number[]>([]);
-  const [systemFilters, setSystemFilters] = useState<number[]>([]);
   // Lists
+  const ageRequirements = filterList.ageRequirements;
+  const dateList = filterList.startDates;
   const eventTypes = filterList.eventTypes;
+  const experienceRequirements = filterList.experienceRequirements;
   const gameSystems = filterList.gameSystems;
   const groups = filterList.groups;
   const locations = filterList.locations;
+  const soldOutEvents = filterList.noTickets;
+  const startTimes = filterList.startTimes;
+
+  // Filters
+  const [ageFilters, setAgeFilters] = useState<number[]>([]);
+  const [experienceFilters, setExperienceFilters] = useState<number[]>([]);
+  const [eventTypeFilters, setEventTypeFilters] = useState<number[]>([]);
+  const [groupFilter, setGroupFilter] = useState<number[]>([]);
+  const [locationFilter, setLocationFilter] = useState<number[]>([]);
+  const [earlyStartTime, setEarlyStartTime] = useState('00:00');
+  const [lateStartTime, setLateStartTime] = useState('23:45');
+  const [systemFilters, setSystemFilters] = useState<number[]>([]);
+
+  // Switches
+  const [hideSoldOut, setHideSoldOut] = useState(true);
 
   return (
     <main>
@@ -83,10 +77,10 @@ export default function Home() {
         setHide={setHideSoldOut}
       />
       <TimeRange
-        setFilteredEvents={setFilteredEvents}
-        timesAndEvents={timesAndEvents}
-        setTimeFilter={setTimeFilter}
-        setTimeLabels={setTimeLabels}
+        earlyStartTime={earlyStartTime}
+        lateStartTime={lateStartTime}
+        setEarlyStartTime={setEarlyStartTime}
+        setLateStartTime={setLateStartTime}
       />
       <DailyTabs
         allBaseFilters={[
@@ -100,11 +94,11 @@ export default function Home() {
           locationFilter
         ]}
         dateList={dateList}
-        filteredEvents={filteredEvents}
         hideSoldOut={hideSoldOut}
         soldOutEvents={soldOutEvents}
-        timeFilter={timeFilter}
-        timeLabels={timeLabels}
+        earlyStartTime={earlyStartTime}
+        lateStartTime={lateStartTime}
+        startTimes={startTimes}
       />
     </main>
   )
