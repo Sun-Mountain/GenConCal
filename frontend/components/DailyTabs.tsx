@@ -67,7 +67,6 @@ export default function DailyTabs({
   const handleChange = (event: SyntheticEvent, newValue: number) => {
     setTab(newValue);
   };
-  console.log(startTimes);
 
   const getEventsList = (date: string) => {
     const dayEvents = dateList[date]
