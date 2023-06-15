@@ -44,30 +44,30 @@ interface DailyTabs {
   allBaseFilters: number[];
   showOnly: Array<number[]>;
   dateList: UniqueFilter;
-  filteredEvents: number[];
   hideSoldOut: boolean;
   soldOutEvents: number[];
-  timeFilter: UniqueFilter;
-  timeLabels: string[];
+  earlyStartTime: string;
+  lateStartTime: string;
+  startTimes: UniqueFilter;
 }
 
 export default function DailyTabs({
   allBaseFilters,
   showOnly,
   dateList,
-  filteredEvents,
   hideSoldOut,
   soldOutEvents,
-  timeFilter,
-  timeLabels
+  earlyStartTime,
+  lateStartTime,
+  startTimes
 }: DailyTabs) {
-  const [tab, setTab] = useState(0);
-
   const dates = Object.keys(dateList).sort();
-
+  const timeLabels = Object.keys(startTimes).sort();
+  const [tab, setTab] = useState(0);
   const handleChange = (event: SyntheticEvent, newValue: number) => {
     setTab(newValue);
   };
+  console.log(startTimes);
 
   const getEventsList = (date: string) => {
     const dayEvents = dateList[date]
@@ -78,9 +78,12 @@ export default function DailyTabs({
       eventsForDay = eventsForDay.filter(val => !soldOutEvents.includes(val));
     }
 
-    if (filteredEvents.length > 0) {
-      eventsForDay = eventsForDay.filter(val => filteredEvents.includes(val));
-    };
+    timeLabels.map(timeLabel => {
+      if (timeLabel < earlyStartTime || timeLabel > lateStartTime) {
+        var events = startTimes[timeLabel]
+        eventsForDay = eventsForDay.filter(val => !events.includes(val));
+      }
+    })
 
     showOnly.map(array => {
       if (array.length > 0) {
@@ -110,18 +113,18 @@ export default function DailyTabs({
         return (
           <TabPanel key={index} value={tab} index={index}>
             {timeLabels.map(time => {
-              const timeEvents = timeFilter[time];
-              const events = dateEvents.filter(val => timeEvents.includes(val));
-              const timeEventCount = events.length;
+              if (time >= earlyStartTime || time <= lateStartTime) {
+                const events = dateEvents.filter(val => startTimes[time].includes(val))
 
-              if (timeEventCount > 0) {
-                return (
-                  <TimeComponent
-                    key={time}
-                    events={events}
-                    time={time}
-                  />
-                )
+                if (events.length) {
+                    return (
+                      <TimeComponent
+                        key={time}
+                        events={events}
+                        time={time}
+                      />
+                    )
+                }
               }
             })}
           </TabPanel>
