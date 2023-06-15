@@ -1,8 +1,6 @@
-import Image from "next/image";
 import { eventData } from "@/pages";
-import { Suspense } from "react";
 
-export default function EventCard({eventIndex}: {eventIndex: number}) {
+export default function EventListing ({eventIndex}: {eventIndex: number}) {
   const {
     gameId,
     title,
