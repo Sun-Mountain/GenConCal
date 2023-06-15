@@ -28,9 +28,11 @@ export default function FilterAutoList({
 
   return (
     <Autocomplete
+      className='filter-list'
       multiple
       id="tags-outlined"
       disableCloseOnSelect
+      sx={{ width: 300 }}
       options={options}
       getOptionLabel={(option) => option}
       onChange={(event, value) => handleFilters(value)}

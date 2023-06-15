@@ -22,7 +22,7 @@ export default function EventCard({eventIndex}: {eventIndex: number}) {
 
   return (
     <div className={`event-listing${noTickets ? ' sold-out' : ''}`}>
-      <div>
+      <div className='event-title-container'>
         {title}
       </div>
       <div className='event-details'>
@@ -30,7 +30,7 @@ export default function EventCard({eventIndex}: {eventIndex: number}) {
           {ticketsAvailable}/{maxTickets}
         </div>
         <div className='duration-column'>
-          {startTime} - {endTime} <strong>/</strong> {duration} {durationPrefix}
+          {duration} {durationPrefix}
         </div>
         <div className='cost-column'>
           ${cost}

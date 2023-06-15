@@ -17,7 +17,9 @@ export default function SwitchComponent({ switchLabel, hide, setHide }: Switch) 
 
   return (
     <div className='switch-container'>
-      {label} <Switch checked={hide} onChange={handleChange}{...aria} />
+      <div>
+        <strong>{label}</strong> <Switch checked={hide} onChange={handleChange}{...aria} />
+      </div>
     </div>
   );
 }

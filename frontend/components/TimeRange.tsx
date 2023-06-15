@@ -28,16 +28,16 @@ export default function TimeRange({
   }
 
   return (
-    <>
-      <div>
-        {earlyStartTime} - {lateStartTime}
+    <div className='time-range-container'>
+      <div className='time-range-label'>
+        <strong>Start Time Range</strong>: {earlyStartTime} - {lateStartTime}
       </div>
       <div className='flex-row'>
         <Autocomplete
           disablePortal
           id="combo-box-demo"
           options={times}
-          sx={{ width: 300 }}
+          sx={{ width: 145 }}
           onChange={(event: any, newValue: string | null) => {
             var newTime = newValue ? newValue : earlyStartTime;
             setEarlyStartTime(newTime);
@@ -55,7 +55,7 @@ export default function TimeRange({
           disablePortal
           id="combo-box-demo"
           options={times}
-          sx={{ width: 300 }}
+          sx={{ width: 145 }}
           onChange={(event: any, newValue: string | null) => {
             var newTime = newValue ? newValue : lateStartTime;
             setLateStartTime(newTime);
@@ -69,6 +69,6 @@ export default function TimeRange({
           renderInput={(params) => <TextField {...params} label="Latest Start Time" />}
         />
       </div>
-    </>
+    </div>
   );
 }

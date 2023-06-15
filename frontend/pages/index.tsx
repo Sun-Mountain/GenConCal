@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { useState } from "react";
 
 import getData from "@/helpers/getData";
 
@@ -39,49 +39,53 @@ export default function Home() {
 
   return (
     <main>
-      <FilterButtons
-        filter={ageRequirements}
-        filterFor={ageFilters}
-        setFilterFor={setAgeFilters}
-        groupLabel={'Age Requirements'}
-      />
-      <FilterButtons
-        filter={experienceRequirements}
-        filterFor={experienceFilters}
-        setFilterFor={setExperienceFilters}
-        groupLabel={'Experience Requirements'}
-      />
-      <FilterAutoList
-        filter={eventTypes}
-        setFilterFor={setEventTypeFilters}
-        label={'Event Type'}
-      />
-      <FilterAutoList
-        filter={gameSystems}
-        setFilterFor={setSystemFilters}
-        label={'Game System'}
-      />
-      <FilterAutoList
-        filter={groups}
-        setFilterFor={setGroupFilter}
-        label={'Company / Group'}
-      />
-      <FilterAutoList
-        filter={locations}
-        setFilterFor={setLocationFilter}
-        label={'Location'}
-      />
-      <Switch
-        switchLabel={'Sold Out Events'}
-        hide={hideSoldOut}
-        setHide={setHideSoldOut}
-      />
-      <TimeRange
-        earlyStartTime={earlyStartTime}
-        lateStartTime={lateStartTime}
-        setEarlyStartTime={setEarlyStartTime}
-        setLateStartTime={setLateStartTime}
-      />
+      <div id="filters-container">
+        <FilterButtons
+          filter={ageRequirements}
+          filterFor={ageFilters}
+          setFilterFor={setAgeFilters}
+          groupLabel={'Age Requirements'}
+        />
+        <FilterButtons
+          filter={experienceRequirements}
+          filterFor={experienceFilters}
+          setFilterFor={setExperienceFilters}
+          groupLabel={'Experience Requirements'}
+        />
+        <div id="filter-list-container">
+          <FilterAutoList
+            filter={eventTypes}
+            setFilterFor={setEventTypeFilters}
+            label={'Event Type'}
+          />
+          <FilterAutoList
+            filter={gameSystems}
+            setFilterFor={setSystemFilters}
+            label={'Game System'}
+          />
+          <FilterAutoList
+            filter={groups}
+            setFilterFor={setGroupFilter}
+            label={'Company / Group'}
+          />
+          <FilterAutoList
+            filter={locations}
+            setFilterFor={setLocationFilter}
+            label={'Location'}
+          />
+        </div>
+        <Switch
+          switchLabel={'Sold Out Events'}
+          hide={hideSoldOut}
+          setHide={setHideSoldOut}
+        />
+        <TimeRange
+          earlyStartTime={earlyStartTime}
+          lateStartTime={lateStartTime}
+          setEarlyStartTime={setEarlyStartTime}
+          setLateStartTime={setLateStartTime}
+        />
+      </div>
       <DailyTabs
         allBaseFilters={[
           ...ageFilters,

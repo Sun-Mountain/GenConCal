@@ -9,24 +9,25 @@ export default function Navigation () {
 
   return (
     <nav>
-      <Link id='logo-container' href='/'>
-        <Image
-          alt='GenCon Calendar Logo'
-          width={60}
-          height={60}
-          src={Logo}
-        />
-      </Link>
+      <div id="top-nav">
+        <Link id='logo-container' href='/'>
+          <Image
+            alt='GenCon Calendar Logo'
+            width={60}
+            height={60}
+            src={Logo}
+          />
+        </Link>
 
-      <ul id='nav-links'>
-        <li className={`link-container ${router.pathname == "/" ? "active" : null}`}>
-          <Link className='nav-link' href="/">Home</Link>
-        </li>
-        <li className={`link-container ${router.pathname == "/about" ? "active" : null}`}>
-          <Link className='nav-link' href="/about">About</Link>
-        </li>
-      </ul>
-
+        <ul id='nav-links'>
+          <li className={`link-container ${router.pathname == "/" ? "active" : null}`}>
+            <Link className='nav-link' href="/">Home</Link>
+          </li>
+          <li className={`link-container ${router.pathname == "/about" ? "active" : null}`}>
+            <Link className='nav-link' href="/about">About</Link>
+          </li>
+        </ul>
+      </div>
     </nav>
   )
 }

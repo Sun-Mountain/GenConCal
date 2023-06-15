@@ -95,7 +95,7 @@ export default function DailyTabs({
   }
 
   return (
-    <Box sx={{ width: '100%' }}>
+    <Box className='tabs-container' sx={{ width: '100%' }}>
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
         <Tabs value={tab} onChange={handleChange} variant='scrollable' aria-label="basic tabs example">
           {dates.map((date: string, index: number) => {
