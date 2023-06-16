@@ -21,9 +21,9 @@ export default function DailyTimeComponent ({
       <div className="event-list">
         <div className='event-listing listing-header'>
           <div className='flex-row'>
-            <div className='add-button-column'>
+            {/* <div className='add-button-column'>
               Add Choice
-            </div>
+            </div> */}
             <div>
               Title
             </div>
