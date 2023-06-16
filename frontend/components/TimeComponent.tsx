@@ -1,5 +1,4 @@
 import dynamic from 'next/dynamic';
-import { NewEvent } from '@/helpers/getData';
 
 const EventListing = dynamic(() => import("./EventListing"), {
   loading: () => <b>Loading...</b>,
@@ -21,8 +20,13 @@ export default function DailyTimeComponent ({
       </h2>
       <div className="event-list">
         <div className='event-listing listing-header'>
-          <div>
-            Title
+          <div className='flex-row'>
+            <div className='add-button-column'>
+              Add Choice
+            </div>
+            <div>
+              Title
+            </div>
           </div>
           <div className='event-details'>
             <div className='tickets-column'>

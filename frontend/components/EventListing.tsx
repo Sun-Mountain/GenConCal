@@ -1,4 +1,6 @@
 import { eventData } from "@/pages";
+import IconButton from '@mui/material/IconButton';
+import AddIcon from '@mui/icons-material/Add';
 
 export default function EventListing ({eventIndex}: {eventIndex: number}) {
   const {
@@ -20,8 +22,17 @@ export default function EventListing ({eventIndex}: {eventIndex: number}) {
 
   return (
     <div className={`event-listing${noTickets ? ' sold-out' : ''}`}>
-      <div className='event-title-container'>
-        {title}
+      <div className='flex-row'>
+        <div className="add-button-column">
+          <div>
+            <IconButton aria-label="add icon" color="secondary">
+              <AddIcon />
+            </IconButton>
+          </div>
+        </div>
+        <div className='event-title-container'>
+          {title}
+        </div>
       </div>
       <div className='event-details'>
         <div className='tickets-column'>

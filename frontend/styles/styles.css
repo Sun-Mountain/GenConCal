@@ -190,6 +190,15 @@ nav {
   font-weight: 700;
 }
 
+.add-button-column {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+  margin-right: 7px !important;
+  width: 55px;
+}
+
 .cost-column {
   text-align: center;
   width: 35px
