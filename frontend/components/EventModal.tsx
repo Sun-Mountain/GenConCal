@@ -42,19 +42,13 @@ export default function BasicModal({
       >
         <Box sx={style}>
           <table>
-            <thead>
-              <tr>
-                <th>
-                  Title
-                </th>
-                <th>
-                  {event.title}
-                </th>
-              </tr>
-            </thead>
+            <TableRow label='Title' value={event.title} />
             <TableRow label='Game Id' value={event.gameId} />
             <TableRow label='Start Date & Time' value={`${event.startDate} ${event.startTime}`} />
             <TableRow label='End Date & Time' value={`${event.endDate} ${event.endTime}`} />
+            {event.shortDescription && <TableRow label='Short Description' value={event.shortDescription} />}
+            {event.longDescription && <TableRow label='Long Description' value={event.longDescription} />}
+            <TableRow label='Game Id' value={event.gameId} />
             <TableRow label='Cost' value={`$${event.cost}`} />
             {event.gameSystem && <TableRow label='Game System' value={event.gameSystem} />}
             <TableRow label='Age Requirement' value={event.ageRequirement} />

@@ -40,6 +40,8 @@ export interface NewEvent {
   gameId: string,
   group?: string,
   title: string,
+  shortDescription?: string,
+  longDescription?: string,
   eventType: string,
   gameSystem?: string,
   ageRequirement: string,
@@ -139,6 +141,8 @@ const cleanData = (events: Array<rawEvent>) => {
       gameId: '',
       group: '',
       title: '',
+      shortDescription: '',
+      longDescription: '',
       eventType: '',
       gameSystem: '',
       ageRequirement: '',
@@ -158,6 +162,8 @@ const cleanData = (events: Array<rawEvent>) => {
     const rawStart = new Date(event["Start Date & Time"]);
     const rawEnd = new Date(event["End Date & Time"]);
 
+    const shortDescription = event["Short Description"];
+    const longDescription = event["Long Description"];
     const groupName = event["Group"];
     const eventType = event["Event Type"];
     const gameSystem = event["Game System"];
@@ -196,6 +202,10 @@ const cleanData = (events: Array<rawEvent>) => {
       data.filters.eventTypes[eventType].push(index);
     }
     newEvent.eventType = eventType;
+
+    // Event Description
+    newEvent.shortDescription = shortDescription;
+    newEvent.longDescription = longDescription;
 
     // System Name
     if (gameSystem) {
