@@ -230,3 +230,25 @@ nav {
   min-width: 345px;
   max-width: 800px;
 }
+
+tr, td {
+  border: 1px solid rgb(222, 222, 222);
+  display: block;
+}
+
+tr {
+  display: flex;
+  flex-direction: row;
+}
+
+tr+tr {
+  border-top: 0;
+}
+
+.table-label-container {
+  width: 25%;
+}
+
+.table-value-container {
+  width:75%;
+}

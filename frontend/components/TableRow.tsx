@@ -1,10 +1,10 @@
 export default function TableRow ({ label, value }: { label: string, value: string}) {
   return (
-    <tr>
-      <td>
+    <tr className="modal-table-row">
+      <td className="table-label-container">
         {label}
       </td>
-      <td>
+      <td className="table-value-container">
         {value}
       </td>
     </tr>

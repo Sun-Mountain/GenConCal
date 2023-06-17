@@ -12,6 +12,10 @@ const style = {
     lg: 800, // theme.breakpoints.up('lg')
     xl: 800, // theme.breakpoints.up('xl')
   },
+  height: {
+    xs: '75dvh', // theme.breakpoints.up('xs')
+    sm: 500,
+  },
   position: 'absolute' as 'absolute',
   top: '50%',
   left: '50%',
@@ -20,6 +24,7 @@ const style = {
   border: '2px solid #000',
   boxShadow: 24,
   p: 4,
+  overflow: 'scroll',
 };
 
 export default function BasicModal({
@@ -41,7 +46,7 @@ export default function BasicModal({
         aria-describedby="modal-modal-description"
       >
         <Box sx={style}>
-          <table>
+          <table className='modal-table'>
             <TableRow label='Title' value={event.title} />
             <TableRow label='Game Id' value={event.gameId} />
             <TableRow label='Start Date & Time' value={`${event.startDate} ${event.startTime}`} />
