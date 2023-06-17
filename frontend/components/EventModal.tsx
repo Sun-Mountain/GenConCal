@@ -1,5 +1,5 @@
 import { Dispatch, SetStateAction } from 'react';
-import { NewEvent } from '@/helpers/getData';
+import { NewEvent } from '@/interfaces/Events';
 import Box from '@mui/material/Box';
 import Modal from '@mui/material/Modal';
 import ConfirmationNumberIcon from '@mui/icons-material/ConfirmationNumber';

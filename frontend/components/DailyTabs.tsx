@@ -44,8 +44,8 @@ function a11yProps(index: number) {
 interface DailyTabs {
   allBaseFilters: number[];
   showOnly: Array<number[]>;
-  choices: Array<Choice>;
-  setChoices: Dispatch<SetStateAction<Choice[]>>,
+  choices: number[];
+  setChoices: Dispatch<SetStateAction<number[]>>,
   dateList: UniqueFilter;
   hideSoldOut: boolean;
   soldOutEvents: number[];
