@@ -1,8 +1,10 @@
 import { Dispatch, SetStateAction } from 'react';
+import { NewEvent } from '@/helpers/getData';
 import Box from '@mui/material/Box';
 import Modal from '@mui/material/Modal';
+import ConfirmationNumberIcon from '@mui/icons-material/ConfirmationNumber';
 import TableRow from './TableRow';
-import { NewEvent } from '@/helpers/getData';
+import Link from 'next/link';
 
 const style = {
   width: {
@@ -37,6 +39,9 @@ export default function BasicModal({
   event: NewEvent;
 }) {
 
+  var gameId = event.gameId,
+      eventLinkId = gameId.substring(7);
+
   return (
     <div className='modal-layer'>
       <Modal
@@ -47,13 +52,22 @@ export default function BasicModal({
       >
         <Box sx={style}>
           <table className='modal-table'>
-            <TableRow label='Title' value={event.title} />
-            <TableRow label='Game Id' value={event.gameId} />
+            <tr className="modal-table-row">
+              <td className="table-label-container">
+                Title
+              </td>
+              <td className="table-value-container">
+                {event.title}<br />
+                <Link href={`https://www.gencon.com/events/${eventLinkId}`}>
+                  <ConfirmationNumberIcon /> Wishlist / Purchase Option
+                </Link>
+              </td>
+            </tr>
+            <TableRow label='Game Id' value={gameId} />
             <TableRow label='Start Date & Time' value={`${event.startDate} ${event.startTime}`} />
             <TableRow label='End Date & Time' value={`${event.endDate} ${event.endTime}`} />
             {event.shortDescription && <TableRow label='Short Description' value={event.shortDescription} />}
             {event.longDescription && <TableRow label='Long Description' value={event.longDescription} />}
-            <TableRow label='Game Id' value={event.gameId} />
             <TableRow label='Cost' value={`$${event.cost}`} />
             {event.gameSystem && <TableRow label='Game System' value={event.gameSystem} />}
             <TableRow label='Age Requirement' value={event.ageRequirement} />
