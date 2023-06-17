@@ -58,7 +58,10 @@ export default function BasicModal({
               </td>
               <td className="table-value-container">
                 {event.title}<br />
-                <Link href={`https://www.gencon.com/events/${eventLinkId}`}>
+                <Link
+                  href={`https://www.gencon.com/events/${eventLinkId}`}
+                  target="_blank"
+                >
                   <ConfirmationNumberIcon /> Wishlist / Purchase Option
                 </Link>
               </td>
