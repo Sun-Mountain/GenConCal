@@ -17,6 +17,16 @@ nav {
   width: 100%;
 }
 
+a, a:visited {
+  color: rgb(43, 179, 129);
+  text-decoration: none;
+}
+
+a:hover {
+  color: rgb(28, 109, 79);
+  text-decoration: underline;
+}
+
 /* Generic */
 
 .flex-row {
@@ -237,6 +247,10 @@ tr, td {
   display: block;
 }
 
+td {
+  padding: 2px 4px;
+}
+
 tr {
   display: flex;
   flex-direction: row;
@@ -252,4 +266,9 @@ tr+tr {
 
 .table-value-container {
   width:75%;
+}
+
+.ticket-link {
+  display: flex;
+  flex-direction: row;
 }
