@@ -4,14 +4,7 @@ import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
 
 import TimeComponent from './TimeComponent';
-
-import { UniqueFilter } from '@/interfaces/Filters';
-
-interface TabPanelProps {
-  children?: ReactNode;
-  index: number;
-  value: number;
-}
+import { TabPanelProps, DailyTabs } from '@/interfaces/Components';
 
 function TabPanel(props: TabPanelProps) {
   const { children, value, index, ...other } = props;
@@ -38,19 +31,6 @@ function a11yProps(index: number) {
     id: `simple-tab-${index}`,
     'aria-controls': `simple-tabpanel-${index}`,
   };
-}
-
-interface DailyTabs {
-  allBaseFilters: number[];
-  showOnly: Array<number[]>;
-  choices: number[];
-  setChoices: Dispatch<SetStateAction<number[]>>,
-  dateList: UniqueFilter;
-  hideSoldOut: boolean;
-  soldOutEvents: number[];
-  earlyStartTime: string;
-  lateStartTime: string;
-  startTimes: UniqueFilter;
 }
 
 export default function DailyTabs({

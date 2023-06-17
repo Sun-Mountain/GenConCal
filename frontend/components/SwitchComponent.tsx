@@ -1,13 +1,8 @@
 import { Dispatch, SetStateAction } from 'react';
 import Switch from '@mui/material/Switch';
+import { SwitchInterface } from '@/interfaces/Components';
 
-interface Switch {
-  switchLabel: string;
-  hide: boolean;
-  setHide: Dispatch<SetStateAction<boolean>>;
-}
-
-export default function SwitchComponent({ switchLabel, hide, setHide }: Switch) {
+export default function SwitchComponent({ switchLabel, hide, setHide }: SwitchInterface) {
   const aria = { inputProps: { 'aria-label': `${switchLabel} Switch` } };
   const label = hide ? `Show ${switchLabel}` : `Hide ${switchLabel}`;
 

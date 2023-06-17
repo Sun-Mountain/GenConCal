@@ -1,3 +1,5 @@
+import { Dispatch, SetStateAction } from "react";
+
 export interface UniqueFilter {
   [index: string]: Array<number>;
 }
@@ -16,4 +18,10 @@ export interface FilterTypes {
   costs: UniqueFilter;
   locations: UniqueFilter;
   noTickets: Array<number>;
+}
+
+export interface FilterAutoList {
+  filter: UniqueFilter,
+  setFilterFor: Dispatch<SetStateAction<number[]>>,
+  label: string
 }

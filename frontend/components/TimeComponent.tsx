@@ -1,14 +1,10 @@
 import { Suspense } from 'react';
 import dynamic from 'next/dynamic';
+import { TimeComponent } from '@/interfaces/Components';
 
 const EventListing = dynamic(() => import("./EventListing"), {
   loading: () => <b>Loading...</b>,
 });
-
-interface TimeComponent {
-  events: number[],
-  time: string
-}
 
 export default function DailyTimeComponent ({
   events,

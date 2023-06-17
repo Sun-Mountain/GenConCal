@@ -2,13 +2,7 @@ import { Dispatch, SetStateAction } from 'react';
 import Autocomplete from '@mui/material/Autocomplete';
 import TextField from '@mui/material/TextField';
 
-import { UniqueFilter } from '@/interfaces/Filters';
-
-interface FilterAutoList {
-  filter: UniqueFilter,
-  setFilterFor: Dispatch<SetStateAction<number[]>>,
-  label: string
-}
+import { FilterAutoList } from '@/interfaces/Filters';
 
 export default function FilterAutoList({
   filter,

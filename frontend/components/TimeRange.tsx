@@ -1,13 +1,7 @@
 import { Dispatch, SetStateAction } from 'react';
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
-
-interface TimeRangeComponent {
-  earlyStartTime: string;
-  lateStartTime: string;
-  setEarlyStartTime: Dispatch<SetStateAction<string>>;
-  setLateStartTime: Dispatch<SetStateAction<string>>;
-}
+import { TimeRangeComponent } from '@/interfaces/Components';
 
 export default function TimeRange({
   earlyStartTime = '00:00',
