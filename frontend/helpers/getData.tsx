@@ -1,14 +1,6 @@
 import Events from '@/data/events.json';
 import { NewEvent, rawEvent } from '@/interfaces/Events';
-
-export interface UniqueFilter {
-  [index: string]: Array<number>
-}
-
-interface TournamentFilter {
-  true: Array<number>,
-  false: Array<number>
-}
+import { UniqueFilter } from '@/interfaces/Filters';
 
 export interface FilterTypes {
   groups: UniqueFilter,
@@ -47,15 +39,6 @@ const isTournament = (eventTournament: string) => {
   }
 
   return false;
-}
-
-const toTitleCase = (str: string) => {
-  return str.replace(
-    /\w\S*/g,
-    function(txt) {
-      return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
-    }
-  );
 }
 
 const cleanData = (events: Array<rawEvent>) => {
