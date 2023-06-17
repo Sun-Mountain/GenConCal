@@ -1,27 +1,6 @@
 import Events from '@/data/events.json';
 import { NewEvent, rawEvent } from '@/interfaces/Events';
-import { UniqueFilter } from '@/interfaces/Filters';
-
-export interface FilterTypes {
-  groups: UniqueFilter,
-  eventTypes: UniqueFilter,
-  gameSystems: UniqueFilter,
-  ageRequirements: UniqueFilter,
-  experienceRequirements: UniqueFilter,
-  startDates: UniqueFilter,
-  startTimes: UniqueFilter,
-  endDates: UniqueFilter,
-  endTimes: UniqueFilter,
-  tournament: Array<number>,
-  costs: UniqueFilter,
-  locations: UniqueFilter,
-  noTickets: Array<number>
-}
-
-interface Data {
-  eventData: Array<NewEvent>,
-  filters: FilterTypes
-}
+import { Data } from '@/interfaces/Data';
 
 const getTime = (time: Date) => {
   const hours = time.getHours();
