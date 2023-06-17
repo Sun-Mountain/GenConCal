@@ -16,7 +16,6 @@ const isTournament = (eventTournament: string) => {
   if (eventTournament === "Yes") {
     return true;
   }
-
   return false;
 }
 
