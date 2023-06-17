@@ -18,13 +18,13 @@ nav {
 }
 
 a, a:visited {
-  color: rgb(43, 179, 129);
-  text-decoration: none;
+  color: rgb(70, 95, 223);
+  text-decoration: underline;
 }
 
 a:hover {
-  color: rgb(28, 109, 79);
-  text-decoration: underline;
+  color: rgb(38, 38, 153);
+  text-decoration: none;
 }
 
 /* Generic */
@@ -116,6 +116,7 @@ a:hover {
 
 .nav-link:hover {
   border-bottom: 2px solid rgb(25, 118, 210);
+  text-decoration: none;
 }
 
 /* Main Content */
@@ -254,6 +255,10 @@ td {
 tr {
   display: flex;
   flex-direction: row;
+}
+
+tr:nth-child(odd) {
+  background-color: rgb(145, 224, 232, .2);
 }
 
 tr+tr {
