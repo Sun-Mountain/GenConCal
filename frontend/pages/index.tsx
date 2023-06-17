@@ -12,7 +12,6 @@ export const { eventData, filters } = getData();
 
 export default function Home() {
   const filterList = filters;
-  console.log(filterList)
 
   // Lists
   const ageRequirements = filterList.ageRequirements;

@@ -17,6 +17,16 @@ nav {
   width: 100%;
 }
 
+a, a:visited {
+  color: rgb(70, 95, 223);
+  text-decoration: underline;
+}
+
+a:hover {
+  color: rgb(38, 38, 153);
+  text-decoration: none;
+}
+
 /* Generic */
 
 .flex-row {
@@ -55,6 +65,7 @@ nav {
   background-color: rgb(17, 145, 0, .08);
   border: 2px solid rgb(17, 145, 0);
   border-radius: 8px 8px;
+  font-size: 18px;
   margin: 5px 8px;
   padding-left: 15px;
 }
@@ -105,6 +116,7 @@ nav {
 
 .nav-link:hover {
   border-bottom: 2px solid rgb(25, 118, 210);
+  text-decoration: none;
 }
 
 /* Main Content */
@@ -190,6 +202,15 @@ nav {
   font-weight: 700;
 }
 
+.add-button-column {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+  margin-right: 7px !important;
+  width: 55px;
+}
+
 .cost-column {
   text-align: center;
   width: 35px
@@ -208,4 +229,51 @@ nav {
 .tickets-column {
   text-align: center;
   width: 55px
+}
+
+/* Event Modal */
+
+.modal-container {
+  position: 'absolute';
+  top: '50%';
+  left: '50%';
+  transform: 'translate(-50%, -50%)';
+  background-color: rgb(240, 246, 251);
+  min-width: 345px;
+  max-width: 800px;
+}
+
+tr, td {
+  border: 1px solid rgb(222, 222, 222);
+  display: block;
+}
+
+td {
+  padding: 2px 4px;
+}
+
+tr {
+  display: flex;
+  flex-direction: row;
+}
+
+tr:nth-child(odd) {
+  background-color: rgb(145, 224, 232, .2);
+}
+
+tr+tr {
+  border-top: 0;
+}
+
+.table-label-container {
+  width: 25%;
+}
+
+.table-value-container {
+  width:75%;
+}
+
+.ticket-link {
+  display: flex;
+  flex-direction: row;
 }
