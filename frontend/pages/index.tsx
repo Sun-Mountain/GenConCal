@@ -10,6 +10,16 @@ import TimeRange from "@/components/TimeRange";
 
 export const { eventData, filters } = getData();
 
+export interface Choice {
+  eventId: number;
+  endDate: string;
+  endTime: string;
+  startDate: string;
+  startTime: string;
+  duration: number;
+  cost: number;
+}
+
 export default function Home() {
   const filterList = filters;
 
@@ -36,6 +46,9 @@ export default function Home() {
 
   // Switches
   const [hideSoldOut, setHideSoldOut] = useState(false);
+
+  // Choices
+  const [choices, setChoices] = useState<Choice[]>([])
 
   return (
     <main>
@@ -97,6 +110,8 @@ export default function Home() {
           groupFilter,
           locationFilter
         ]}
+        choices={choices}
+        setChoices={setChoices}
         dateList={dateList}
         hideSoldOut={hideSoldOut}
         soldOutEvents={soldOutEvents}

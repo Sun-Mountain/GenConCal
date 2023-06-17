@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import dynamic from 'next/dynamic';
 
 const EventListing = dynamic(() => import("./EventListing"), {
@@ -41,7 +42,7 @@ export default function DailyTimeComponent ({
           </div>
         </div>
         {events.map((eventIndex: number) => {
-          return <EventListing key={eventIndex} eventIndex={eventIndex} />
+          return <Suspense key={eventIndex}><EventListing key={eventIndex} eventIndex={eventIndex} /></Suspense>
         })}
       </div>
     </div>

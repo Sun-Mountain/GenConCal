@@ -1,4 +1,4 @@
-import { ReactNode, SyntheticEvent, useEffect, useState } from 'react';
+import { Dispatch, SetStateAction, ReactNode, SyntheticEvent, useState } from 'react';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
@@ -6,6 +6,7 @@ import Box from '@mui/material/Box';
 import TimeComponent from './TimeComponent';
 
 import { UniqueFilter } from '@/helpers/getData';
+import { Choice } from '@/pages';
 
 interface TabPanelProps {
   children?: ReactNode;
@@ -43,6 +44,8 @@ function a11yProps(index: number) {
 interface DailyTabs {
   allBaseFilters: number[];
   showOnly: Array<number[]>;
+  choices: Array<Choice>;
+  setChoices: Dispatch<SetStateAction<Choice[]>>,
   dateList: UniqueFilter;
   hideSoldOut: boolean;
   soldOutEvents: number[];
@@ -54,6 +57,8 @@ interface DailyTabs {
 export default function DailyTabs({
   allBaseFilters,
   showOnly,
+  choices,
+  setChoices,
   dateList,
   hideSoldOut,
   soldOutEvents,
