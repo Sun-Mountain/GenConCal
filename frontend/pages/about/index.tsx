@@ -25,7 +25,7 @@ class About extends Component {
           I attended my first GenCon in 2022. It was both magical and overwhelming and, like most first timers (I&apos;m told), had completely botched how I ordered my wishlist and therefore did not get any variety the games I played.
         </p>
         <p>
-          For round 2, in 2023, I poured over the GenCon event list and made a very complicated spreadsheet. Which, normally, I would enjoy, but did not have time to make as detailed as I would like.
+          For round 2, in 2023, I poured over the GenCon event list and made a very complicated spreadsheet. Which, normally, I would enjoy, but did not have time to make as detailed as I would like. The existing GenCon event finder wasn&apos;t too helpful and while the above mentioned <Link href='https://gencon.eventdb.us/' target='_blank'>Event Database</Link> was, I wanted help in prioritizing my choices.
         </p>
       </main>
     )

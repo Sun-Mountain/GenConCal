@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { eventData } from "@/pages";
 import EventModal from '@/components/EventModal';
 import IconButton from '@mui/material/IconButton';
-// import AddIcon from '@mui/icons-material/Add';
+import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd';
 import ZoomInIcon from '@mui/icons-material/ZoomIn';
 
 export default function EventListing ({ eventIndex }: { eventIndex: number }) {
@@ -26,22 +26,20 @@ export default function EventListing ({ eventIndex }: { eventIndex: number }) {
   return (
     <div className={`event-listing${noTickets ? ' sold-out' : ''}`}>
       <div className='flex-row'>
-        {/* <div className="add-button-column">
-          <div>
-            <IconButton aria-label="add icon" color="secondary">
-              <AddIcon />
-            </IconButton>
-          </div>
-        </div> */}
         <div className='event-title-container'>
           {title}
         </div>
       </div>
       <EventModal open={open} handleClose={handleClose} event={event} />
       <div className='event-details'>
-        <IconButton aria-label="zoom in icon" color="secondary" onClick={handleOpen}>
-          <ZoomInIcon />
-        </IconButton>
+        <div>
+          <IconButton aria-label="zoom in icon" color="secondary" onClick={handleOpen}>
+            <ZoomInIcon />
+          </IconButton>
+          <IconButton aria-label="playlist add icon" color="primary">
+            <PlaylistAddIcon />
+          </IconButton>
+        </div>
         <div className='tickets-column'>
           {ticketsAvailable}/{maxTickets}
         </div>
