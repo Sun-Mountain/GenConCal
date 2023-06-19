@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { eventData } from "@/pages";
+import { EventListing } from '@/interfaces/Components';
 import EventModal from '@/components/EventModal';
 import IconButton from '@mui/material/IconButton';
 import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd';
 import ZoomInIcon from '@mui/icons-material/ZoomIn';
 
-export default function EventListing ({ eventIndex }: { eventIndex: number }) {
+export default function EventListing ({ eventIndex }: EventListing) {
   const {
     title,
     duration,
@@ -36,7 +37,10 @@ export default function EventListing ({ eventIndex }: { eventIndex: number }) {
           <IconButton aria-label="zoom in icon" color="secondary" onClick={handleOpen}>
             <ZoomInIcon />
           </IconButton>
-          <IconButton aria-label="playlist add icon" color="primary">
+          <IconButton
+            aria-label="playlist add icon"
+            color="primary"
+          >
             <PlaylistAddIcon />
           </IconButton>
         </div>

@@ -1,4 +1,4 @@
-import { Dispatch, ReactNode, SetStateAction } from "react";
+import { Dispatch, MouseEvent, ReactNode, SetStateAction } from "react";
 import { UniqueFilter } from "./Filters";
 
 export interface TabPanelProps {
@@ -11,13 +11,16 @@ export interface DailyTabs {
   allBaseFilters: number[];
   showOnly: Array<number[]>;
   choices: number[];
-  setChoices: Dispatch<SetStateAction<number[]>>,
   dateList: UniqueFilter;
   hideSoldOut: boolean;
   soldOutEvents: number[];
   earlyStartTime: string;
   lateStartTime: string;
   startTimes: UniqueFilter;
+}
+
+export interface EventListing {
+  eventIndex: number;
 }
 
 export interface SwitchInterface {

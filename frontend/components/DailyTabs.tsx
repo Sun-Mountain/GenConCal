@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, ReactNode, SyntheticEvent, useState } from 'react';
+import { SyntheticEvent, useState } from 'react';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
@@ -36,8 +36,6 @@ function a11yProps(index: number) {
 export default function DailyTabs({
   allBaseFilters,
   showOnly,
-  choices,
-  setChoices,
   dateList,
   hideSoldOut,
   soldOutEvents,
@@ -95,6 +93,7 @@ export default function DailyTabs({
 
         return (
           <TabPanel key={index} value={tab} index={index}>
+            <hr />
             {timeLabels.map(time => {
               if (time >= earlyStartTime || time <= lateStartTime) {
                 const events = dateEvents.filter(val => startTimes[time].includes(val))

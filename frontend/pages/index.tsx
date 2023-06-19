@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { MouseEvent, useState } from "react";
 
 import getData from "@/helpers/getData";
 
@@ -38,7 +38,7 @@ export default function Home() {
   const [hideSoldOut, setHideSoldOut] = useState(false);
 
   // Choices
-  const [choices, setChoices] = useState<number[]>([])
+  const [choices, setChoices] = useState<number[]>([]);
 
   return (
     <main>
@@ -100,8 +100,6 @@ export default function Home() {
           groupFilter,
           locationFilter
         ]}
-        choices={choices}
-        setChoices={setChoices}
         dateList={dateList}
         hideSoldOut={hideSoldOut}
         soldOutEvents={soldOutEvents}
