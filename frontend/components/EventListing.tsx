@@ -37,12 +37,6 @@ export default function EventListing ({ eventIndex }: EventListing) {
           <IconButton aria-label="zoom in icon" color="secondary" onClick={handleOpen}>
             <ZoomInIcon />
           </IconButton>
-          <IconButton
-            aria-label="playlist add icon"
-            color="primary"
-          >
-            <PlaylistAddIcon />
-          </IconButton>
         </div>
         <div className='tickets-column'>
           {ticketsAvailable}/{maxTickets}

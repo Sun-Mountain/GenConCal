@@ -29,11 +29,6 @@ export interface SwitchInterface {
   setHide: Dispatch<SetStateAction<boolean>>;
 }
 
-export interface TimeComponent {
-  events: number[];
-  time: string;
-}
-
 export interface TimeRangeComponent {
   earlyStartTime: string;
   lateStartTime: string;
