@@ -29,6 +29,10 @@ a:hover {
 
 /* Generic */
 
+.content-container {
+  padding: 5px;
+}
+
 .flex-row {
   display: flex;
 }
