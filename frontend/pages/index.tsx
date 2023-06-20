@@ -5,13 +5,21 @@ import getData from "@/helpers/getData";
 import DailyTabs from "@/components/DailyTabs";
 import FilterAutoList from "@/components/FilterAutoList";
 import FilterButtons from "@/components/FilterButtons";
+import RadioGroup from "@/components/RadioGroup";
 import Switch from "@/components/SwitchComponent";
 import TimeRange from "@/components/TimeRange";
 
 export const { eventData, filters } = getData();
 
+export const tournamentFilterOptions = [
+  'Show All Events',
+  'Show Tournament Events Only',
+  'Hide All Tournament Events'
+]
+
 export default function Home() {
   const filterList = filters;
+  console.log(filterList);
 
   // Lists
   const ageRequirements = filterList.ageRequirements;
@@ -21,8 +29,10 @@ export default function Home() {
   const gameSystems = filterList.gameSystems;
   const groups = filterList.groups;
   const locations = filterList.locations;
+  const materialsRequired = filterList.materialsRequired;
   const soldOutEvents = filterList.noTickets;
   const startTimes = filterList.startTimes;
+  const tourneyList = filterList.tournament;
 
   // Filters
   const [ageFilters, setAgeFilters] = useState<number[]>([]);
@@ -34,8 +44,12 @@ export default function Home() {
   const [lateStartTime, setLateStartTime] = useState('23:45');
   const [systemFilters, setSystemFilters] = useState<number[]>([]);
 
+  // Radio Group
+  const [tournamentFilter, setTournamentFilter] = useState(tournamentFilterOptions[0]);
+
   // Switches
   const [hideSoldOut, setHideSoldOut] = useState(false);
+  const [hideMaterialsReq, setHideMaterialsReq] = useState(false);
 
   return (
     <main>
@@ -79,6 +93,17 @@ export default function Home() {
           hide={hideSoldOut}
           setHide={setHideSoldOut}
         />
+        <Switch
+          switchLabel={'Materials Required'}
+          hide={hideMaterialsReq}
+          setHide={setHideMaterialsReq}
+        />
+        <RadioGroup
+          formLabel={'Tournament Filter'}
+          options={tournamentFilterOptions}
+          setValue={setTournamentFilter}
+          value={tournamentFilter}
+        />
         <TimeRange
           earlyStartTime={earlyStartTime}
           lateStartTime={lateStartTime}
@@ -98,8 +123,12 @@ export default function Home() {
           locationFilter
         ]}
         dateList={dateList}
+        hideMaterialReq={hideMaterialsReq}
         hideSoldOut={hideSoldOut}
+        materialsRequired={materialsRequired}
         soldOutEvents={soldOutEvents}
+        tournamentFilter={tournamentFilter}
+        tourneyList={tourneyList}
         earlyStartTime={earlyStartTime}
         lateStartTime={lateStartTime}
         startTimes={startTimes}

@@ -5,7 +5,9 @@ import Box from '@mui/material/Box';
 
 import TimeComponent from './TimeComponent';
 
-import { UniqueFilter } from '@/helpers/getData';
+import { DailyTabs } from '@/interfaces/Components';
+
+import { tournamentFilterOptions } from '@/pages';
 
 interface TabPanelProps {
   children?: ReactNode;
@@ -40,23 +42,16 @@ function a11yProps(index: number) {
   };
 }
 
-interface DailyTabs {
-  allBaseFilters: number[];
-  showOnly: Array<number[]>;
-  dateList: UniqueFilter;
-  hideSoldOut: boolean;
-  soldOutEvents: number[];
-  earlyStartTime: string;
-  lateStartTime: string;
-  startTimes: UniqueFilter;
-}
-
 export default function DailyTabs({
   allBaseFilters,
   showOnly,
   dateList,
+  hideMaterialReq,
   hideSoldOut,
+  materialsRequired,
   soldOutEvents,
+  tournamentFilter,
+  tourneyList,
   earlyStartTime,
   lateStartTime,
   startTimes
@@ -73,8 +68,20 @@ export default function DailyTabs({
 
     var eventsForDay = dayEvents.filter(val => !allBaseFilters.includes(val));
 
+    if (hideMaterialReq) {
+      eventsForDay = eventsForDay.filter(val => !materialsRequired.includes(val));
+    }
+
     if (hideSoldOut) {
       eventsForDay = eventsForDay.filter(val => !soldOutEvents.includes(val));
+    }
+
+    if (tournamentFilter === tournamentFilterOptions[1]) {
+      eventsForDay = eventsForDay.filter(val => tourneyList.includes(val))
+    }
+
+    if (tournamentFilter === tournamentFilterOptions[2]) {
+      eventsForDay = eventsForDay.filter(val => !tourneyList.includes(val))
     }
 
     timeLabels.map(timeLabel => {

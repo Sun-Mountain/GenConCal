@@ -1,5 +1,5 @@
 import { Dispatch, SetStateAction } from 'react';
-import { NewEvent } from '@/helpers/getData';
+import { NewEvent } from '@/interfaces/Events';
 import Box from '@mui/material/Box';
 import Modal from '@mui/material/Modal';
 import ConfirmationNumberIcon from '@mui/icons-material/ConfirmationNumber';
@@ -78,6 +78,10 @@ export default function BasicModal({
             <TableRow label='Experience Requirement' value={event.experienceRequirement} />
             {event.group && <TableRow label='Group' value={event.group} />}
             {event.location && <TableRow label='Location' value={event.location} />}
+            {event.materialsRequired && (
+              <TableRow label='Materials Required' value={`${event.materials}`} />
+            )}
+            <TableRow label='Tournament' value={event.tournament ? 'Yes' : 'No'} />
             <TableRow label='Tickets Available' value={`${event.ticketsAvailable}/${event.maxTickets}`} />
           </table>
         </Box>
