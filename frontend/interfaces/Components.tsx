@@ -9,6 +9,7 @@ export interface DailyTabs {
   hideSoldOut: boolean;
   materialsRequired: number[];
   soldOutEvents: number[];
+  tournamentFilter: string;
   tourneyList: number[];
   earlyStartTime: string;
   lateStartTime: string;

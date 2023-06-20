@@ -7,6 +7,8 @@ import TimeComponent from './TimeComponent';
 
 import { DailyTabs } from '@/interfaces/Components';
 
+import { tournamentFilterOptions } from '@/pages';
+
 interface TabPanelProps {
   children?: ReactNode;
   index: number;
@@ -48,6 +50,7 @@ export default function DailyTabs({
   hideSoldOut,
   materialsRequired,
   soldOutEvents,
+  tournamentFilter,
   tourneyList,
   earlyStartTime,
   lateStartTime,
@@ -71,6 +74,14 @@ export default function DailyTabs({
 
     if (hideSoldOut) {
       eventsForDay = eventsForDay.filter(val => !soldOutEvents.includes(val));
+    }
+
+    if (tournamentFilter === tournamentFilterOptions[1]) {
+      eventsForDay = eventsForDay.filter(val => tourneyList.includes(val))
+    }
+
+    if (tournamentFilter === tournamentFilterOptions[2]) {
+      eventsForDay = eventsForDay.filter(val => !tourneyList.includes(val))
     }
 
     timeLabels.map(timeLabel => {

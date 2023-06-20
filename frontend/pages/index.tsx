@@ -11,6 +11,12 @@ import TimeRange from "@/components/TimeRange";
 
 export const { eventData, filters } = getData();
 
+export const tournamentFilterOptions = [
+  'Show All Events',
+  'Show Tournament Events Only',
+  'Hide All Tournament Events'
+]
+
 export default function Home() {
   const filterList = filters;
   console.log(filterList);
@@ -39,11 +45,6 @@ export default function Home() {
   const [systemFilters, setSystemFilters] = useState<number[]>([]);
 
   // Radio Group
-  const tournamentFilterOptions = [
-    'Show All Events',
-    'Show Tournament Events Only',
-    'Hide All Tournament Events'
-  ]
   const [tournamentFilter, setTournamentFilter] = useState(tournamentFilterOptions[0]);
 
   // Switches
@@ -126,6 +127,7 @@ export default function Home() {
         hideSoldOut={hideSoldOut}
         materialsRequired={materialsRequired}
         soldOutEvents={soldOutEvents}
+        tournamentFilter={tournamentFilter}
         tourneyList={tourneyList}
         earlyStartTime={earlyStartTime}
         lateStartTime={lateStartTime}
