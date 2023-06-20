@@ -89,7 +89,7 @@ const cleanData = (events: Array<RawEvent>) => {
     const eventStartTime = getTime(rawStart);
     const eventEndDate = rawEnd.toLocaleDateString();
     const eventEndTime = getTime(rawEnd);
-    const isTourny = isTournament(event["Tournament?"]);
+    const isTourney = isTournament(event["Tournament?"]);
     const materialsRequired = areMaterialsRequired(event["Materials Required"]);
     const eventCost = Number(event["Cost $"]);
     const eventLocation = event["Location"]?.toUpperCase();
@@ -188,10 +188,10 @@ const cleanData = (events: Array<RawEvent>) => {
     newEvent.endTime = eventEndTime;
 
     // Tournament
-    if (isTourny) {
+    if (isTourney) {
       data.filters.tournament.push(index);
     };
-    newEvent.tournament = isTourny;
+    newEvent.tournament = isTourney;
 
     // Tournament
     if (materialsRequired) {

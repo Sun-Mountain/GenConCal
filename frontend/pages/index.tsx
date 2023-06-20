@@ -7,11 +7,13 @@ import FilterAutoList from "@/components/FilterAutoList";
 import FilterButtons from "@/components/FilterButtons";
 import Switch from "@/components/SwitchComponent";
 import TimeRange from "@/components/TimeRange";
+import TournamentSwitches from "@/components/TournamentSwitches";
 
 export const { eventData, filters } = getData();
 
 export default function Home() {
   const filterList = filters;
+  console.log(filterList);
 
   // Lists
   const ageRequirements = filterList.ageRequirements;
@@ -36,6 +38,8 @@ export default function Home() {
 
   // Switches
   const [hideSoldOut, setHideSoldOut] = useState(false);
+  const [hideTourney, setHideTourney] = useState(false);
+  const [tourneyOnly, setTourneyOnly] = useState(false);
 
   return (
     <main>
@@ -78,6 +82,12 @@ export default function Home() {
           switchLabel={'Sold Out Events'}
           hide={hideSoldOut}
           setHide={setHideSoldOut}
+        />
+        <TournamentSwitches
+          hideTourney={hideTourney}
+          setHideTourney={setHideTourney}
+          tourneyOnly={tourneyOnly}
+          setTourneyOnly={setTourneyOnly}
         />
         <TimeRange
           earlyStartTime={earlyStartTime}
