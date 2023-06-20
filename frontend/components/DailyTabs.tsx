@@ -46,8 +46,6 @@ export default function DailyTabs({
   dateList,
   hideMaterialReq,
   hideSoldOut,
-  hideTourney,
-  tourneyOnly,
   materialsRequired,
   soldOutEvents,
   tourneyList,
@@ -73,14 +71,6 @@ export default function DailyTabs({
 
     if (hideSoldOut) {
       eventsForDay = eventsForDay.filter(val => !soldOutEvents.includes(val));
-    }
-
-    if (hideTourney) {
-      eventsForDay = eventsForDay.filter(val => !tourneyList.includes(val));
-    }
-
-    if (tourneyOnly) {
-      eventsForDay = eventsForDay.filter(val => tourneyList.includes(val));
     }
 
     timeLabels.map(timeLabel => {

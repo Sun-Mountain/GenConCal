@@ -5,9 +5,9 @@ import getData from "@/helpers/getData";
 import DailyTabs from "@/components/DailyTabs";
 import FilterAutoList from "@/components/FilterAutoList";
 import FilterButtons from "@/components/FilterButtons";
+import RadioGroup from "@/components/RadioGroup";
 import Switch from "@/components/SwitchComponent";
 import TimeRange from "@/components/TimeRange";
-import TournamentSwitches from "@/components/TournamentSwitches";
 
 export const { eventData, filters } = getData();
 
@@ -38,11 +38,17 @@ export default function Home() {
   const [lateStartTime, setLateStartTime] = useState('23:45');
   const [systemFilters, setSystemFilters] = useState<number[]>([]);
 
+  // Radio Group
+  const tournamentFilterOptions = [
+    'Show All Events',
+    'Show Tournament Events Only',
+    'Hide All Tournament Events'
+  ]
+  const [tournamentFilter, setTournamentFilter] = useState(tournamentFilterOptions[0]);
+
   // Switches
   const [hideSoldOut, setHideSoldOut] = useState(false);
   const [hideMaterialsReq, setHideMaterialsReq] = useState(false);
-  const [hideTourney, setHideTourney] = useState(false);
-  const [tourneyOnly, setTourneyOnly] = useState(false);
 
   return (
     <main>
@@ -91,11 +97,11 @@ export default function Home() {
           hide={hideMaterialsReq}
           setHide={setHideMaterialsReq}
         />
-        <TournamentSwitches
-          hideTourney={hideTourney}
-          setHideTourney={setHideTourney}
-          tourneyOnly={tourneyOnly}
-          setTourneyOnly={setTourneyOnly}
+        <RadioGroup
+          formLabel={'Tournament Filter'}
+          options={tournamentFilterOptions}
+          setValue={setTournamentFilter}
+          value={tournamentFilter}
         />
         <TimeRange
           earlyStartTime={earlyStartTime}
@@ -118,8 +124,6 @@ export default function Home() {
         dateList={dateList}
         hideMaterialReq={hideMaterialsReq}
         hideSoldOut={hideSoldOut}
-        hideTourney={hideTourney}
-        tourneyOnly={tourneyOnly}
         materialsRequired={materialsRequired}
         soldOutEvents={soldOutEvents}
         tourneyList={tourneyList}
