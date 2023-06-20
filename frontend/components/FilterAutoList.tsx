@@ -1,8 +1,7 @@
 import { Dispatch, SetStateAction } from 'react';
 import Autocomplete from '@mui/material/Autocomplete';
 import TextField from '@mui/material/TextField';
-
-import { UniqueFilter } from '@/helpers/getData';
+import { UniqueFilter } from '@/interfaces/Filters';
 
 interface FilterAutoList {
   filter: UniqueFilter,
