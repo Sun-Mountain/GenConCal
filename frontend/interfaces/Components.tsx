@@ -12,6 +12,7 @@ export interface DailyTabs {
   showOnly: Array<number[]>;
   choices: number[];
   dateList: UniqueFilter;
+  handleChoice: Function;
   hideSoldOut: boolean;
   soldOutEvents: number[];
   earlyStartTime: string;
@@ -21,6 +22,7 @@ export interface DailyTabs {
 
 export interface EventListing {
   eventIndex: number;
+  handleChoice: Function;
 }
 
 export interface SwitchInterface {

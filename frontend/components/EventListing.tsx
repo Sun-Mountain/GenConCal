@@ -6,7 +6,7 @@ import IconButton from '@mui/material/IconButton';
 import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd';
 import ZoomInIcon from '@mui/icons-material/ZoomIn';
 
-export default function EventListing ({ eventIndex }: EventListing) {
+export default function EventListing ({ eventIndex, handleChoice }: EventListing) {
   const {
     title,
     duration,
@@ -36,6 +36,16 @@ export default function EventListing ({ eventIndex }: EventListing) {
         <div>
           <IconButton aria-label="zoom in icon" color="secondary" onClick={handleOpen}>
             <ZoomInIcon />
+          </IconButton>
+          <IconButton
+            aria-label="zoom in icon"
+            color="primary"
+            onClick={e => {
+              e.preventDefault();
+              handleChoice(eventIndex)
+            }}
+          >
+            <PlaylistAddIcon />
           </IconButton>
         </div>
         <div className='tickets-column'>

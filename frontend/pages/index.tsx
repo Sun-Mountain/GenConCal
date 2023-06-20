@@ -40,6 +40,10 @@ export default function Home() {
   // Choices
   const [choices, setChoices] = useState<number[]>([]);
 
+  const handleChoice = (eventIndex: number) => {
+    console.log(eventIndex);
+  };
+
   return (
     <main>
       <div id="filters-container">
@@ -100,7 +104,9 @@ export default function Home() {
           groupFilter,
           locationFilter
         ]}
+        choices={choices}
         dateList={dateList}
+        handleChoice={handleChoice}
         hideSoldOut={hideSoldOut}
         soldOutEvents={soldOutEvents}
         earlyStartTime={earlyStartTime}

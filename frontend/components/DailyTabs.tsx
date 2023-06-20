@@ -16,19 +16,21 @@ function TabPanel(props: TabPanelProps) {
   const { children, value, index, ...other } = props;
 
   return (
-    <div
-      role="tabpanel"
-      hidden={value !== index}
-      id={`simple-tabpanel-${index}`}
-      aria-labelledby={`simple-tab-${index}`}
-      {...other}
-    >
-      {value === index && (
-        <>
-          {children}
-        </>
-      )}
-    </div>
+    <Suspense>
+      <div
+        role="tabpanel"
+        hidden={value !== index}
+        id={`simple-tabpanel-${index}`}
+        aria-labelledby={`simple-tab-${index}`}
+        {...other}
+      >
+        {value === index && (
+          <>
+            {children}
+          </>
+        )}
+      </div>
+    </Suspense>
   );
 }
 
@@ -43,6 +45,7 @@ export default function DailyTabs({
   allBaseFilters,
   showOnly,
   dateList,
+  handleChoice,
   hideSoldOut,
   soldOutEvents,
   earlyStartTime,
@@ -132,7 +135,11 @@ export default function DailyTabs({
                           {events.map((eventIndex: number) => {
                             return (
                               <Suspense key={eventIndex}>
-                                <EventListing key={eventIndex} eventIndex={eventIndex} />
+                                <EventListing
+                                  key={eventIndex}
+                                  eventIndex={eventIndex}
+                                  handleChoice={handleChoice}
+                                />
                               </Suspense>
                             )
                           })}
