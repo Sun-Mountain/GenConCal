@@ -79,8 +79,9 @@ export default function BasicModal({
             {event.group && <TableRow label='Group' value={event.group} />}
             {event.location && <TableRow label='Location' value={event.location} />}
             {event.materialsRequired && (
-              <TableRow label='Materials Required' value={event.materials} />
+              <TableRow label='Materials Required' value={`${event.materials}`} />
             )}
+            <TableRow label='Tournament' value={event.tournament ? 'Yes' : 'No'} />
             <TableRow label='Tickets Available' value={`${event.ticketsAvailable}/${event.maxTickets}`} />
           </table>
         </Box>
