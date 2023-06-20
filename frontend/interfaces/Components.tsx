@@ -42,3 +42,10 @@ export interface SwitchInterface {
   hide: boolean;
   setHide: Dispatch<SetStateAction<boolean>>;
 }
+
+export interface TimeRangeComponent {
+  earlyStartTime: string;
+  lateStartTime: string;
+  setEarlyStartTime: Dispatch<SetStateAction<string>>;
+  setLateStartTime: Dispatch<SetStateAction<string>>;
+}
