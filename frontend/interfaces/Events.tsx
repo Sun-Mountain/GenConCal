@@ -1,3 +1,19 @@
+export interface filterEvents {
+  groups: number[];
+  eventTypes: number[];
+  gameSystems: number[];
+  ageRequirements: number[];
+  experienceRequirements: number[];
+  startDates: number[];
+  startTimes: number[];
+  endDates: number[];
+  endTimes: number[];
+  ifTournament: number[];
+  costs: number[];
+  locations: number[];
+  ticketsAvailable: number[];
+}
+
 export interface NewEvent {
   id: number;
   gameId: string;
@@ -15,13 +31,15 @@ export interface NewEvent {
   endTime: string;
   duration: number;
   tournament: boolean;
+  materialsRequired: boolean;
+  materials?: string;
   cost: number;
   location?: string;
   ticketsAvailable?: number;
   maxTickets?: number;
 }
 
-export interface rawEvent {
+export interface RawEvent {
   'Game ID': string;
   Group?: string;
   Title: string;

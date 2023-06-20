@@ -1,5 +1,6 @@
 import Events from '@/data/events.json';
-import { NewEvent, rawEvent } from '@/interfaces/Events';
+
+import { NewEvent, RawEvent } from '@/interfaces/Events';
 import { Data } from '@/interfaces/Data';
 
 const getTime = (time: Date) => {
@@ -19,7 +20,15 @@ const isTournament = (eventTournament: string) => {
   return false;
 }
 
-const cleanData = (events: Array<rawEvent>) => {
+const areMaterialsRequired = (materialsRequired: string) => {
+  if (materialsRequired === "Yes") {
+    return true;
+  }
+
+  return false;
+}
+
+const cleanData = (events: Array<RawEvent>) => {
   const data: Data = {
     eventData: [],
     filters: {
@@ -33,6 +42,7 @@ const cleanData = (events: Array<rawEvent>) => {
       endDates: {},
       endTimes: {},
       tournament: [],
+      materialsRequired: [],
       costs: {},
       locations: {},
       noTickets: []
@@ -57,6 +67,8 @@ const cleanData = (events: Array<rawEvent>) => {
       endTime: '',
       duration: 0,
       tournament: false,
+      materialsRequired: false,
+      materials: '',
       cost: 0,
       location: '',
       ticketsAvailable: 0,
@@ -77,7 +89,9 @@ const cleanData = (events: Array<rawEvent>) => {
     const eventStartTime = getTime(rawStart);
     const eventEndDate = rawEnd.toLocaleDateString();
     const eventEndTime = getTime(rawEnd);
-    const isTourny = isTournament(event["Tournament?"]);
+    const isTourney = isTournament(event["Tournament?"]);
+    const materialsRequired = areMaterialsRequired(event["Materials Required"]);
+    const materials = event["Materials Required Details"];
     const eventCost = Number(event["Cost $"]);
     const eventLocation = event["Location"]?.toUpperCase();
     const eventTickets = Number(event["Tickets Available"]);
@@ -175,10 +189,17 @@ const cleanData = (events: Array<rawEvent>) => {
     newEvent.endTime = eventEndTime;
 
     // Tournament
-    if (isTourny) {
+    if (isTourney) {
       data.filters.tournament.push(index);
     };
-    newEvent.tournament = isTourny;
+    newEvent.tournament = isTourney;
+
+    // Tournament
+    if (materialsRequired) {
+      data.filters.materialsRequired.push(index);
+      newEvent.materials = materials;
+    };
+    newEvent.materialsRequired = materialsRequired;
 
     // Costs
     if (!data.filters.costs[eventCost]) {
@@ -209,7 +230,7 @@ const cleanData = (events: Array<rawEvent>) => {
 };
 
 export default function getData() {
-  const rawData = Events as Array<rawEvent>;
+  const rawData = Events as Array<RawEvent>;
 
   const data = cleanData(rawData);
 

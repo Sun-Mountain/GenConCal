@@ -15,6 +15,7 @@ export interface FilterTypes {
   endDates: UniqueFilter;
   endTimes: UniqueFilter;
   tournament: Array<number>;
+  materialsRequired: Array<number>;
   costs: UniqueFilter;
   locations: UniqueFilter;
   noTickets: Array<number>;

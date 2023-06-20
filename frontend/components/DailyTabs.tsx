@@ -8,6 +8,7 @@ const EventListing = dynamic(() => import("./EventListing"), {
   loading: () => <b>Loading...</b>,
 });
 
+import { tournamentFilterOptions } from '@/pages';
 
 // import TimeComponent from './TimeComponent';
 import { TabPanelProps, DailyTabs } from '@/interfaces/Components';
@@ -43,8 +44,12 @@ export default function DailyTabs({
   allBaseFilters,
   showOnly,
   dateList,
+  hideMaterialReq,
   hideSoldOut,
+  materialsRequired,
   soldOutEvents,
+  tournamentFilter,
+  tourneyList,
   earlyStartTime,
   lateStartTime,
   startTimes
@@ -61,8 +66,20 @@ export default function DailyTabs({
 
     var eventsForDay = dayEvents.filter(val => !allBaseFilters.includes(val));
 
+    if (hideMaterialReq) {
+      eventsForDay = eventsForDay.filter(val => !materialsRequired.includes(val));
+    }
+
     if (hideSoldOut) {
       eventsForDay = eventsForDay.filter(val => !soldOutEvents.includes(val));
+    }
+
+    if (tournamentFilter === tournamentFilterOptions[1]) {
+      eventsForDay = eventsForDay.filter(val => tourneyList.includes(val))
+    }
+
+    if (tournamentFilter === tournamentFilterOptions[2]) {
+      eventsForDay = eventsForDay.filter(val => !tourneyList.includes(val))
     }
 
     timeLabels.map(timeLabel => {

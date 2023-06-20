@@ -24,7 +24,7 @@ export default function TimeRange({
   return (
     <div className='time-range-container'>
       <div className='time-range-label'>
-        <strong>Start Time Range</strong>: {earlyStartTime} - {lateStartTime}
+        <strong>Start Time Range:</strong>
       </div>
       <div className='flex-row'>
         <Autocomplete

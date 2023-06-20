@@ -1,7 +1,7 @@
-import { NewEvent } from "./Events"
-import { FilterTypes } from "./Filters"
+import { FilterTypes } from "@/interfaces/Filters"
+import { NewEvent } from "@/interfaces/Events"
 
 export interface Data {
-  eventData: Array<NewEvent>;
-  filters: FilterTypes;
+  eventData: Array<NewEvent>,
+  filters: FilterTypes
 }
