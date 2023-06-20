@@ -7,6 +7,12 @@ export interface TabPanelProps {
   value: number;
 }
 
+export interface ChoiceComponent {
+  date: string;
+  dateChoices: number[];
+  handleChoice: Function;
+}
+
 export interface DailyTabs {
   allBaseFilters: number[];
   showOnly: Array<number[]>;

@@ -239,6 +239,20 @@ a:hover {
   width: 55px
 }
 
+/* Choice Component */
+
+.choices-container {
+  margin-top: 8px;
+  padding: 5px;
+}
+
+.no-choices {
+  color: rgb(167, 167, 167);
+  display: flex;
+  justify-content: center;
+  font-style: italic;
+}
+
 /* Event Modal */
 
 .modal-container {

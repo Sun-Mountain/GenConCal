@@ -10,6 +10,7 @@ const EventListing = dynamic(() => import("./EventListing"), {
 
 import { tournamentFilterOptions } from '@/pages';
 
+import ChoicesComponent from './ChoicesComponent';
 import TimeCollectionHeader from '@/components/TimeCollectionHeader';
 import { DailyTabs, TabPanelProps } from '@/interfaces/Components';
 
@@ -132,27 +133,11 @@ export default function DailyTabs({
         return (
           <TabPanel key={index} value={tab} index={index}>
             <Suspense>
-              {dateChoices.length ? (
-                <div>
-                  {dateChoices.map((eventIndex: number) => {
-                    return (
-                      <Suspense key={eventIndex}>
-                        <TimeCollectionHeader />
-                        <EventListing
-                          key={eventIndex}
-                          eventIndex={eventIndex}
-                          handleChoice={handleChoice}
-                          type='choice'
-                        />
-                      </Suspense>
-                    )
-                  })}
-                </div>
-              ) : (
-                <div>
-                  No choices.
-                </div>
-              )}
+              <ChoicesComponent
+                date={date}
+                dateChoices={dateChoices}
+                handleChoice={handleChoice}
+              />
             </Suspense>
             <hr />
             {timeLabels.map(time => {
