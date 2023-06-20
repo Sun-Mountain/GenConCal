@@ -21,6 +21,14 @@ const isTournament = (eventTournament: string) => {
   return false;
 }
 
+const areMaterialsRequired = (materialsRequired: string) => {
+  if (materialsRequired === "Yes") {
+    return true;
+  }
+
+  return false;
+}
+
 const cleanData = (events: Array<RawEvent>) => {
   const data: Data = {
     eventData: [],
@@ -35,6 +43,7 @@ const cleanData = (events: Array<RawEvent>) => {
       endDates: {},
       endTimes: {},
       tournament: [],
+      materialsRequired: [],
       costs: {},
       locations: {},
       noTickets: []
@@ -59,6 +68,7 @@ const cleanData = (events: Array<RawEvent>) => {
       endTime: '',
       duration: 0,
       tournament: false,
+      materialsRequired: false,
       cost: 0,
       location: '',
       ticketsAvailable: 0,
@@ -80,6 +90,7 @@ const cleanData = (events: Array<RawEvent>) => {
     const eventEndDate = rawEnd.toLocaleDateString();
     const eventEndTime = getTime(rawEnd);
     const isTourny = isTournament(event["Tournament?"]);
+    const materialsRequired = areMaterialsRequired(event["Materials Required"]);
     const eventCost = Number(event["Cost $"]);
     const eventLocation = event["Location"]?.toUpperCase();
     const eventTickets = Number(event["Tickets Available"]);
@@ -181,6 +192,12 @@ const cleanData = (events: Array<RawEvent>) => {
       data.filters.tournament.push(index);
     };
     newEvent.tournament = isTourny;
+
+    // Tournament
+    if (materialsRequired) {
+      data.filters.materialsRequired.push(index);
+    };
+    newEvent.materialsRequired = materialsRequired;
 
     // Costs
     if (!data.filters.costs[eventCost]) {

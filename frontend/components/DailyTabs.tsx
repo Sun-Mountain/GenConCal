@@ -5,7 +5,7 @@ import Box from '@mui/material/Box';
 
 import TimeComponent from './TimeComponent';
 
-import { UniqueFilter } from '@/helpers/getData';
+import { UniqueFilter } from '@/interfaces/Filters';
 
 interface TabPanelProps {
   children?: ReactNode;
