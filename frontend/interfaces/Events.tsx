@@ -32,6 +32,7 @@ export interface NewEvent {
   duration: number;
   tournament: boolean;
   materialsRequired: boolean;
+  materials?: string;
   cost: number;
   location?: string;
   ticketsAvailable?: number;

@@ -69,6 +69,7 @@ const cleanData = (events: Array<RawEvent>) => {
       duration: 0,
       tournament: false,
       materialsRequired: false,
+      materials: '',
       cost: 0,
       location: '',
       ticketsAvailable: 0,
@@ -91,6 +92,7 @@ const cleanData = (events: Array<RawEvent>) => {
     const eventEndTime = getTime(rawEnd);
     const isTourney = isTournament(event["Tournament?"]);
     const materialsRequired = areMaterialsRequired(event["Materials Required"]);
+    const materials = event["Materials Required Details"];
     const eventCost = Number(event["Cost $"]);
     const eventLocation = event["Location"]?.toUpperCase();
     const eventTickets = Number(event["Tickets Available"]);
@@ -196,6 +198,7 @@ const cleanData = (events: Array<RawEvent>) => {
     // Tournament
     if (materialsRequired) {
       data.filters.materialsRequired.push(index);
+      newEvent.materials = materials;
     };
     newEvent.materialsRequired = materialsRequired;
 
