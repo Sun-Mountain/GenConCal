@@ -34,7 +34,7 @@ export default function ChoicesComponent ({
         </>
       ) : (
         <div className="no-choices">
-          There are no events set aside for {date}. To choose an event, click the add to list icon:&nbsp;&nbsp;<PlaylistAddIcon />
+          There are no events set aside for {date}. To choose an event, click the add to list icon:&nbsp;&nbsp;<PlaylistAddIcon color='primary' />
         </div>
       )}
     </div>
