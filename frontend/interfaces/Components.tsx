@@ -10,8 +10,10 @@ export interface TabPanelProps {
 export interface DailyTabs {
   allBaseFilters: number[];
   showOnly: Array<number[]>;
+  choices: number[];
   dateList: UniqueFilter;
   hideMaterialReq: boolean;
+  handleChoice: Function;
   hideSoldOut: boolean;
   materialsRequired: number[];
   soldOutEvents: number[];
@@ -20,6 +22,12 @@ export interface DailyTabs {
   earlyStartTime: string;
   lateStartTime: string;
   startTimes: UniqueFilter;
+}
+
+export interface EventListing {
+  eventIndex: number;
+  handleChoice: Function;
+  type: string;
 }
 
 export interface RadioGroupInterface {

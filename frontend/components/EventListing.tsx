@@ -4,9 +4,10 @@ import { EventListing } from '@/interfaces/Components';
 import EventModal from '@/components/EventModal';
 import IconButton from '@mui/material/IconButton';
 import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd';
+import PlaylistRemoveIcon from '@mui/icons-material/PlaylistRemove';
 import ZoomInIcon from '@mui/icons-material/ZoomIn';
 
-export default function EventListing ({ eventIndex }: EventListing) {
+export default function EventListing ({ eventIndex, handleChoice, type }: EventListing) {
   const {
     title,
     duration,
@@ -24,6 +25,12 @@ export default function EventListing ({ eventIndex }: EventListing) {
 
   const noTickets = ticketsAvailable === 0;
 
+  const typeList = type === 'list';
+
+  const choiceAction = typeList ? 'add' : 'remove';
+
+  const choiceButtonColor = typeList ? 'primary' : 'warning';
+
   return (
     <div className={`event-listing${noTickets ? ' sold-out' : ''}`}>
       <div className='flex-row'>
@@ -36,6 +43,20 @@ export default function EventListing ({ eventIndex }: EventListing) {
         <div>
           <IconButton aria-label="zoom in icon" color="secondary" onClick={handleOpen}>
             <ZoomInIcon />
+          </IconButton>
+          <IconButton
+            aria-label="zoom in icon"
+            color={choiceButtonColor}
+            onClick={e => {
+              e.preventDefault();
+              handleChoice(eventIndex, choiceAction);
+            }}
+          >
+            {typeList ? (
+              <PlaylistAddIcon />
+            ) : (
+              <PlaylistRemoveIcon />
+            )}
           </IconButton>
         </div>
         <div className='tickets-column'>

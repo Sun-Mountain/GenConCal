@@ -54,6 +54,20 @@ export default function Home() {
   // Choices
   const [choices, setChoices] = useState<number[]>([]);
 
+  const handleChoice = (eventIndex: number, choiceAction: string) => {
+    switch (choiceAction) {
+      case 'add':
+        var newEvent = [eventIndex];
+        setChoices([...choices, ...newEvent]);
+        break;
+      case 'remove':
+        var index = choices.indexOf(eventIndex);
+        choices.splice(index, 1);
+        setChoices([...choices]);
+        break;
+    }
+  };
+
   return (
     <main>
       <div id="filters-container">
@@ -125,8 +139,10 @@ export default function Home() {
           groupFilter,
           locationFilter
         ]}
+        choices={choices}
         dateList={dateList}
         hideMaterialReq={hideMaterialsReq}
+        handleChoice={handleChoice}
         hideSoldOut={hideSoldOut}
         materialsRequired={materialsRequired}
         soldOutEvents={soldOutEvents}
