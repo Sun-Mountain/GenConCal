@@ -1,4 +1,4 @@
-import { MouseEvent, useState } from "react";
+import { useState } from "react";
 
 import getData from "@/helpers/getData";
 
@@ -8,6 +8,8 @@ import FilterButtons from "@/components/FilterButtons";
 import RadioGroup from "@/components/RadioGroup";
 import Switch from "@/components/SwitchComponent";
 import TimeRange from "@/components/TimeRange";
+
+import { ChoiceFilter } from "@/interfaces/Components";
 
 export const { eventData, filters } = getData();
 
@@ -52,20 +54,46 @@ export default function Home() {
 
   // Choices
   const [choices, setChoices] = useState<number[]>([]);
+  const [choiceFilter, setChoiceFilter] = useState<ChoiceFilter[]>([])
+
+  const removeFilter = (eventIndex: number) => {
+    for (let i=0; i < choiceFilter.length; i++) {
+        if (choiceFilter[i].id === eventIndex) {
+            choiceFilter.splice(i, 1);
+            break;
+        }
+    }
+  }
 
   const handleChoice = (eventIndex: number, choiceAction: string) => {
     switch (choiceAction) {
       case 'add':
-        var newEvent = [eventIndex];
+        const {
+          startDate,
+          startTime,
+          endDate,
+          endTime
+        } = eventData[eventIndex];
+        var newEvent = [eventIndex],
+            newFilter = [{
+              id: eventIndex,
+              startDate: startDate,
+              startTime: startTime,
+              endDate: endDate,
+              endTime: endTime
+            }];
         setChoices([...choices, ...newEvent]);
+        setChoiceFilter([...choiceFilter, ...newFilter]);
         break;
       case 'remove':
         var index = choices.indexOf(eventIndex);
         choices.splice(index, 1);
         setChoices([...choices]);
+        removeFilter(eventIndex);
         break;
     }
   };
+  console.log(choiceFilter)
 
   return (
     <main>

@@ -18,10 +18,10 @@ export default function ChoicesComponent ({
     <div className="choices-container">
       {dateChoices.length ? (
         <>
+          <TimeCollectionHeader />
           {dateChoices.map((eventIndex: number) => {
             return (
               <Suspense key={eventIndex}>
-                <TimeCollectionHeader />
                 <EventListing
                   key={eventIndex}
                   eventIndex={eventIndex}

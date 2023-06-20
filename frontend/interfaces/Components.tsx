@@ -13,6 +13,14 @@ export interface ChoiceComponent {
   handleChoice: Function;
 }
 
+export interface ChoiceFilter {
+  id: number;
+  startDate: string;
+  startTime: string;
+  endDate: string;
+  endTime: string;
+}
+
 export interface DailyTabs {
   allBaseFilters: number[];
   showOnly: Array<number[]>;
