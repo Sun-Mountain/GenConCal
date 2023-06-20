@@ -47,6 +47,7 @@ export default function DailyTabs({
   allBaseFilters,
   showOnly,
   choices,
+  choiceFilter,
   dateList,
   hideMaterialReq,
   handleChoice,

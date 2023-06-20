@@ -25,6 +25,7 @@ export interface DailyTabs {
   allBaseFilters: number[];
   showOnly: Array<number[]>;
   choices: number[];
+  choiceFilter: ChoiceFilter[];
   dateList: UniqueFilter;
   hideMaterialReq: boolean;
   handleChoice: Function;

@@ -93,7 +93,6 @@ export default function Home() {
         break;
     }
   };
-  console.log(choiceFilter)
 
   return (
     <main>
@@ -167,6 +166,7 @@ export default function Home() {
           locationFilter
         ]}
         choices={choices}
+        choiceFilter={choiceFilter}
         dateList={dateList}
         hideMaterialReq={hideMaterialsReq}
         handleChoice={handleChoice}
