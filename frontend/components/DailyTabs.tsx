@@ -9,8 +9,8 @@ const EventListing = dynamic(() => import("./EventListing"), {
 });
 
 
-// import TimeComponent from './TimeComponent';
-import { TabPanelProps, DailyTabs } from '@/interfaces/Components';
+import TimeCollectionHeader from '@/components/TimeCollectionHeader';
+import { DailyTabs, TabPanelProps } from '@/interfaces/Components';
 
 function TabPanel(props: TabPanelProps) {
   const { children, value, index, ...other } = props;
@@ -44,6 +44,7 @@ function a11yProps(index: number) {
 export default function DailyTabs({
   allBaseFilters,
   showOnly,
+  choices,
   dateList,
   handleChoice,
   hideSoldOut,
@@ -58,6 +59,11 @@ export default function DailyTabs({
   const handleChange = (event: SyntheticEvent, newValue: number) => {
     setTab(newValue);
   };
+
+  const getChoices = (date: string) => {
+    const dayEvents = dateList[date];
+    return dayEvents.filter(val => choices.includes(val));
+  } 
 
   const getEventsList = (date: string) => {
     const dayEvents = dateList[date]
@@ -87,7 +93,12 @@ export default function DailyTabs({
   return (
     <Box className='tabs-container' sx={{ width: '100%' }}>
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-        <Tabs value={tab} onChange={handleChange} variant='scrollable' aria-label="basic tabs example">
+        <Tabs
+          value={tab}
+          onChange={handleChange}
+          variant='scrollable'
+          aria-label="basic tabs example"
+        >
           {dates.map((date: string, index: number) => {
             const dateEvents = getEventsList(date);
             const eventCount = dateEvents.length;
@@ -98,10 +109,33 @@ export default function DailyTabs({
         </Tabs>
       </Box>
       {dates.map((date: string, index: number) => {
+        const dateChoices = getChoices(date);
         const dateEvents = getEventsList(date);
 
         return (
           <TabPanel key={index} value={tab} index={index}>
+            <Suspense>
+              {dateChoices.length ? (
+                <div>
+                  {dateChoices.map((eventIndex: number) => {
+                    return (
+                      <Suspense key={eventIndex}>
+                        <TimeCollectionHeader />
+                        <EventListing
+                          key={eventIndex}
+                          eventIndex={eventIndex}
+                          handleChoice={handleChoice}
+                        />
+                      </Suspense>
+                    )
+                  })}
+                </div>
+              ) : (
+                <div>
+                  No choices.
+                </div>
+              )}
+            </Suspense>
             <hr />
             {timeLabels.map(time => {
               if (time >= earlyStartTime || time <= lateStartTime) {
@@ -114,24 +148,7 @@ export default function DailyTabs({
                           {time}
                         </h2>
                         <div className="event-list">
-                          <div className='event-listing listing-header'>
-                            <div className='flex-row'>
-                              <div>
-                                Title
-                              </div>
-                            </div>
-                            <div className='event-details'>
-                              <div className='tickets-column'>
-                                Tickets
-                              </div>
-                              <div className='duration-column'>
-                                Duration
-                              </div>
-                              <div className='cost-column'>
-                                Cost
-                              </div>
-                            </div>
-                          </div>
+                          <TimeCollectionHeader />
                           {events.map((eventIndex: number) => {
                             return (
                               <Suspense key={eventIndex}>

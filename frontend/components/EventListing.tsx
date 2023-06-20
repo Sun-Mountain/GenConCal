@@ -42,7 +42,7 @@ export default function EventListing ({ eventIndex, handleChoice }: EventListing
             color="primary"
             onClick={e => {
               e.preventDefault();
-              handleChoice(eventIndex)
+              handleChoice(eventIndex);
             }}
           >
             <PlaylistAddIcon />

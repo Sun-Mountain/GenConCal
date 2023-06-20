@@ -41,7 +41,8 @@ export default function Home() {
   const [choices, setChoices] = useState<number[]>([]);
 
   const handleChoice = (eventIndex: number) => {
-    console.log(eventIndex);
+    var newEvent = [eventIndex]
+    setChoices([...choices, ...newEvent]);
   };
 
   return (
