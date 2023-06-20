@@ -37,7 +37,7 @@ export interface NewEvent {
   maxTickets?: number
 }
 
-export interface rawEvent {
+export interface RawEvent {
   'Game ID': string,
   Group?: string,
   Title: string,

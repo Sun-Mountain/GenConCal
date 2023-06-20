@@ -1,36 +1,7 @@
 import Events from '@/data/events.json';
 
-import { NewEvent, rawEvent } from '@/interfaces/Events';
-
-export interface UniqueFilter {
-  [index: string]: Array<number>
-}
-
-interface TournamentFilter {
-  true: Array<number>,
-  false: Array<number>
-}
-
-export interface FilterTypes {
-  groups: UniqueFilter,
-  eventTypes: UniqueFilter,
-  gameSystems: UniqueFilter,
-  ageRequirements: UniqueFilter,
-  experienceRequirements: UniqueFilter,
-  startDates: UniqueFilter,
-  startTimes: UniqueFilter,
-  endDates: UniqueFilter,
-  endTimes: UniqueFilter,
-  tournament: Array<number>,
-  costs: UniqueFilter,
-  locations: UniqueFilter,
-  noTickets: Array<number>
-}
-
-interface Data {
-  eventData: Array<NewEvent>,
-  filters: FilterTypes
-}
+import { NewEvent, RawEvent } from '@/interfaces/Events';
+import { Data } from '@/interfaces/Data';
 
 const getTime = (time: Date) => {
   const hours = time.getHours();
@@ -50,16 +21,7 @@ const isTournament = (eventTournament: string) => {
   return false;
 }
 
-const toTitleCase = (str: string) => {
-  return str.replace(
-    /\w\S*/g,
-    function(txt) {
-      return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
-    }
-  );
-}
-
-const cleanData = (events: Array<rawEvent>) => {
+const cleanData = (events: Array<RawEvent>) => {
   const data: Data = {
     eventData: [],
     filters: {
@@ -249,7 +211,7 @@ const cleanData = (events: Array<rawEvent>) => {
 };
 
 export default function getData() {
-  const rawData = Events as Array<rawEvent>;
+  const rawData = Events as Array<RawEvent>;
 
   const data = cleanData(rawData);
 
