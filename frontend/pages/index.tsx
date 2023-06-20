@@ -25,6 +25,7 @@ export default function Home() {
   const locations = filterList.locations;
   const soldOutEvents = filterList.noTickets;
   const startTimes = filterList.startTimes;
+  const tourneyList = filterList.tournament;
 
   // Filters
   const [ageFilters, setAgeFilters] = useState<number[]>([]);
@@ -109,7 +110,10 @@ export default function Home() {
         ]}
         dateList={dateList}
         hideSoldOut={hideSoldOut}
+        hideTourney={hideTourney}
+        tourneyOnly={tourneyOnly}
         soldOutEvents={soldOutEvents}
+        tourneyList={tourneyList}
         earlyStartTime={earlyStartTime}
         lateStartTime={lateStartTime}
         startTimes={startTimes}
