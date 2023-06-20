@@ -125,6 +125,7 @@ export default function DailyTabs({
                           key={eventIndex}
                           eventIndex={eventIndex}
                           handleChoice={handleChoice}
+                          type='choice'
                         />
                       </Suspense>
                     )
@@ -156,6 +157,7 @@ export default function DailyTabs({
                                   key={eventIndex}
                                   eventIndex={eventIndex}
                                   handleChoice={handleChoice}
+                                  type='list'
                                 />
                               </Suspense>
                             )

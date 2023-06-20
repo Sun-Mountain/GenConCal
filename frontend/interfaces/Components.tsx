@@ -23,6 +23,7 @@ export interface DailyTabs {
 export interface EventListing {
   eventIndex: number;
   handleChoice: Function;
+  type: string;
 }
 
 export interface SwitchInterface {
