@@ -1,6 +1,6 @@
 import { Dispatch, SetStateAction, useState } from 'react';
 
-import { UniqueFilter } from '@/helpers/getData';
+import { UniqueFilter } from '@/interfaces/Filters';
 
 export default function FilterButtons({
   filter,
