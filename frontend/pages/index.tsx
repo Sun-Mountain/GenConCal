@@ -19,7 +19,6 @@ export const tournamentFilterOptions = [
 
 export default function Home() {
   const filterList = filters;
-  console.log(filterList);
 
   // Lists
   const ageRequirements = filterList.ageRequirements;

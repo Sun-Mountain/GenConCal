@@ -9,11 +9,11 @@ import ZoomInIcon from '@mui/icons-material/ZoomIn';
 
 export default function EventListing ({ eventIndex, handleChoice, type }: EventListing) {
   const {
-    title,
-    duration,
     cost,
+    duration,
     maxTickets,
-    ticketsAvailable
+    ticketsAvailable,
+    title,
   } = eventData[eventIndex];
   const event = eventData[eventIndex];
 
