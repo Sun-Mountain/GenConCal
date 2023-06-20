@@ -65,7 +65,7 @@ a:hover {
   background-color: rgb(17, 145, 0, .08);
   border: 2px solid rgb(17, 145, 0);
   border-radius: 8px 8px;
-  font-size: 18px;
+  font-size: 15px;
   margin: 5px 8px;
   padding-left: 15px;
 }
@@ -140,6 +140,10 @@ a:hover {
 .filter-list {
   margin-right: 24px;
   margin-top: 12px;
+}
+
+.radio-group-container {
+  padding: 5px 0 18px 0;
 }
 
 .switch-container {

@@ -18,23 +18,25 @@ export default function RadioButtonsGroup({
   };
 
   return (
-    <FormControl>
-      <strong id="radio-buttons-group-tournament-label">{formLabel}</strong>
-      <RadioGroup
-        aria-labelledby="demo-radio-buttons-group-label"
-        value={value}
-        onChange={handleChange}
-        name="radio-buttons-group"
-      >
-        {options.map(option => (
-          <FormControlLabel
-            key={option}
-            value={option}
-            control={<Radio />}
-            label={option}
-          />
-        ))}
-      </RadioGroup>
-    </FormControl>
+    <div className='radio-group-container'>
+      <FormControl>
+        <strong id="radio-buttons-group-tournament-label">{formLabel}</strong>
+        <RadioGroup
+          aria-labelledby="demo-radio-buttons-group-label"
+          value={value}
+          onChange={handleChange}
+          name="radio-buttons-group"
+        >
+          {options.map(option => (
+            <FormControlLabel
+              key={option}
+              value={option}
+              control={<Radio />}
+              label={option}
+            />
+          ))}
+        </RadioGroup>
+      </FormControl>
+    </div>
   );
 }
