@@ -44,9 +44,11 @@ export default function DailyTabs({
   allBaseFilters,
   showOnly,
   dateList,
+  hideMaterialReq,
   hideSoldOut,
   hideTourney,
   tourneyOnly,
+  materialsRequired,
   soldOutEvents,
   tourneyList,
   earlyStartTime,
@@ -64,6 +66,10 @@ export default function DailyTabs({
     const dayEvents = dateList[date]
 
     var eventsForDay = dayEvents.filter(val => !allBaseFilters.includes(val));
+
+    if (hideMaterialReq) {
+      eventsForDay = eventsForDay.filter(val => !materialsRequired.includes(val));
+    }
 
     if (hideSoldOut) {
       eventsForDay = eventsForDay.filter(val => !soldOutEvents.includes(val));

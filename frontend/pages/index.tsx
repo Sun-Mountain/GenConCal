@@ -23,6 +23,7 @@ export default function Home() {
   const gameSystems = filterList.gameSystems;
   const groups = filterList.groups;
   const locations = filterList.locations;
+  const materialsRequired = filterList.materialsRequired;
   const soldOutEvents = filterList.noTickets;
   const startTimes = filterList.startTimes;
   const tourneyList = filterList.tournament;
@@ -39,6 +40,7 @@ export default function Home() {
 
   // Switches
   const [hideSoldOut, setHideSoldOut] = useState(false);
+  const [hideMaterialsReq, setHideMaterialsReq] = useState(false);
   const [hideTourney, setHideTourney] = useState(false);
   const [tourneyOnly, setTourneyOnly] = useState(false);
 
@@ -84,6 +86,11 @@ export default function Home() {
           hide={hideSoldOut}
           setHide={setHideSoldOut}
         />
+        <Switch
+          switchLabel={'Materials Required'}
+          hide={hideMaterialsReq}
+          setHide={setHideMaterialsReq}
+        />
         <TournamentSwitches
           hideTourney={hideTourney}
           setHideTourney={setHideTourney}
@@ -109,9 +116,11 @@ export default function Home() {
           locationFilter
         ]}
         dateList={dateList}
+        hideMaterialReq={hideMaterialsReq}
         hideSoldOut={hideSoldOut}
         hideTourney={hideTourney}
         tourneyOnly={tourneyOnly}
+        materialsRequired={materialsRequired}
         soldOutEvents={soldOutEvents}
         tourneyList={tourneyList}
         earlyStartTime={earlyStartTime}

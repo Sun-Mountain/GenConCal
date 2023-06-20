@@ -5,9 +5,11 @@ export interface DailyTabs {
   allBaseFilters: number[];
   showOnly: Array<number[]>;
   dateList: UniqueFilter;
+  hideMaterialReq: boolean;
   hideSoldOut: boolean;
   hideTourney: boolean;
   tourneyOnly: boolean;
+  materialsRequired: number[];
   soldOutEvents: number[];
   tourneyList: number[];
   earlyStartTime: string;
