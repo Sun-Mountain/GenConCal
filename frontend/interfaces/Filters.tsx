@@ -3,18 +3,19 @@ export interface UniqueFilter {
 }
 
 export interface FilterTypes {
-  groups: UniqueFilter;
-  eventTypes: UniqueFilter;
-  gameSystems: UniqueFilter;
   ageRequirements: UniqueFilter;
-  experienceRequirements: UniqueFilter;
-  startDates: UniqueFilter;
-  startTimes: UniqueFilter;
+  costs: UniqueFilter;
+  durationLength: UniqueFilter;
   endDates: UniqueFilter;
   endTimes: UniqueFilter;
-  tournament: Array<number>;
-  materialsRequired: Array<number>;
-  costs: UniqueFilter;
+  eventTypes: UniqueFilter;
+  experienceRequirements: UniqueFilter;
+  gameSystems: UniqueFilter;
+  groups: UniqueFilter;
   locations: UniqueFilter;
+  materialsRequired: Array<number>;
   noTickets: Array<number>;
+  startDates: UniqueFilter;
+  startTimes: UniqueFilter;
+  tournament: Array<number>;
 }
