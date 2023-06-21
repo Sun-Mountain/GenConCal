@@ -4,6 +4,7 @@ import type { ReactElement, ReactNode } from 'react'
 import type { NextPage } from 'next'
 import type { AppProps } from 'next/app'
 import Head from 'next/head'
+import { Analytics } from '@vercel/analytics/react'
 import Navigation from '@/components/layout/Navigation'
 
 import '@/assets/styles/application.scss'
@@ -32,6 +33,7 @@ export default function MyApp(
       <Navigation />
       <main>
         <Component {...pageProps} />
+        <Analytics />
       </main>
     </>
   )
