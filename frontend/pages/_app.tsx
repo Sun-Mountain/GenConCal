@@ -5,9 +5,14 @@ import type { NextPage } from 'next'
 import type { AppProps } from 'next/app'
 import Head from 'next/head'
 import { Analytics } from '@vercel/analytics/react'
-import Navigation from '@/components/layout/Navigation'
+import getData from '@/helpers/getData'
 
 import '@/assets/styles/application.scss'
+
+import Navigation from '@/components/layout/Navigation'
+
+export const data = getData()
+console.log(data)
 
 export const metadata = {
   title: 'GenCon Cal',
