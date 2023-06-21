@@ -1,10 +1,11 @@
-import { Dispatch, SetStateAction } from 'react';
+import { Dispatch, ReactNode, SetStateAction } from 'react';
 import { UniqueFilter } from './Filters';
 
 export interface DailyTabs {
   allBaseFilters: number[];
   showOnly: Array<number[]>;
   dateList: UniqueFilter;
+  durationFilter: number[];
   durationLength: UniqueFilter;
   hideMaterialReq: boolean;
   hideSoldOut: boolean;
@@ -28,6 +29,12 @@ export interface SwitchInterface {
   switchLabel: string;
   hide: boolean;
   setHide: Dispatch<SetStateAction<boolean>>;
+}
+
+export interface TabPanelProps {
+  children?: ReactNode;
+  index: number;
+  value: number;
 }
 
 export interface TournamentSwitches {

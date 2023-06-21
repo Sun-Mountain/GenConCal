@@ -5,15 +5,9 @@ import Box from '@mui/material/Box';
 
 import TimeComponent from './TimeComponent';
 
-import { DailyTabs } from '@/interfaces/Components';
+import { DailyTabs, TabPanelProps } from '@/interfaces/Components';
 
 import { tournamentFilterOptions } from '@/pages';
-
-interface TabPanelProps {
-  children?: ReactNode;
-  index: number;
-  value: number;
-}
 
 function TabPanel(props: TabPanelProps) {
   const { children, value, index, ...other } = props;

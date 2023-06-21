@@ -21,9 +21,15 @@ export default function SliderComponent({
     setFilter(newValue as number[]);
   };
 
+  const minValue = filterValues[0];
+  const maxValue = filterValues[1];
+
+  const chosenRange = minValue != maxValue ? `Between ${minValue} and ${maxValue} hours.` : `Only with a duration of ${minValue} hour(s).`
+
   return (
     <>
-      <strong>{label}</strong>
+      <strong>{label}</strong><br />
+      {chosenRange}
       <div className='flex-row slider-container'>
         <div className='slider-end-label'>
           {min} Hour
