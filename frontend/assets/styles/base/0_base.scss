@@ -5,7 +5,15 @@ body {
   margin: 0 auto;
 }
 
+main {
+  margin: 0 auto;
+  max-width: 1000px;
+}
+
 nav {
   background-color: $nav-bg-color;
-  padding: 5px;
+}
+
+h1, h2, h3, h4 {
+  color: $header-color;
 }

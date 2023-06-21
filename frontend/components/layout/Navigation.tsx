@@ -1,22 +1,27 @@
+import { useRouter } from "next/router";
 import Image from 'next/image';
 import Link from 'next/link';
 import Logo from '@/assets/images/logo.png';
 
 export default function Navigation () {
+  const router = useRouter();
+
   return (
     <nav>
       <div id="navigation-container">
-        <Image
-          alt='GenCon Calendar Logo'
-          width={60}
-          height={60}
-          src={Logo}
-        />
+        <div id="site-logo-container">
+          <Image
+            alt='GenCon Calendar Logo'
+            width={60}
+            height={60}
+            src={Logo}
+          />
+        </div>
         <div id="nav-link-container">
-          <Link href="/">
+          <Link className={`link-container ${router.pathname == "/" ? "active" : null}`} href="/">
             Home
           </Link>
-          <Link href="/about">
+          <Link className={`link-container ${router.pathname == "/about" ? "active" : null}`} href="/about">
             About
           </Link>
         </div>
