@@ -5,15 +5,15 @@ import type { NextPage } from 'next'
 import type { AppProps } from 'next/app'
 import Head from 'next/head'
 import { Analytics } from '@vercel/analytics/react'
-import getData from '@/helpers/getData'
+
+import getData from "@/helpers/getData"
+
+export const { eventData, filterTypes } = getData()
 
 import '@/assets/styles/application.scss'
 
 import Navigation from '@/components/layout/Navigation'
-import Loading from '@/components/ui/Loading'
-import { DataInterface } from '@/assets/interfaces/DataInterfaces'
-
-export const { eventData, filterTypes } = getData()
+import Loading from '@/components/layout/Loading'
 
 export const metadata = {
   title: 'GenCon Cal',
@@ -29,15 +29,11 @@ type AppPropsWithLayout = AppProps & {
 }
 
 export default function MyApp({ Component, pageProps }: AppPropsWithLayout) {
-  const [hasMounted, setHasMounted] = useState<boolean>(false);
+  const [hasMounted, setHasMounted] = useState<boolean>(false)
 
   useEffect(() => {
-    setHasMounted(true);
-  }, []);
-
-  if (!hasMounted) {
-    return <Loading message={'Fetching Data'} />
-  }
+    setHasMounted(true)
+  }, [])
 
   return (
     <>
@@ -46,7 +42,11 @@ export default function MyApp({ Component, pageProps }: AppPropsWithLayout) {
       </Head>
       <Navigation />
       <main>
-        <Component {...pageProps} />
+        { !hasMounted ? (
+          <Loading message={'Fetching Data'} />
+        ) : (
+          <Component {...pageProps} />
+        )}
         <Analytics />
       </main>
     </>
