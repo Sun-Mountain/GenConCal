@@ -23,6 +23,7 @@ export interface FilterTypes {
 }
 
 export interface SlideFilter {
+  label: string;
   filterValues: number[];
   setFilter: Dispatch<SetStateAction<number[]>>;
   step: number;

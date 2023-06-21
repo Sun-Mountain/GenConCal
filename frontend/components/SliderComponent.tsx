@@ -9,6 +9,7 @@ function valuetext(value: number) {
 }
 
 export default function SliderComponent({
+  label,
   filterValues,
   setFilter,
   step,
@@ -21,18 +22,30 @@ export default function SliderComponent({
   };
 
   return (
-    <Box sx={{ width: 300 }}>
-      <Slider
-        getAriaLabel={() => 'Temperature range'}
-        value={filterValues}
-        onChange={handleChange}
-        valueLabelDisplay="auto"
-        getAriaValueText={valuetext}
-        step={step}
-        marks
-        min={min}
-        max={max}
-      />
-    </Box>
+    <>
+      <strong>{label}</strong>
+      <div className='flex-row slider-container'>
+        <div className='slider-end-label'>
+          {min} Hour
+        </div>
+          <Box className='slider-box' sx={{ width: 350 }}
+          >
+            <Slider
+              getAriaLabel={() => 'Temperature range'}
+              value={filterValues}
+              onChange={handleChange}
+              valueLabelDisplay="auto"
+              getAriaValueText={valuetext}
+              step={step}
+              marks
+              min={min}
+              max={max}
+            />
+          </Box>
+        <div className='slider-end-label'>
+          {max} Hours
+        </div>
+      </div>
+    </>
   );
 }

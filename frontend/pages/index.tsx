@@ -20,13 +20,11 @@ export const tournamentFilterOptions = [
 
 export default function Home() {
   const filterList = filters;
-  console.log(filterList);
 
   // Lists
   const ageRequirements = filterList.ageRequirements;
   const dateList = filterList.startDates;
   const durationLength = filterList.durationLength;
-  const durationList = Object.keys(durationLength).sort();
   const eventTypes = filterList.eventTypes;
   const experienceRequirements = filterList.experienceRequirements;
   const gameSystems = filterList.gameSystems;
@@ -52,6 +50,7 @@ export default function Home() {
   const [tournamentFilter, setTournamentFilter] = useState(tournamentFilterOptions[0]);
 
   // Switches
+  const [hideLongestDur, setHideLongestDur] = useState(false);
   const [hideSoldOut, setHideSoldOut] = useState(false);
   const [hideMaterialsReq, setHideMaterialsReq] = useState(false);
 
@@ -115,11 +114,17 @@ export default function Home() {
           setLateStartTime={setLateStartTime}
         />
         <SliderComponent
+          label={'Event Duration (in Hours)'}
           filterValues={durationFilter}
           setFilter={setDurationFilter}
           step={0.5}
           min={0.5}
           max={10}
+        />
+        <Switch
+          switchLabel={'Events with Duration Over 10 Hours'}
+          hide={hideLongestDur}
+          setHide={setHideLongestDur}
         />
       </div>
       <DailyTabs
@@ -134,6 +139,8 @@ export default function Home() {
           locationFilter
         ]}
         dateList={dateList}
+        durationFilter={durationFilter}
+        durationLength={durationLength}
         hideMaterialReq={hideMaterialsReq}
         hideSoldOut={hideSoldOut}
         materialsRequired={materialsRequired}

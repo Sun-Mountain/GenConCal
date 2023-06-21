@@ -5,6 +5,7 @@ export interface DailyTabs {
   allBaseFilters: number[];
   showOnly: Array<number[]>;
   dateList: UniqueFilter;
+  durationLength: UniqueFilter;
   hideMaterialReq: boolean;
   hideSoldOut: boolean;
   materialsRequired: number[];
