@@ -1,19 +1,16 @@
 export interface NewEvent {
   id: number;
   ageRequirement: string;
+  contact?: string;
   cost: number;
-  duration: number;
+  duration?: number;
   endDate: string;
   endTime: string;
   eventType: string;
   experienceType: string;
-  gameId: string;
-  startDate: string,
-  startTime: string,
-  title: string;
-  contact?: string;
   descriptionShort?: string;
   descriptionLong?: string;
+  gameId: string;
   gameSystem?: string;
   gmNames?: string;
   group?: string;
@@ -22,12 +19,15 @@ export interface NewEvent {
   playersMin?: number,
   playersMax?: number,
   playTimeMin?: number,
-  tableNum?: number,
-  ticketsAvailable?: number,
-  tournament?: boolean
   room?: string;
   round?: number;
   roundTotal?: number;
+  startDate: string,
+  startTime: string,
+  tableNum?: number,
+  ticketsAvailable?: number,
+  title: string;
+  tournament?: boolean
   website?: string;
 }
 
