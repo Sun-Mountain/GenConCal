@@ -82,6 +82,7 @@ export default function cleanData (eventData: RawEvent[]) {
         playersMax = Number(event['Maximum Players']),
         tableNum = Number(event['Table Number']),
         ticketsAvailable = Number(event['Tickets Available']),
+        title = event['Title'],
         tournament = trueOrFalse(event['Tournament?']),
         room = event['Room Name'],
         round = Number(event['Round Number']),
@@ -229,6 +230,9 @@ export default function cleanData (eventData: RawEvent[]) {
       data.filterTypes.noTickets.push(index)
     }
     newEvent.ticketsAvailable = ticketsAvailable
+
+    // Title
+    newEvent.title = title
 
     // Tournament 
     if (tournament) {

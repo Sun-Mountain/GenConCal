@@ -1,6 +1,6 @@
 'use client'
 
-import type { ReactElement, ReactNode } from 'react'
+import { ReactElement, ReactNode, useEffect, useState } from 'react'
 import type { NextPage } from 'next'
 import type { AppProps } from 'next/app'
 import Head from 'next/head'
@@ -10,9 +10,10 @@ import getData from '@/helpers/getData'
 import '@/assets/styles/application.scss'
 
 import Navigation from '@/components/layout/Navigation'
+import Loading from '@/components/ui/Loading'
+import { DataInterface } from '@/assets/interfaces/DataInterfaces'
 
-export const data = getData()
-console.log(data)
+export const { eventData, filterTypes } = getData()
 
 export const metadata = {
   title: 'GenCon Cal',
@@ -27,9 +28,17 @@ type AppPropsWithLayout = AppProps & {
   Component: NextPageWithLayout
 }
 
-export default function MyApp(
-  { Component, pageProps }: AppPropsWithLayout
-) {
+export default function MyApp({ Component, pageProps }: AppPropsWithLayout) {
+  const [hasMounted, setHasMounted] = useState<boolean>(false);
+
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
+
+  if (!hasMounted) {
+    return <Loading message={'Fetching Data'} />
+  }
+
   return (
     <>
       <Head>
