@@ -1,5 +1,5 @@
-export default function trueOrFalse (value: 'yes' | 'no') {
-  if (value === 'yes') {
+export default function trueOrFalse (value: 'Yes' | 'No') {
+  if (value === 'Yes') {
     return true
   }
 

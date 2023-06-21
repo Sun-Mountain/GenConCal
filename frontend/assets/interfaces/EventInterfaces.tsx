@@ -18,7 +18,6 @@ export interface NewEvent {
   materials?: string,
   playersMin?: number,
   playersMax?: number,
-  playTimeMin?: number,
   room?: string;
   round?: number;
   roundTotal?: number;

@@ -1,6 +1,7 @@
 import { DataInterface } from "@/assets/interfaces/DataInterfaces";
 import { NewEvent, RawEvent } from "@/assets/interfaces/EventInterfaces";
 import getTime from "./getTime";
+import trueOrFalse from "./trueOrFalse";
 
 export default function cleanData (eventData: RawEvent[]) {
   var data: DataInterface = {
@@ -11,8 +12,16 @@ export default function cleanData (eventData: RawEvent[]) {
           duration: {},
           endDates: {},
           endTimes: {},
+          eventTypes: {},
+          experienceType: {},
+          gameSystems: {},
+          groups: {},
+          locations: {},
+          materialsRequired: [],
+          noTickets: [],
           startDates: {},
-          startTimes: {}
+          startTimes: {},
+          tournaments: []
         }
       }
 
@@ -37,7 +46,6 @@ export default function cleanData (eventData: RawEvent[]) {
       materials: '',
       playersMin: 0,
       playersMax: 0,
-      playTimeMin: 0,
       startDate: '',
       startTime: '',
       tableNum: 0,
@@ -61,7 +69,24 @@ export default function cleanData (eventData: RawEvent[]) {
         eventStartDate = rawStart.toLocaleDateString(),
         eventStartTime = getTime(rawStart),
         eventEndDate = rawEnd.toLocaleDateString(),
-        eventEndTime = getTime(rawEnd)
+        eventEndTime = getTime(rawEnd),
+        eventType = event['Event Type'],
+        experienceReq = event['Experience Required'],
+        gameId = event['Game ID'],
+        gameSystem = event['Game System'],
+        gmNames = event['GM Names'],
+        group = event['Group'],
+        location = event['Location']?.toUpperCase(),
+        materials = event['Materials Required Details'],
+        playersMin = Number(event['Minimum Players']),
+        playersMax = Number(event['Maximum Players']),
+        tableNum = Number(event['Table Number']),
+        ticketsAvailable = Number(event['Tickets Available']),
+        tournament = trueOrFalse(event['Tournament?']),
+        room = event['Room Name'],
+        round = Number(event['Round Number']),
+        roundTotal = Number(event['Total Rounds']),
+        website = event['Website'];
 
     newEvent.id = index
 
@@ -75,6 +100,10 @@ export default function cleanData (eventData: RawEvent[]) {
     // Contact
     if (contact) {
       newEvent.contact = contact
+    }
+
+    if (website) {
+      newEvent.website = website
     }
 
     // Cost
@@ -121,6 +150,100 @@ export default function cleanData (eventData: RawEvent[]) {
     }
     data.filterTypes.startTimes[eventStartTime].push(index)
     newEvent.startTime = eventStartTime
+
+    // Event Type
+    if (!data.filterTypes.eventTypes[eventType]) {
+      data.filterTypes.eventTypes[eventType] = []
+    }
+    data.filterTypes.eventTypes[eventType].push(index)
+    newEvent.eventType = eventType
+
+    // Experience Type
+    if (!data.filterTypes.experienceType[experienceReq]) {
+      data.filterTypes.experienceType[experienceReq] = []
+    }
+    data.filterTypes.experienceType[experienceReq].push(index)
+    newEvent.experienceType = experienceReq
+
+    // Game Id
+    newEvent.gameId = gameId
+
+    // Game System
+    if (gameSystem) {
+      if (!data.filterTypes.gameSystems[gameSystem]) {
+        data.filterTypes.gameSystems[gameSystem] = []
+      }
+      data.filterTypes.gameSystems[gameSystem].push(index)
+      newEvent.gameSystem = gameSystem
+    }
+
+    // GM Names
+    if (gmNames) {
+      newEvent.gmNames = gmNames
+    }
+
+    // Group
+    if (group) {
+      if (!data.filterTypes.groups[group]) {
+        data.filterTypes.groups[group] = []
+      }
+      data.filterTypes.groups[group].push(index)
+      newEvent.group = group
+    }
+
+    // Location
+    if (location) {
+      if (!data.filterTypes.locations[location]) {
+        data.filterTypes.locations[location] = []
+      }
+      data.filterTypes.locations[location].push(index)
+      newEvent.location = location
+    }
+
+    // Materials Required
+    if (materials) {
+      data.filterTypes.materialsRequired.push(index)
+      newEvent.materials = materials
+    }
+
+    // Player Numbers
+    if (playersMin) {
+      newEvent.playersMin = playersMin
+    }
+
+    if (playersMax) {
+      newEvent.playersMax = playersMax
+    }
+
+    // Room and Table
+    if (tableNum) {
+      newEvent.tableNum = tableNum
+    }
+
+    if (room) {
+      newEvent.room = room
+    }
+
+    // Tickets
+    if (!ticketsAvailable) {
+      data.filterTypes.noTickets.push(index)
+    }
+    newEvent.ticketsAvailable = ticketsAvailable
+
+    // Tournament 
+    if (tournament) {
+      data.filterTypes.tournaments.push(index)
+    }
+    newEvent.tournament = tournament
+
+    // Rounds
+    if (round) {
+      newEvent.round = round
+    }
+
+    if (roundTotal) {
+      newEvent.roundTotal = roundTotal
+    }
 
     data.eventData.push(newEvent)
   })
