@@ -4,9 +4,9 @@ import type { ReactElement, ReactNode } from 'react'
 import type { NextPage } from 'next'
 import type { AppProps } from 'next/app'
 import Head from 'next/head'
-// import Navigation from '@/components/Navigation'
+import Navigation from '@/components/layout/Navigation'
 
-import '@/styles/application.scss'
+import '@/assets/styles/application.scss'
 
 export const metadata = {
   title: 'GenCon Cal',
@@ -29,7 +29,7 @@ export default function MyApp(
       <Head>
         <link rel='icon' href='/favicon.ico'/>
       </Head>
-      {/* <Navigation /> */}
+      <Navigation />
       <main>
         <Component {...pageProps} />
       </main>
