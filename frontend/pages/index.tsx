@@ -6,6 +6,7 @@ import DailyTabs from "@/components/DailyTabs";
 import FilterAutoList from "@/components/FilterAutoList";
 import FilterButtons from "@/components/FilterButtons";
 import RadioGroup from "@/components/RadioGroup";
+import SliderComponent from "@/components/SliderComponent";
 import Switch from "@/components/SwitchComponent";
 import TimeRange from "@/components/TimeRange";
 
@@ -24,6 +25,8 @@ export default function Home() {
   // Lists
   const ageRequirements = filterList.ageRequirements;
   const dateList = filterList.startDates;
+  const durationLength = filterList.durationLength;
+  const durationList = Object.keys(durationLength).sort();
   const eventTypes = filterList.eventTypes;
   const experienceRequirements = filterList.experienceRequirements;
   const gameSystems = filterList.gameSystems;
@@ -36,6 +39,7 @@ export default function Home() {
 
   // Filters
   const [ageFilters, setAgeFilters] = useState<number[]>([]);
+  const [durationFilter, setDurationFilter] = useState<number[]>([0.5, 10]);
   const [experienceFilters, setExperienceFilters] = useState<number[]>([]);
   const [eventTypeFilters, setEventTypeFilters] = useState<number[]>([]);
   const [groupFilter, setGroupFilter] = useState<number[]>([]);
@@ -109,6 +113,13 @@ export default function Home() {
           lateStartTime={lateStartTime}
           setEarlyStartTime={setEarlyStartTime}
           setLateStartTime={setLateStartTime}
+        />
+        <SliderComponent
+          filterValues={durationFilter}
+          setFilter={setDurationFilter}
+          step={0.5}
+          min={0.5}
+          max={10}
         />
       </div>
       <DailyTabs

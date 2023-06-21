@@ -1,3 +1,5 @@
+import { Dispatch, SetStateAction } from 'react';
+
 export interface UniqueFilter {
   [index: string]: Array<number>;
 }
@@ -18,4 +20,12 @@ export interface FilterTypes {
   startDates: UniqueFilter;
   startTimes: UniqueFilter;
   tournament: Array<number>;
+}
+
+export interface SlideFilter {
+  filterValues: number[];
+  setFilter: Dispatch<SetStateAction<number[]>>;
+  step: number;
+  min: number;
+  max: number;
 }
