@@ -20,7 +20,13 @@ export default function BasicTabs() {
   return (
     <Box id='daily-tabs-container' sx={{ width: '100%' }}>
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-        <Tabs variant="scrollable" value={tab} onChange={handleChange} aria-label="basic tabs example">
+        <Tabs
+          variant="scrollable"
+          scrollButtons="auto"
+          value={tab}
+          onChange={handleChange}
+          aria-label="basic tabs example"
+        >
           {days.map((day, index) => {
             return (
               <Tab key={day} label={day} {...a11yProps(index)} />

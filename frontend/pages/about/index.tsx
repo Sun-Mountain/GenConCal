@@ -11,6 +11,9 @@ export default function About() {
       <p>
         This website was inspired by Jon Schultz&apos;s <Link href='https://gencon.eventdb.us/' target='_blank'>GenCon Event Database</Link>.
       </p>
+      <p>
+        This website was made with the <Link href='https://mui.com/' target='_blank'>Material UI</Link> library.
+      </p>
     </>
   )
 }
