@@ -6,6 +6,7 @@ import DailyTabs from "@/components/DailyTabs";
 import FilterAutoList from "@/components/FilterAutoList";
 import FilterButtons from "@/components/FilterButtons";
 import RadioGroup from "@/components/RadioGroup";
+import SliderComponent from "@/components/SliderComponent";
 import Switch from "@/components/SwitchComponent";
 import TimeRange from "@/components/TimeRange";
 
@@ -19,11 +20,11 @@ export const tournamentFilterOptions = [
 
 export default function Home() {
   const filterList = filters;
-  console.log(filterList);
 
   // Lists
   const ageRequirements = filterList.ageRequirements;
   const dateList = filterList.startDates;
+  const durationLength = filterList.durationLength;
   const eventTypes = filterList.eventTypes;
   const experienceRequirements = filterList.experienceRequirements;
   const gameSystems = filterList.gameSystems;
@@ -36,6 +37,7 @@ export default function Home() {
 
   // Filters
   const [ageFilters, setAgeFilters] = useState<number[]>([]);
+  const [durationFilter, setDurationFilter] = useState<number[]>([0.5, 10]);
   const [experienceFilters, setExperienceFilters] = useState<number[]>([]);
   const [eventTypeFilters, setEventTypeFilters] = useState<number[]>([]);
   const [groupFilter, setGroupFilter] = useState<number[]>([]);
@@ -110,6 +112,14 @@ export default function Home() {
           setEarlyStartTime={setEarlyStartTime}
           setLateStartTime={setLateStartTime}
         />
+        <SliderComponent
+          label={'Event Duration (in Hours)'}
+          filterValues={durationFilter}
+          setFilter={setDurationFilter}
+          step={0.5}
+          min={0.5}
+          max={10}
+        />
       </div>
       <DailyTabs
         allBaseFilters={[
@@ -123,6 +133,8 @@ export default function Home() {
           locationFilter
         ]}
         dateList={dateList}
+        durationFilter={durationFilter}
+        durationLength={durationLength}
         hideMaterialReq={hideMaterialsReq}
         hideSoldOut={hideSoldOut}
         materialsRequired={materialsRequired}

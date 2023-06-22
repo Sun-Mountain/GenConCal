@@ -133,13 +133,26 @@ a:hover {
   margin-top: 19px;
 }
 
-.filter-component-container+.filter-component-container {
-  margin-top: 25px;
+.filter-component-container {
+  margin-top: 10px;
+  padding-top: 10px;
 }
 
 .filter-list {
   margin-right: 24px;
   margin-top: 12px;
+}
+
+.slider-box {
+  padding-right: 17px;
+}
+
+.slider-container {
+  width: 400px;
+}
+
+.slider-end-label {
+  min-width: 50px;
 }
 
 .radio-group-container {

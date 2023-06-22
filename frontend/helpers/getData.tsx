@@ -33,20 +33,21 @@ const cleanData = (events: Array<RawEvent>) => {
   const data: Data = {
     eventData: [],
     filters: {
-      groups: {},
-      eventTypes: {},
-      gameSystems: {},
       ageRequirements: {},
-      experienceRequirements: {},
-      startDates: {},
-      startTimes: {},
+      costs: {},
+      durationLength: {},
       endDates: {},
       endTimes: {},
-      tournament: [],
-      materialsRequired: [],
-      costs: {},
+      eventTypes: {},
+      experienceRequirements: {},
+      gameSystems: {},
+      groups: {},
       locations: {},
-      noTickets: []
+      materialsRequired: [],
+      noTickets: [],
+      startDates: {},
+      startTimes: {},
+      tournament: [],
     }
   }
 
@@ -79,28 +80,34 @@ const cleanData = (events: Array<RawEvent>) => {
     const rawStart = new Date(event["Start Date & Time"]);
     const rawEnd = new Date(event["End Date & Time"]);
 
-    const shortDescription = event["Short Description"];
-    const longDescription = event["Long Description"];
-    const groupName = event["Group"];
-    const eventType = event["Event Type"];
-    const gameSystem = event["Game System"];
     const ageReq = event["Age Required"];
-    const exp = event["Experience Required"];
-    const eventStartDate = rawStart.toLocaleDateString();
-    const eventStartTime = getTime(rawStart);
+    const eventCost = Number(event["Cost $"]);
+    const eventDuration = Number(event["Duration"]);
     const eventEndDate = rawEnd.toLocaleDateString();
     const eventEndTime = getTime(rawEnd);
-    const isTourney = isTournament(event["Tournament?"]);
-    const materialsRequired = areMaterialsRequired(event["Materials Required"]);
-    const materials = event["Materials Required Details"];
-    const eventCost = Number(event["Cost $"]);
     const eventLocation = event["Location"]?.toUpperCase();
+    const eventStartDate = rawStart.toLocaleDateString();
+    const eventStartTime = getTime(rawStart);
     const eventTickets = Number(event["Tickets Available"]);
+    const eventType = event["Event Type"];
+    const exp = event["Experience Required"];
+    const gameSystem = event["Game System"];
+    const groupName = event["Group"];
+    const isTourney = isTournament(event["Tournament?"]);
+    const longDescription = event["Long Description"];
+    const materials = event["Materials Required Details"];
+    const materialsRequired = areMaterialsRequired(event["Materials Required"]);
+    const shortDescription = event["Short Description"];
 
     newEvent.id = index;
     newEvent.gameId = event["Game ID"];
-    newEvent.duration = Number(event["Duration"]);
     newEvent.maxTickets = Number(event['Maximum Players']);
+
+    if (!data.filters.durationLength[eventDuration]) {
+      data.filters.durationLength[eventDuration] = []
+    }
+    data.filters.durationLength[eventDuration].push(index)
+    newEvent.duration = eventDuration
 
     // Group Name
     if (groupName) {
