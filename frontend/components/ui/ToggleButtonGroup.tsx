@@ -5,13 +5,14 @@ import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import { ToggleButtonGroupInterface } from '@/assets/interfaces/ComponentInterfaces';
 
-export default function ToggleButtonsMultiple({ 
+export default function ToggleButtonsMultiple({
   btnValues,
   filter,
   filterFor,
-  setFilterFor
+  setFilterFor,
+  label
 }: ToggleButtonGroupInterface) {
-  const btnKeys = Object.values(btnValues);
+  const btnKeys = Object.keys(btnValues);
   const [show, setShow] = useState(btnKeys);
 
   const addEventsToFilter = (eventIds: number[]) => {
@@ -40,45 +41,37 @@ export default function ToggleButtonsMultiple({
   };
 
   return (
-    <ToggleButtonGroup
-      orientation='vertical'
-      value={show}
-      onChange={handleFormat}
-      aria-label="text formatting"
-    >
-      {btnKeys.map((key, index) => {
-        const keyIncluded = show.includes(key);
-        const showClass = keyIncluded ? 'visible' : 'hidden';
-        return (
-          <ToggleButton
-            className={`toggle-button ${showClass}`}
-            key={index}
-            value={key}
-            aria-label={key}
-            onClick={() => handleFilter(key)}
-          >
-            {keyIncluded ? (
-              <CheckCircleIcon />
-            ) : (
-              <CancelIcon />
-            )} &nbsp;
-            {key}
-          </ToggleButton>
-        )
-      })}
-      {/* <ToggleButton value="bold" aria-label="bold">
-        <FormatBoldIcon />
-      </ToggleButton>
-      <ToggleButton value="italic" aria-label="italic">
-        <FormatItalicIcon />
-      </ToggleButton>
-      <ToggleButton value="underlined" aria-label="underlined">
-        <FormatUnderlinedIcon />
-      </ToggleButton>
-      <ToggleButton value="color" aria-label="color" disabled>
-        <FormatColorFillIcon />
-        <ArrowDropDownIcon />
-      </ToggleButton> */}
-    </ToggleButtonGroup>
+    <div className='filter-btn-group'>
+      <div className='filter-label'>
+        {label}
+      </div>
+      <ToggleButtonGroup
+        orientation='vertical'
+        value={show}
+        onChange={handleFormat}
+        aria-label="text formatting"
+      >
+        {btnKeys.map((key, index) => {
+          const keyIncluded = show.includes(key);
+          const showClass = keyIncluded ? 'visible' : 'hidden';
+          return (
+            <ToggleButton
+              className={`toggle-button ${showClass}`}
+              key={index}
+              value={key}
+              aria-label={key}
+              onClick={() => handleFilter(key)}
+            >
+              {keyIncluded ? (
+                <CheckCircleIcon />
+              ) : (
+                <CancelIcon />
+              )} &nbsp;
+              {key}
+            </ToggleButton>
+          )
+        })}
+      </ToggleButtonGroup>
+    </div>
   );
 }

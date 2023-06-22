@@ -8,11 +8,11 @@ export default function Home () {
   console.log(filterTypes)
   // Lists
   const filterByAge = filterTypes.ageRequirement;
+  const filterByXP = filterTypes.experienceType;
 
   // Button Filters
   const [ageFilter, setAgeFilter] = useState<number[]>([])
-
-  console.log(ageFilter);
+  const [xpFilter, setXPFilter] = useState<number[]>([])
 
   return (
     <>
@@ -20,6 +20,9 @@ export default function Home () {
         ageFilter={ageFilter}
         setAgeFilter={setAgeFilter}
         filterByAge={filterByAge}
+        xpFilter={xpFilter}
+        setXPFilter={setXPFilter}
+        filterByXP={filterByXP}
       />
     </>
   )

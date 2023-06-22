@@ -1,8 +1,13 @@
 .toggle-button {
+  padding: 8px !important;
   text-transform: capitalize;
 }
 
 .visible {
   background-color: $visible-bg !important;
   color: $visible-color !important;
+}
+
+.filter-btn-group {
+  margin-top: 15px;
 }
