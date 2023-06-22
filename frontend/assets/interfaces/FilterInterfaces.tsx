@@ -15,6 +15,10 @@ export interface FilterContainerInterface {
   xpFilter: number[];
   setXPFilter: Dispatch<SetStateAction<number[]>>;
   filterByXP: UniqueFilter;
+  soldOut: boolean;
+  setSoldOut: Dispatch<SetStateAction<boolean>>;
+  hideMaterials: boolean;
+  setHideMaterials: Dispatch<SetStateAction<boolean>>;
 }
 
 export interface FilterTypes {

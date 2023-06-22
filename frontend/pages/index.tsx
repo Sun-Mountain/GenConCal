@@ -14,6 +14,10 @@ export default function Home () {
   const [ageFilter, setAgeFilter] = useState<number[]>([])
   const [xpFilter, setXPFilter] = useState<number[]>([])
 
+  // Switch Filters
+  const [soldOut, setSoldOut] = useState(false)
+  const [hideMaterials, setHideMaterials] = useState(false)
+
   return (
     <>
       <FiltersContainer
@@ -23,6 +27,10 @@ export default function Home () {
         xpFilter={xpFilter}
         setXPFilter={setXPFilter}
         filterByXP={filterByXP}
+        soldOut={soldOut}
+        setSoldOut={setSoldOut}
+        hideMaterials={hideMaterials}
+        setHideMaterials={setHideMaterials}
       />
     </>
   )

@@ -41,7 +41,7 @@ export default function ToggleButtonsMultiple({
   };
 
   return (
-    <div className='filter-btn-group'>
+    <div className='filter-container'>
       <div className='filter-label'>
         {label}
       </div>
