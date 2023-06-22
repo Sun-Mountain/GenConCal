@@ -1,0 +1,10 @@
+#daily-tabs-container {
+  button {
+    border: 1px solid $border-color;
+    border-bottom: 0;
+  }
+
+  button+button {
+    border-left: 0;
+  }
+}
