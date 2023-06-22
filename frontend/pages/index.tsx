@@ -50,7 +50,6 @@ export default function Home() {
   const [tournamentFilter, setTournamentFilter] = useState(tournamentFilterOptions[0]);
 
   // Switches
-  const [hideLongestDur, setHideLongestDur] = useState(false);
   const [hideSoldOut, setHideSoldOut] = useState(false);
   const [hideMaterialsReq, setHideMaterialsReq] = useState(false);
 
@@ -120,11 +119,6 @@ export default function Home() {
           step={0.5}
           min={0.5}
           max={10}
-        />
-        <Switch
-          switchLabel={'Events with Duration Over 10 Hours'}
-          hide={hideLongestDur}
-          setHide={setHideLongestDur}
         />
       </div>
       <DailyTabs

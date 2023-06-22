@@ -40,6 +40,8 @@ export default function DailyTabs({
   allBaseFilters,
   showOnly,
   dateList,
+  durationFilter,
+  durationLength,
   hideMaterialReq,
   hideSoldOut,
   materialsRequired,
@@ -57,10 +59,27 @@ export default function DailyTabs({
     setTab(newValue);
   };
 
+  const lowestDuration = durationFilter[0];
+  const highestDuration = durationFilter[1];
+  const durationKeys = Object.keys(durationLength).sort();
+
   const getEventsList = (date: string) => {
     const dayEvents = dateList[date]
 
     var eventsForDay = dayEvents.filter(val => !allBaseFilters.includes(val));
+
+    if (Number(durationKeys[0]) != lowestDuration || Number(durationKeys[durationKeys.length - 1]) != highestDuration) {
+      durationKeys.map(key => {
+        if (Number(key) < lowestDuration){
+          var events = durationLength[key]
+          eventsForDay = eventsForDay.filter(val => !events.includes(val));
+        }
+        if (Number(key) > highestDuration){
+          var events = durationLength[key]
+          eventsForDay = eventsForDay.filter(val => !events.includes(val));
+        }
+      })
+    }
 
     if (hideMaterialReq) {
       eventsForDay = eventsForDay.filter(val => !materialsRequired.includes(val));

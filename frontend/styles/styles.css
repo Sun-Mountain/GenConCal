@@ -133,8 +133,9 @@ a:hover {
   margin-top: 19px;
 }
 
-.filter-component-container+.filter-component-container {
-  margin-top: 25px;
+.filter-component-container {
+  margin-top: 10px;
+  padding-top: 10px;
 }
 
 .filter-list {
