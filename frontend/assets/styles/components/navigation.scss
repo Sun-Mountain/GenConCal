@@ -1,0 +1,36 @@
+#navigation-container {
+  display: flex;
+  font-size: 18px;
+  justify-content: space-between;
+  margin: 0 auto;
+  max-width: 800px;
+
+  a, a:visited {
+    color: $nav-link-color;
+    display: flex;
+    justify-content: center;
+    text-decoration: none;
+  }
+
+  a:hover {
+    color: $nav-link-hover;
+  }
+}
+
+#nav-title {
+  display: flex;
+  justify-content: center;
+  padding: 8px;
+}
+
+#nav-link-container {
+  display: flex;
+  flex-direction: row;
+}
+
+.link-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin-left: 22px;
+}

@@ -12,8 +12,7 @@ export const { eventData, filterTypes } = getData()
 
 import '@/assets/styles/application.scss'
 
-import Navigation from '@/components/layout/Navigation'
-import Loading from '@/components/layout/Loading'
+import Navigation from '@/components/UI/Navigation'
 
 export const metadata = {
   title: 'GenCon Cal',
@@ -43,7 +42,9 @@ export default function MyApp({ Component, pageProps }: AppPropsWithLayout) {
       <Navigation />
       <main>
         { !hasMounted ? (
-          <Loading message={'Fetching Data'} />
+          <div>
+            Loading...
+          </div>
         ) : (
           <Component {...pageProps} />
         )}
