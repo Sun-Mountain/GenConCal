@@ -1,24 +1,7 @@
 import { Dispatch, SetStateAction } from "react";
 
-export enum AgeRequirementEnum {
-  'kids only (12 and under)' = 'kids',
-  'Everyone (6+)' = '6',
-  'Teen (13+)' = '13',
-  'Mature (18+)' = '18',
-  '21+' = '21'
-}
-
 export interface FilterContainerInterface {
-  ageFilter: number[];
-  setAgeFilter: Dispatch<SetStateAction<number[]>>;
-  filterByAge: UniqueFilter;
-  xpFilter: number[];
-  setXPFilter: Dispatch<SetStateAction<number[]>>;
-  filterByXP: UniqueFilter;
-  soldOut: boolean;
-  setSoldOut: Dispatch<SetStateAction<boolean>>;
-  hideMaterials: boolean;
-  setHideMaterials: Dispatch<SetStateAction<boolean>>;
+  
 }
 
 export interface FilterTypes {

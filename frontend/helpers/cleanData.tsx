@@ -1,5 +1,5 @@
-import { DataInterface } from "@/assets/interfaces/DataInterfaces";
-import { NewEvent, RawEvent } from "@/assets/interfaces/EventInterfaces";
+import { DataInterface } from "@/assets/interfaces/Data";
+import { NewEvent, RawEvent } from "@/assets/interfaces/Event";
 import getTime from "./getTime";
 import trueOrFalse from "./trueOrFalse";
 
