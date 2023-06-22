@@ -2,9 +2,24 @@
   button {
     border: 1px solid $border-color;
     border-bottom: 0;
+    border-top-left-radius: 15px 15px;
+    border-top-right-radius: 15px 15px;
   }
 
   button+button {
     border-left: 0;
+  }
+
+  .Mui-selected {
+    background-color: $select-bg-color;
+    color: $select-color;
+  }
+}
+
+@media only screen and (min-width: 600px) {
+  #daily-tabs-container {
+    button {
+      font-size: 16px;
+    }
   }
 }
