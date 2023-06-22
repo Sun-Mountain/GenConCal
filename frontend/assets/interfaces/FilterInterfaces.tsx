@@ -1,12 +1,18 @@
-enum AgeRequirementValues {
-  'kids only (12 and under)' = 'Kids Only (12 and under)',
+import { Dispatch, SetStateAction } from "react";
+
+export enum AgeRequirementEnum {
+  'Kids Only (12 and under)' = 'kids only (12 and under)',
   'Everyone (6+)' = 'Everyone (6+)',
   'Teen (13+)' = 'Teen (13+)',
   'Mature (18+)' = 'Mature (18+)',
   '21+' = '21+'
 }
 
-export type AgeRequirementKeys = keyof typeof AgeRequirementValues;
+export interface FilterContainerInterface {
+  ageFilter: number[];
+  setAgeFilter: Dispatch<SetStateAction<number[]>>;
+  filterByAge: UniqueFilter;
+}
 
 export interface FilterTypes {
   ageRequirement: UniqueFilter;
@@ -28,4 +34,8 @@ export interface FilterTypes {
 
 export interface UniqueFilter {
   [index: string]: number[];
+}
+
+export interface UniqueStrings {
+  [index: string]: string;
 }

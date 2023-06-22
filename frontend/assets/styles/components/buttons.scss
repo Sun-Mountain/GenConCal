@@ -1,0 +1,8 @@
+.toggle-button {
+  text-transform: capitalize;
+}
+
+.visible {
+  background-color: $visible-bg !important;
+  color: $visible-color !important;
+}
