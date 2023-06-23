@@ -7,7 +7,7 @@ import TabPanel from '@/components/UI/TabPanel';
 import a11yProps from '@/helpers/a11yProps';
 
 import { filterTypes } from '@/pages/_app';
-import { UniqueFilter } from '@/assets/interfaces/Filter';
+import { DailyTabsTypes, CountObj, UniqueFilter } from '@/assets/interfaces';
 import DataTable from './UI/DataTable';
 
 const eventsListByDay = filterTypes.startDates;
@@ -15,11 +15,9 @@ const eventsListByStartTime = filterTypes.startTimes;
 const dayLabels = Object.keys(eventsListByDay).sort();
 const timeLabels = Object.keys(eventsListByStartTime).sort();
 
-interface CountObj {
-  [index: string]: string
-}
-
-export default function DailyTabs() {
+export default function DailyTabs({
+  hideSoldOut
+}: DailyTabsTypes) {
   const [tab, setTab] = useState(0);
   const [eventCounts, setEventCounts] = useState<CountObj>({})
 

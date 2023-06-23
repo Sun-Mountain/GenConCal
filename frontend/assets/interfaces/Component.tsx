@@ -1,7 +1,11 @@
 import { Dispatch, ReactNode, SetStateAction } from "react";
 
+export interface DailyTabsTypes {
+  hideSoldOut: boolean;
+}
+
 export interface FiltersTypes {
-  hideSoldOut: boolean,
+  hideSoldOut: boolean;
   setHideSoldOut: Dispatch<SetStateAction<boolean>>;
 }
 

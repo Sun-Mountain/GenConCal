@@ -1,4 +1,4 @@
-import { FiltersTypes } from "@/assets/interfaces/Component"
+import { FiltersTypes } from "@/assets/interfaces"
 import ToggleComponent from "./UI/Toggle"
 
 export default function FiltersContainer ({

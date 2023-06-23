@@ -1,4 +1,4 @@
-import { TabPanelProps } from "@/assets/interfaces/Component";
+import { TabPanelProps } from "@/assets/interfaces";
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 

@@ -17,6 +17,9 @@ export default function EventDetails ({ eventIndex }: { eventIndex: number }) {
         <TableRow category={'Title'} detail={event.title} />
         <TableRow category={'Game Id'} detail={event.gameId} />
         <TableRow category={'Event Type'} detail={event.eventType} />
+        {event.gameSystem && (
+          <TableRow category={'Game System'} detail={event.gameSystem} />
+        )}
         <TableRow category={'Start Date and Time'} detail={startDateTime} />
         <TableRow category={'End Date and Time'} detail={endDateTime} />
         <TableRow category={'Duration'} detail={`${event.duration} ${durationSuffix}`} />
