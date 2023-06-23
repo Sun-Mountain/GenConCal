@@ -1,6 +1,13 @@
 .event-data-table {
   width: 100%;
 
+  th {
+    background-color: $theader-bg-color;
+    color: $theader-font;
+    font-weight: 400 !important;
+    padding: 2px;
+  }
+
   tr:nth-child(even) {
     background-color: $row-alt-color;
   }
@@ -12,6 +19,16 @@
   .sold-out {
     background-color: $sold-out-row-bg !important;
     color: $sold-out-row-text;
+  }
+}
+
+.event-details-table {
+  tr:nth-child(odd) {
+    background-color: $event-details-row;
+  }
+
+  td {
+    padding: 3px;
   }
 }
 

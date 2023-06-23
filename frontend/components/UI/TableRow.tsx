@@ -1,6 +1,6 @@
 export default function TableRow ({
   category,
-  detail
+  detail,
 }: {
   category: string,
   detail: string
