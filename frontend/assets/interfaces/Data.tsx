@@ -7,5 +7,5 @@ export interface DataInterface {
 }
 
 export interface CountObj {
-  [index: string]: string
+  [index: string]: number
 }

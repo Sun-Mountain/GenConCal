@@ -12,6 +12,7 @@ import DataTable from './UI/DataTable';
 
 const eventsListByDay = filterTypes.startDates;
 const eventsListByStartTime = filterTypes.startTimes;
+const soldOutEvents = filterTypes.noTickets;
 const dayLabels = Object.keys(eventsListByDay).sort();
 const timeLabels = Object.keys(eventsListByStartTime).sort();
 
@@ -25,7 +26,7 @@ export default function DailyTabs({
     var counts: CountObj = {};
     dayLabels.map(date => {
       var num = list[date].length
-      counts[date] = num.toLocaleString("en-US")
+      counts[date] = num
     })
     setEventCounts(counts)
   }
@@ -41,6 +42,11 @@ export default function DailyTabs({
   const getEvents = (day: string) => {
     const dayEvents = eventsListByDay[day]
     var eventsForDay = dayEvents;
+
+    if (hideSoldOut) {
+      eventsForDay = eventsForDay.filter(val => !soldOutEvents.includes(val))
+    }
+
     return eventsForDay;
   }
 
@@ -55,8 +61,11 @@ export default function DailyTabs({
           aria-label="basic tabs example"
         >
           {dayLabels.map((day, index) => {
-            var eventNum = eventCounts[day],
-                dateLabel = (<div className='tab-label'>
+            var eventNum = eventCounts[day]
+            if (eventNum) {
+              eventNum.toLocaleString("en-US")
+            }
+            var dateLabel = (<div className='tab-label'>
                   <div className='tab-date'>{day}</div>
                   <div className='tab-count'>{eventNum} events</div>
                 </div>)

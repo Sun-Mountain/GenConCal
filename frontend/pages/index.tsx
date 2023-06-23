@@ -11,7 +11,9 @@ export default function Home () {
         hideSoldOut={hideSoldOut}
         setHideSoldOut={setHideSoldOut}
       />
-      <DailyTabs />
+      <DailyTabs
+        hideSoldOut={hideSoldOut}
+      />
     </>
   )
 }
