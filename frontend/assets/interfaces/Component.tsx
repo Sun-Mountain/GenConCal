@@ -1,5 +1,10 @@
 import { Dispatch, ReactNode, SetStateAction } from "react";
 
+export interface FiltersTypes {
+  hideSoldOut: boolean,
+  setHideSoldOut: Dispatch<SetStateAction<boolean>>;
+}
+
 export interface ToggleType {
   switchLabel: string;
   hide: boolean;
