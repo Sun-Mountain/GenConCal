@@ -8,6 +8,7 @@ import a11yProps from '@/helpers/a11yProps';
 
 import { filterTypes } from '@/pages/_app';
 import { UniqueFilter } from '@/assets/interfaces/Filter';
+import DataTable from './UI/DataTable';
 
 const eventsListByDay = filterTypes.startDates;
 const eventsListByStartTime = filterTypes.startTimes;
@@ -18,7 +19,7 @@ interface CountObj {
   [index: string]: string
 }
 
-export default function BasicTabs() {
+export default function DailyTabs() {
   const [tab, setTab] = useState(0);
   const [eventCounts, setEventCounts] = useState<CountObj>({})
 
@@ -78,6 +79,7 @@ export default function BasicTabs() {
                 return (
                   <div key={time}>
                     <h3>{time}</h3>
+                    <DataTable events={events} />
                   </div>
                 )
               }
