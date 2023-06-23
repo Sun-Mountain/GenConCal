@@ -1,30 +1,17 @@
-import { eventData } from '@/pages/_app';
-import ZoomInIcon from '@mui/icons-material/ZoomIn';
-
-export default function TableRow ({ eventIndex }: { eventIndex: number }) {
-  const {
-    title,
-    duration,
-    cost,
-    playersMax,
-    ticketsAvailable
-  } = eventData[eventIndex];  
+export default function TableRow ({
+  category,
+  detail,
+}: {
+  category: string,
+  detail: string
+}) {
   return (
-    <tr key={eventIndex} className={`${ticketsAvailable > 0 ? '' : 'sold-out'}`}>
+    <tr>
       <td>
-        {title}
+        {category}
       </td>
-      <td className='center-items'>
-        <ZoomInIcon />
-      </td>
-      <td className='center-items'>
-        {ticketsAvailable} / {playersMax}
-      </td>
-      <td className='center-items'>
-        {duration} {duration <= 1 ? 'hr' : 'hrs'}
-      </td>
-      <td className='center-items'>
-        ${cost}
+      <td>
+        {detail}
       </td>
     </tr>
   )

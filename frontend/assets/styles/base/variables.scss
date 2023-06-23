@@ -9,6 +9,7 @@ $cerulean: #0081a7ff;
 $verdigris: #00afb9ff;
 $lightYellow: #fdfcdcff;
 $lightOrange: #fed9b7ff;
+$lightOrange-50: rgba(254, 217, 183, 0.5);
 $bittersweet: #f07167ff;
 $seasalt: #f8f9faff;
 $platinum: #dee2e6ff;
@@ -29,6 +30,9 @@ $select-bg-color: $bice;
 $select-color: $seasalt;
 
 // Table Row
+$theader-bg-color: $bice;
+$theader-font: $seasalt;
 $sold-out-row-text: $french;
 $sold-out-row-bg: $platinum;
 $row-alt-color: $dodger-20;
+$event-details-row: $lightOrange-50;
