@@ -5,6 +5,10 @@
     background-color: $row-alt-color;
   }
 
+  .icon-button {
+    border: 0 !important;
+  }
+
   .sold-out {
     background-color: $sold-out-row-bg !important;
     color: $sold-out-row-text;
