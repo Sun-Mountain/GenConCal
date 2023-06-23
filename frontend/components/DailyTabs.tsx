@@ -1,4 +1,4 @@
-import { SyntheticEvent, useEffect, useState } from 'react';
+import { Suspense, SyntheticEvent, useEffect, useState } from 'react';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
@@ -79,7 +79,9 @@ export default function DailyTabs() {
                 return (
                   <div key={time}>
                     <h3>{time}</h3>
-                    <DataTable events={events} />
+                    <Suspense>
+                      <DataTable events={events} />
+                    </Suspense>
                   </div>
                 )
               }
