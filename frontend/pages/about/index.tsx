@@ -4,16 +4,16 @@ export default function About() {
   return (
     <>
       <h2>About The App</h2>
-      <p>
+      <div>
         GenCon Calendar (or GenConCal for short)
-      </p>
+      </div>
       <h3>Acknowledgements</h3>
-      <p>
+      <div>
         This website was inspired by Jon Schultz&apos;s <Link href='https://gencon.eventdb.us/' target='_blank'>GenCon Event Database</Link>.
-      </p>
-      <p>
+      </div>
+      <div>
         This website was made with the <Link href='https://mui.com/' target='_blank'>Material UI</Link> library.
-      </p>
+      </div>
     </>
   )
 }

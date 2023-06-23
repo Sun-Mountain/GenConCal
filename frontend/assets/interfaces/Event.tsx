@@ -3,7 +3,7 @@ export interface NewEvent {
   ageRequirement: string;
   contact?: string;
   cost: number;
-  duration?: number;
+  duration: number;
   endDate: string;
   endTime: string;
   eventType: string;
@@ -24,7 +24,7 @@ export interface NewEvent {
   startDate: string,
   startTime: string,
   tableNum?: number,
-  ticketsAvailable?: number,
+  ticketsAvailable: number,
   title: string;
   tournament?: boolean
   website?: string;

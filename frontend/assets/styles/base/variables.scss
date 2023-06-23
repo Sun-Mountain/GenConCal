@@ -1,6 +1,7 @@
 // Colors
 $bice: #006ba6ff;
 $dodger: #0496ffff;
+$dodger-20: rgba(4, 150, 255, 0.2);
 $xanthous: #ffbc42ff;
 $raspberry: #d81159ff;
 $quinacridone: #8f2d56ff;
@@ -11,7 +12,7 @@ $lightOrange: #fed9b7ff;
 $bittersweet: #f07167ff;
 $seasalt: #f8f9faff;
 $platinum: #dee2e6ff;
-$french: #adb5bdff;
+$french: #838a90;
 $outer: #495057ff;
 $eerie: #212529ff;
 
@@ -26,3 +27,8 @@ $nav-link-hover: $lightOrange;
 $border-color: $eerie;
 $select-bg-color: $bice;
 $select-color: $seasalt;
+
+// Table Row
+$sold-out-row-text: $french;
+$sold-out-row-bg: $platinum;
+$row-alt-color: $dodger-20;
