@@ -15,6 +15,7 @@ export default function EventDetails ({ eventIndex }: { eventIndex: number }) {
       <tbody>
         <TableRow category={'Title'} detail={event.title} />
         <TableRow category={'Game Id'} detail={event.gameId} />
+        <TableRow category={'Event Type'} detail={event.eventType} />
         <TableRow category={'Start Date and Time'} detail={startDateTime} />
         <TableRow category={'End Date and Time'} detail={endDateTime} />
         {event.descriptionShort && (

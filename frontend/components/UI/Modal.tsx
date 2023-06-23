@@ -3,15 +3,23 @@ import Box from '@mui/material/Box';
 import Modal from '@mui/material/Modal';
 
 const style = {
+  width: {
+    xs: 350, // theme.breakpoints.up('xs')
+    sm: 600, // theme.breakpoints.up('sm')
+    md: 600, // theme.breakpoints.up('md')
+    lg: 800, // theme.breakpoints.up('lg')
+    xl: 800, // theme.breakpoints.up('xl')
+  },
   position: 'absolute' as 'absolute',
   top: '50%',
   left: '50%',
   transform: 'translate(-50%, -50%)',
-  width: 400,
+  maxHeight: 7/8,
   bgcolor: 'background.paper',
   border: '2px solid #000',
   boxShadow: 24,
-  p: 4,
+  p: 2,
+  overflow: 'scroll',
 };
 
 export default function ModalComponent({
