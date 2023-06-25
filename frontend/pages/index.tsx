@@ -1,12 +1,19 @@
-import { filterTypes } from "@/pages/_app";
+import { useState } from 'react';
 import DailyTabs from '@/components/DailyTabs';
+import FiltersContainer from "@/components/FiltersContainer";
 
 export default function Home () {
-  console.log(filterTypes)
+  const [hideSoldOut, setHideSoldOut] = useState(false)
 
   return (
     <>
-      <DailyTabs />
+      <FiltersContainer
+        hideSoldOut={hideSoldOut}
+        setHideSoldOut={setHideSoldOut}
+      />
+      <DailyTabs
+        hideSoldOut={hideSoldOut}
+      />
     </>
   )
 }

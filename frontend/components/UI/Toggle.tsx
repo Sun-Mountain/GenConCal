@@ -1,7 +1,7 @@
 import Switch from '@mui/material/Switch';
-import { ToggleType } from '@/assets/interfaces/Component';
+import { ToggleType } from '@/assets/interfaces';
 
-export default function SwitchComponent({ switchLabel, hide, setHide }: ToggleType) {
+export default function ToggleComponent ({ switchLabel, hide, setHide }: ToggleType) {
   const aria = { inputProps: { 'aria-label': `${switchLabel} Switch` } };
   const label = hide ? `Show ${switchLabel}` : `Hide ${switchLabel}`;
 

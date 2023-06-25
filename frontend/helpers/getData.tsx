@@ -1,6 +1,6 @@
 import Events from '@/assets/events/events.json'
 import cleanData from './cleanData'
-import { RawEvent } from '@/assets/interfaces/Event'
+import { RawEvent } from '@/assets/interfaces'
 
 export default function getData() {
   const rawData = Events as RawEvent[]

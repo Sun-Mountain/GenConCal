@@ -5,3 +5,7 @@ export interface DataInterface {
   eventData: NewEvent[];
   filterTypes: FilterTypes;
 }
+
+export interface CountObj {
+  [index: string]: number
+}

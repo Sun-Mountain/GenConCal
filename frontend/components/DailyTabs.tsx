@@ -7,19 +7,18 @@ import TabPanel from '@/components/UI/TabPanel';
 import a11yProps from '@/helpers/a11yProps';
 
 import { filterTypes } from '@/pages/_app';
-import { UniqueFilter } from '@/assets/interfaces/Filter';
+import { DailyTabsTypes, CountObj, UniqueFilter } from '@/assets/interfaces';
 import DataTable from './UI/DataTable';
 
 const eventsListByDay = filterTypes.startDates;
 const eventsListByStartTime = filterTypes.startTimes;
+const soldOutEvents = filterTypes.noTickets;
 const dayLabels = Object.keys(eventsListByDay).sort();
 const timeLabels = Object.keys(eventsListByStartTime).sort();
 
-interface CountObj {
-  [index: string]: string
-}
-
-export default function DailyTabs() {
+export default function DailyTabs({
+  hideSoldOut
+}: DailyTabsTypes) {
   const [tab, setTab] = useState(0);
   const [eventCounts, setEventCounts] = useState<CountObj>({})
 
@@ -27,7 +26,7 @@ export default function DailyTabs() {
     var counts: CountObj = {};
     dayLabels.map(date => {
       var num = list[date].length
-      counts[date] = num.toLocaleString("en-US")
+      counts[date] = num
     })
     setEventCounts(counts)
   }
@@ -43,6 +42,11 @@ export default function DailyTabs() {
   const getEvents = (day: string) => {
     const dayEvents = eventsListByDay[day]
     var eventsForDay = dayEvents;
+
+    if (hideSoldOut) {
+      eventsForDay = eventsForDay.filter(val => !soldOutEvents.includes(val))
+    }
+
     return eventsForDay;
   }
 
@@ -57,7 +61,8 @@ export default function DailyTabs() {
           aria-label="basic tabs example"
         >
           {dayLabels.map((day, index) => {
-            var eventNum = eventCounts[day],
+            var eventsForDay = getEvents(day),
+                eventNum = (eventsForDay.length).toLocaleString(),
                 dateLabel = (<div className='tab-label'>
                   <div className='tab-date'>{day}</div>
                   <div className='tab-count'>{eventNum} events</div>
