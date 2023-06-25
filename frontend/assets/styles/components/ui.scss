@@ -22,6 +22,12 @@
   padding: 10px 10px 25px 10px;
 }
 
+#filter-drawer-content-wrapper {
+  padding: 25px 5px;
+  margin: 0 auto;
+  max-width: 800px;
+}
+
 .tab-label {
   .tab-date {
     font-weight: 700;
@@ -29,14 +35,6 @@
 
   .tab-count {
     font-size: 14px;
-  }
-}
-
-.toggle-btn {
-  // display: flex;
-  // flex-direction: center;
-  .btn-label {
-    margin-left: 8px;
   }
 }
 

@@ -1,10 +1,13 @@
-import { FiltersTypes } from "@/assets/interfaces"
+import { FiltersTypes } from "@/assets/interfaces";
+import FilterDrawerContent from "./FilterDrawerContent";
 import DrawerComponent from "./UI/Drawer";
 import ToggleComponent from "./UI/Toggle";
 
 const FilterDrawer = () => (
   <DrawerComponent>
-    Filters
+    <div id='filter-drawer-content-wrapper'>
+      <FilterDrawerContent />
+    </div>
   </DrawerComponent>
 )
 
