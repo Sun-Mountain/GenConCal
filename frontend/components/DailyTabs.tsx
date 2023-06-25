@@ -61,11 +61,9 @@ export default function DailyTabs({
           aria-label="basic tabs example"
         >
           {dayLabels.map((day, index) => {
-            var eventNum = eventCounts[day]
-            if (eventNum) {
-              eventNum.toLocaleString("en-US")
-            }
-            var dateLabel = (<div className='tab-label'>
+            var eventsForDay = getEvents(day),
+                eventNum = (eventsForDay.length).toLocaleString(),
+                dateLabel = (<div className='tab-label'>
                   <div className='tab-date'>{day}</div>
                   <div className='tab-count'>{eventNum} events</div>
                 </div>)
