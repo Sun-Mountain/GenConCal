@@ -16,12 +16,10 @@
   }
 }
 
-@media only screen and (min-width: 600px) {
-  #daily-tabs-container {
-    button {
-      font-size: 16px;
-    }
-  }
+#filters-container {
+  display: flex;
+  justify-content: space-around;
+  padding: 10px 10px 25px 10px;
 }
 
 .tab-label {
@@ -31,5 +29,21 @@
 
   .tab-count {
     font-size: 14px;
+  }
+}
+
+.toggle-btn {
+  // display: flex;
+  // flex-direction: center;
+  .btn-label {
+    margin-left: 8px;
+  }
+}
+
+@media only screen and (min-width: 600px) {
+  #daily-tabs-container {
+    button {
+      font-size: 16px;
+    }
   }
 }
