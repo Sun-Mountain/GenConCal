@@ -1,12 +1,14 @@
-import { Dispatch, ReactNode, SetStateAction } from "react";
+import { ChangeEvent, Dispatch, ReactNode, SetStateAction } from "react";
+import { FilterProps } from "@/assets/interfaces";
 
 export interface DailyTabsTypes {
   hideSoldOut: boolean;
 }
 
-export interface FiltersTypes {
-  hideSoldOut: boolean;
-  setHideSoldOut: Dispatch<SetStateAction<boolean>>;
+export interface FilterDrawerProps {
+  ageReqFilter: FilterProps;
+  setAgeReqFilter: Dispatch<SetStateAction<FilterProps>>;
+  expReqFilter: FilterProps;
 }
 
 export interface ToggleType {

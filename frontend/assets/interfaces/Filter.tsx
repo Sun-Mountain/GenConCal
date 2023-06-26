@@ -29,3 +29,7 @@ export interface UniqueFilter {
 export interface UniqueStrings {
   [index: string]: string;
 }
+
+export interface FilterProps {
+  [index: string]: boolean;
+}

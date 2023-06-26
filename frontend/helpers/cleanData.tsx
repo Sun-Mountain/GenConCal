@@ -5,7 +5,6 @@ import trueOrFalse from "./trueOrFalse";
 export default function cleanData (eventData: RawEvent[]) {
   var data: DataProps = {
         eventData: [],
-        filterCategories: [],
         filteredEvents: {
           ageRequirement: {},
           cost: {},
@@ -94,7 +93,7 @@ export default function cleanData (eventData: RawEvent[]) {
     // Age Requirement
     newEvent.ageRequirement = ageReq
     if (!data.filteredEvents.ageRequirement[ageReq]) {
-      data.filteredEvents.ageRequirement[ageReq] = []
+      data.filteredEvents.ageRequirement[ageReq] = [];
     }
     data.filteredEvents.ageRequirement[ageReq].push(index)
 
@@ -161,7 +160,7 @@ export default function cleanData (eventData: RawEvent[]) {
 
     // Experience Type
     if (!data.filteredEvents.experienceType[experienceReq]) {
-      data.filteredEvents.experienceType[experienceReq] = []
+      data.filteredEvents.experienceType[experienceReq] = [];
     }
     data.filteredEvents.experienceType[experienceReq].push(index)
     newEvent.experienceType = experienceReq
