@@ -2,12 +2,9 @@ import { Dispatch, ReactNode, SetStateAction } from "react";
 import { FilterProps, UniqueFilter } from "@/assets/interfaces";
 
 export interface ButtonGroupProps {
-  eventList: UniqueFilter;
-  filteredEvents: number[];
-  setFilteredEvents: Dispatch<SetStateAction<number[]>>;
   groupLabel: string;
   hiddenList: string[];
-  setHiddenList: Dispatch<SetStateAction<string[]>>;
+  handleFilter: Function;
   labels: string[]
 }
 
@@ -18,13 +15,8 @@ export interface DailyTabsTypes {
 
 export interface FilterDrawerProps {
   ageReqList: string[];
-  setAgeReqList: Dispatch<SetStateAction<string[]>>;
-  filterAgeReq: number[];
-  setFilterAgeReq: Dispatch<SetStateAction<number[]>>;
+  handleFilter: Function;
   xpReqList: string[];
-  setXPReqList: Dispatch<SetStateAction<string[]>>;
-  filterXPReq: number[];
-  setFilterXPReq: Dispatch<SetStateAction<number[]>>;
 }
 
 export interface ToggleType {

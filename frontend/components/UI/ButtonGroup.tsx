@@ -6,49 +6,11 @@ import CloseIcon from '@mui/icons-material/Close';
 import { ButtonGroupProps } from '@/assets/interfaces';
 
 export default function ButtonGroup({
-  eventList,
-  filteredEvents,
-  setFilteredEvents,
   groupLabel,
   hiddenList,
-  setHiddenList,
+  handleFilter,
   labels,
 }: ButtonGroupProps) {
-
-  const addEventsToFilter = (eventIds: number[]) => {
-    var newFilters = [...filteredEvents, ...eventIds];
-    setFilteredEvents(newFilters);
-  }
-
-  const removeEventsFromFilter = (eventIds: number[]) => {
-    var newFilters = filteredEvents.filter(val => !eventIds.includes(val));
-    setFilteredEvents(newFilters);
-  }
-
-  const addLabel = (label: string) => {
-    var newHidden = hiddenList;
-    newHidden.push(label);
-    setHiddenList([...newHidden]);
-  }
-
-  const removeLabel = (label: string) => {
-    var index = hiddenList.indexOf(label),
-        newHidden = hiddenList;
-    newHidden.splice(index, 1);
-    setHiddenList([...newHidden])
-  }
-
-  const handleFilter = (label: string) => {
-    if (!hiddenList.includes(label)) {
-      addLabel(label);
-      addEventsToFilter(eventList[label]);
-    } else {
-      removeLabel(label);
-      removeEventsFromFilter(eventList[label]);
-    }
-  }
-
-
   return (
     <div className='filter-component-container'>
       <strong>
@@ -60,7 +22,7 @@ export default function ButtonGroup({
           return (
             <div key={label}>
               <Button
-                onClick={() => handleFilter(label)}
+                onClick={() => handleFilter(groupLabel, label)}
                 className={`${visible ? 'visible' : 'hidden'} toggle-btn`}
                 startIcon={visible ? <CheckIcon /> : <CloseIcon />}
               >

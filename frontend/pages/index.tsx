@@ -1,8 +1,14 @@
-import { useState } from 'react';
+import { Dispatch, SetStateAction, useState } from 'react';
 import DailyTabs from '@/components/DailyTabs';
 import DrawerComponent from '@/components/UI/Drawer';
 import FilterDrawerContent from '@/components/FilterDrawerContent';
 import ToggleComponent from '@/components/UI/Toggle';
+
+import { filteredEvents } from './_app';
+import filterOutHelper from '@/helpers/filterOut';
+
+const ageReqMasterList = filteredEvents.ageRequirement;
+const xpReqMasterList = filteredEvents.experienceType;
 
 export default function Home () {
   // Lists
@@ -11,10 +17,35 @@ export default function Home () {
 
   // Toggles
   const [hideSoldOut, setHideSoldOut] = useState(false);
-  const [filterAgeReq, setFilterAgeReq] = useState<number[]>([]);
-  const [filterXPReq, setFilterXPReq] = useState<number[]>([]);
+  const [ageReqFilter, setAgeReqFilter] = useState<number[]>([]);
+  const [xpFilter, setXPFilter] = useState<number[]>([]);
 
-  // Filters
+  const handleFilter = (
+    groupLabel: string,
+    label: string
+  ) => {
+    switch (groupLabel) {
+      case 'Age Requirement':
+        filterOutHelper(ageReqMasterList,
+                      ageReqFilter,
+                      setAgeReqFilter,
+                      label,
+                      ageReqList,
+                      setAgeReqList)
+        break;
+      case 'Experience Requirement':
+        filterOutHelper(xpReqMasterList,
+                      xpFilter,
+                      setXPFilter,
+                      label,
+                      xpReqList,
+                      setXPReqList)
+        break;
+      default:
+        console.log('ERROR');
+        break;
+    }
+  }
 
   return (
     <>
@@ -27,20 +58,15 @@ export default function Home () {
         <DrawerComponent>
           <div id='filter-drawer-content-wrapper'>
             <FilterDrawerContent
+              handleFilter={handleFilter}
               ageReqList={ageReqList}
-              setAgeReqList={setAgeReqList}
-              filterAgeReq={filterAgeReq}
-              setFilterAgeReq={setFilterAgeReq}
               xpReqList={xpReqList}
-              setXPReqList={setXPReqList}
-              filterXPReq={filterXPReq}
-              setFilterXPReq={setFilterXPReq}
             />
           </div>
         </DrawerComponent>
       </div>
       <DailyTabs
-        filterOut={[...filterAgeReq, ...filterXPReq]}
+        filterOut={[...ageReqFilter, ...xpFilter]}
         hideSoldOut={hideSoldOut}
       />
     </>

@@ -9,37 +9,27 @@ const ageLabels = [ 'kids only (12 and under)',
                     'Teen (13+)',
                     'Mature (18+)',
                     '21+' ]
+const xpLabels = Object.keys(filteredEvents.experienceType)
 
 export default function FilterDrawerContent ({
+  handleFilter,
   ageReqList,
-  setAgeReqList,
-  filterAgeReq,
-  setFilterAgeReq,
   xpReqList,
-  setXPReqList,
-  filterXPReq,
-  setFilterXPReq,
 }: FilterDrawerProps) {
 
   return (
     <>
       <ButtonGroup
-        eventList={filteredEvents.ageRequirement}
-        filteredEvents={filterAgeReq}
-        setFilteredEvents={setFilterAgeReq}
         groupLabel="Age Requirement"
         hiddenList={ageReqList}
-        setHiddenList={setAgeReqList}
+        handleFilter={handleFilter}
         labels={ageLabels}
       />
       <ButtonGroup
-        eventList={filteredEvents.experienceType}
-        filteredEvents={filterXPReq}
-        setFilteredEvents={setFilterXPReq}
         groupLabel="Experience Requirement"
         hiddenList={xpReqList}
-        setHiddenList={setXPReqList}
-        labels={Object.keys(filteredEvents.experienceType)}
+        handleFilter={handleFilter}
+        labels={xpLabels}
       />
     </>
   )
