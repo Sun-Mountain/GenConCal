@@ -1,10 +1,4 @@
-import { Dispatch, SetStateAction } from "react";
-
-export interface FilterContainerInterface {
-  
-}
-
-export interface FilterTypes {
+export interface FilteredEvents {
   ageRequirement: UniqueFilter;
   cost: UniqueFilter;
   duration: UniqueFilter;
@@ -28,4 +22,8 @@ export interface UniqueFilter {
 
 export interface UniqueStrings {
   [index: string]: string;
+}
+
+export interface FilterProps {
+  [index: string]: boolean;
 }

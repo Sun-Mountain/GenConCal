@@ -1,11 +1,11 @@
-import { DataInterface, NewEvent, RawEvent } from "@/assets/interfaces";
+import { DataProps, NewEvent, RawEvent } from "@/assets/interfaces";
 import getTime from "./getTime";
 import trueOrFalse from "./trueOrFalse";
 
 export default function cleanData (eventData: RawEvent[]) {
-  var data: DataInterface = {
+  var data: DataProps = {
         eventData: [],
-        filterTypes: {
+        filteredEvents: {
           ageRequirement: {},
           cost: {},
           duration: {},
@@ -92,10 +92,10 @@ export default function cleanData (eventData: RawEvent[]) {
 
     // Age Requirement
     newEvent.ageRequirement = ageReq
-    if (!data.filterTypes.ageRequirement[ageReq]) {
-      data.filterTypes.ageRequirement[ageReq] = []
+    if (!data.filteredEvents.ageRequirement[ageReq]) {
+      data.filteredEvents.ageRequirement[ageReq] = [];
     }
-    data.filterTypes.ageRequirement[ageReq].push(index)
+    data.filteredEvents.ageRequirement[ageReq].push(index)
 
     // Contact
     if (contact) {
@@ -107,18 +107,18 @@ export default function cleanData (eventData: RawEvent[]) {
     }
 
     // Cost
-    if (!data.filterTypes.cost[cost]) {
-      data.filterTypes.cost[cost] = []
+    if (!data.filteredEvents.cost[cost]) {
+      data.filteredEvents.cost[cost] = []
     }
-    data.filterTypes.cost[cost].push(index)
+    data.filteredEvents.cost[cost].push(index)
     newEvent.cost = cost
 
     // Duration
     if (duration) {
-      if (!data.filterTypes.duration[duration]) {
-        data.filterTypes.duration[duration] = []
+      if (!data.filteredEvents.duration[duration]) {
+        data.filteredEvents.duration[duration] = []
       }
-      data.filterTypes.duration[duration].push(index)
+      data.filteredEvents.duration[duration].push(index)
     }
     newEvent.duration = duration
 
@@ -127,42 +127,42 @@ export default function cleanData (eventData: RawEvent[]) {
     newEvent.descriptionLong = descriptionLong
 
     // Event Start and End Dates and Times
-    if (!data.filterTypes.endDates[eventEndDate]) {
-      data.filterTypes.endDates[eventEndDate] = []
+    if (!data.filteredEvents.endDates[eventEndDate]) {
+      data.filteredEvents.endDates[eventEndDate] = []
     }
-    data.filterTypes.endDates[eventEndDate].push(index)
+    data.filteredEvents.endDates[eventEndDate].push(index)
     newEvent.endDate = eventEndDate
 
-    if (!data.filterTypes.endTimes[eventEndTime]) {
-      data.filterTypes.endTimes[eventEndTime] = []
+    if (!data.filteredEvents.endTimes[eventEndTime]) {
+      data.filteredEvents.endTimes[eventEndTime] = []
     }
-    data.filterTypes.endTimes[eventEndTime].push(index)
+    data.filteredEvents.endTimes[eventEndTime].push(index)
     newEvent.endTime = eventEndTime
 
-    if (!data.filterTypes.startDates[eventStartDate]) {
-      data.filterTypes.startDates[eventStartDate] = []
+    if (!data.filteredEvents.startDates[eventStartDate]) {
+      data.filteredEvents.startDates[eventStartDate] = []
     }
-    data.filterTypes.startDates[eventStartDate].push(index)
+    data.filteredEvents.startDates[eventStartDate].push(index)
     newEvent.startDate = eventStartDate
 
-    if (!data.filterTypes.startTimes[eventStartTime]) {
-      data.filterTypes.startTimes[eventStartTime] = []
+    if (!data.filteredEvents.startTimes[eventStartTime]) {
+      data.filteredEvents.startTimes[eventStartTime] = []
     }
-    data.filterTypes.startTimes[eventStartTime].push(index)
+    data.filteredEvents.startTimes[eventStartTime].push(index)
     newEvent.startTime = eventStartTime
 
     // Event Type
-    if (!data.filterTypes.eventTypes[eventType]) {
-      data.filterTypes.eventTypes[eventType] = []
+    if (!data.filteredEvents.eventTypes[eventType]) {
+      data.filteredEvents.eventTypes[eventType] = []
     }
-    data.filterTypes.eventTypes[eventType].push(index)
+    data.filteredEvents.eventTypes[eventType].push(index)
     newEvent.eventType = eventType
 
     // Experience Type
-    if (!data.filterTypes.experienceType[experienceReq]) {
-      data.filterTypes.experienceType[experienceReq] = []
+    if (!data.filteredEvents.experienceType[experienceReq]) {
+      data.filteredEvents.experienceType[experienceReq] = [];
     }
-    data.filterTypes.experienceType[experienceReq].push(index)
+    data.filteredEvents.experienceType[experienceReq].push(index)
     newEvent.experienceType = experienceReq
 
     // Game Id
@@ -170,10 +170,10 @@ export default function cleanData (eventData: RawEvent[]) {
 
     // Game System
     if (gameSystem) {
-      if (!data.filterTypes.gameSystems[gameSystem]) {
-        data.filterTypes.gameSystems[gameSystem] = []
+      if (!data.filteredEvents.gameSystems[gameSystem]) {
+        data.filteredEvents.gameSystems[gameSystem] = []
       }
-      data.filterTypes.gameSystems[gameSystem].push(index)
+      data.filteredEvents.gameSystems[gameSystem].push(index)
       newEvent.gameSystem = gameSystem
     }
 
@@ -184,25 +184,25 @@ export default function cleanData (eventData: RawEvent[]) {
 
     // Group
     if (group) {
-      if (!data.filterTypes.groups[group]) {
-        data.filterTypes.groups[group] = []
+      if (!data.filteredEvents.groups[group]) {
+        data.filteredEvents.groups[group] = []
       }
-      data.filterTypes.groups[group].push(index)
+      data.filteredEvents.groups[group].push(index)
       newEvent.group = group
     }
 
     // Location
     if (location) {
-      if (!data.filterTypes.locations[location]) {
-        data.filterTypes.locations[location] = []
+      if (!data.filteredEvents.locations[location]) {
+        data.filteredEvents.locations[location] = []
       }
-      data.filterTypes.locations[location].push(index)
+      data.filteredEvents.locations[location].push(index)
       newEvent.location = location
     }
 
     // Materials Required
     if (materials) {
-      data.filterTypes.materialsRequired.push(index)
+      data.filteredEvents.materialsRequired.push(index)
       newEvent.materials = materials
     }
 
@@ -226,7 +226,7 @@ export default function cleanData (eventData: RawEvent[]) {
 
     // Tickets
     if (!ticketsAvailable) {
-      data.filterTypes.noTickets.push(index)
+      data.filteredEvents.noTickets.push(index)
     }
     newEvent.ticketsAvailable = ticketsAvailable
 
@@ -235,7 +235,7 @@ export default function cleanData (eventData: RawEvent[]) {
 
     // Tournament 
     if (tournament) {
-      data.filterTypes.tournaments.push(index)
+      data.filteredEvents.tournaments.push(index)
     }
     newEvent.tournament = tournament
 

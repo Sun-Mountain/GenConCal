@@ -16,10 +16,45 @@
   }
 }
 
-@media only screen and (min-width: 600px) {
-  #daily-tabs-container {
-    button {
-      font-size: 16px;
+#filters-container {
+  display: flex;
+  justify-content: space-around;
+  padding: 10px 10px 25px 10px;
+}
+
+#filter-drawer-content-wrapper {
+  padding: 25px 5px;
+  margin: 0 auto;
+  max-width: 1200px;
+}
+
+.filter-content {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.drawer-content {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.autocomplete-container {
+  margin-top: 20px;
+}
+
+.button-groups {
+  margin-bottom: 20px;
+}
+
+.filter-component-container {
+  .btn-container {
+    .hidden {
+      background-color: $hidden-btn-bg-color;
+      color: $hidden-btn-color;
+    }
+
+    .toggle-btn {
+      text-transform: capitalize;
     }
   }
 }
@@ -31,5 +66,19 @@
 
   .tab-count {
     font-size: 14px;
+  }
+}
+
+@media only screen and (min-width: 600px) {
+  #daily-tabs-container {
+    button {
+      font-size: 16px;
+    }
+  }
+
+  .filter-content {
+    .content-group {
+      margin: 5px 15px;
+    }
   }
 }

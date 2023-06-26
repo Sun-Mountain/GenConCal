@@ -6,18 +6,22 @@ import Box from '@mui/material/Box';
 import TabPanel from '@/components/UI/TabPanel';
 import a11yProps from '@/helpers/a11yProps';
 
-import { filterTypes } from '@/pages/_app';
+import { filteredEvents } from '@/pages/_app';
 import { DailyTabsTypes, CountObj, UniqueFilter } from '@/assets/interfaces';
 import DataTable from './UI/DataTable';
 
-const eventsListByDay = filterTypes.startDates;
-const eventsListByStartTime = filterTypes.startTimes;
-const soldOutEvents = filterTypes.noTickets;
+const eventsListByDay = filteredEvents.startDates;
+const eventsListByStartTime = filteredEvents.startTimes;
+const soldOutEvents = filteredEvents.noTickets;
+const tournamentEvents = filteredEvents.tournaments;
 const dayLabels = Object.keys(eventsListByDay).sort();
 const timeLabels = Object.keys(eventsListByStartTime).sort();
 
 export default function DailyTabs({
-  hideSoldOut
+  filterFor,
+  filterOut,
+  hideSoldOut,
+  tournamentFilter
 }: DailyTabsTypes) {
   const [tab, setTab] = useState(0);
 
@@ -31,6 +35,22 @@ export default function DailyTabs({
 
     if (hideSoldOut) {
       eventsForDay = eventsForDay.filter(val => !soldOutEvents.includes(val))
+    }
+
+    if (filterFor.length) {
+      eventsForDay = eventsForDay.filter(val => filterFor.includes(val))
+    }
+
+    if (filterOut.length) {
+      eventsForDay = eventsForDay.filter(val => !filterOut.includes(val))
+    }
+
+    if (tournamentFilter === 'hide') {
+      eventsForDay = eventsForDay.filter(val => !tournamentEvents.includes(val))
+    }
+
+    if (tournamentFilter === 'show') {
+      eventsForDay = eventsForDay.filter(val => tournamentEvents.includes(val))
     }
 
     return eventsForDay;
@@ -70,9 +90,7 @@ export default function DailyTabs({
                 return (
                   <div key={time}>
                     <h3>{time}</h3>
-                    <Suspense>
-                      <DataTable events={events} />
-                    </Suspense>
+                    <DataTable events={events} />
                   </div>
                 )
               }
