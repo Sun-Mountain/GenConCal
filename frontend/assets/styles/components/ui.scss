@@ -18,6 +18,7 @@
 
 #filters-container {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-around;
   padding: 10px 10px 25px 10px;
 }
@@ -61,6 +62,10 @@
       text-transform: capitalize;
     }
   }
+}
+
+.content-group {
+  margin-bottom: 15px;
 }
 
 .tab-label {

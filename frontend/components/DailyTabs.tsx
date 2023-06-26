@@ -18,6 +18,7 @@ const dayLabels = Object.keys(eventsListByDay).sort();
 const timeLabels = Object.keys(eventsListByStartTime).sort();
 
 export default function DailyTabs({
+  durationFilter,
   earliestStartTime,
   latestStartTime,
   filterFor,

@@ -40,6 +40,7 @@ export default function Home () {
   const [tournamentFilter, setTournamentFilter] = useState<'' | 'hide' | 'show'>('');
   const [earliestStartTime, setEarliestStartTime] = useState<string>('00:00');
   const [latestStartTime, setLatestStartTime] = useState<string>('23:45');
+  const [durationFilter, setDurationFilter] = useState([0.5, 10])
   
   const handleFilter = async ({
     groupLabel,
@@ -142,12 +143,15 @@ export default function Home () {
                 setEarliestStartTime={setEarliestStartTime}
                 latestStartTime={latestStartTime}
                 setLatestStartTime={setLatestStartTime}
+                durationFilter={durationFilter}
+                setDurationFilter={setDurationFilter}
               />
             </div>
           </DrawerComponent>
         </div>
       </div>
       <DailyTabs
+        durationFilter={durationFilter}
         earliestStartTime={earliestStartTime}
         latestStartTime={latestStartTime}
         filterFor={[...eventTypeFilter,
