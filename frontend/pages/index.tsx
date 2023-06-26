@@ -38,9 +38,6 @@ export default function Home () {
         <DrawerComponent>
           <div id='filter-drawer-content-wrapper'>
             <FilterDrawerContent
-              ageReqFilter={ageReqFilter}
-              setAgeReqFilter={setAgeReqFilter}
-              expReqFilter={expReqFilter}
             />
           </div>
         </DrawerComponent>

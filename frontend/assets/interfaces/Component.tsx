@@ -6,9 +6,6 @@ export interface DailyTabsTypes {
 }
 
 export interface FilterDrawerProps {
-  ageReqFilter: FilterProps;
-  setAgeReqFilter: Dispatch<SetStateAction<FilterProps>>;
-  expReqFilter: FilterProps;
 }
 
 export interface ToggleType {
