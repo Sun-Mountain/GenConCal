@@ -5,7 +5,11 @@ import FilterDrawerContent from '@/components/FilterDrawerContent';
 import ToggleComponent from '@/components/UI/Toggle';
 
 export default function Home () {
+  // Hide
   const [hideSoldOut, setHideSoldOut] = useState(false);
+  const [filterAgeReq, setFilterAgeReq] = useState<number[]>([])
+
+  // Filters
 
   return (
     <>
@@ -18,6 +22,8 @@ export default function Home () {
         <DrawerComponent>
           <div id='filter-drawer-content-wrapper'>
             <FilterDrawerContent
+              filterAgeReq={filterAgeReq}
+              setFilterAgeReq={setFilterAgeReq}
             />
           </div>
         </DrawerComponent>

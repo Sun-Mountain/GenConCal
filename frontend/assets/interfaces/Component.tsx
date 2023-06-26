@@ -1,11 +1,20 @@
-import { ChangeEvent, Dispatch, ReactNode, SetStateAction } from "react";
-import { FilterProps } from "@/assets/interfaces";
+import { Dispatch, ReactNode, SetStateAction } from "react";
+import { FilterProps, UniqueFilter } from "@/assets/interfaces";
+
+export interface ButtonGroupProps {
+  filteredEvents: number[];
+  setFilteredEvents: Dispatch<SetStateAction<number[]>>;
+  groupLabel: string;
+  list: UniqueFilter;
+}
 
 export interface DailyTabsTypes {
   hideSoldOut: boolean;
 }
 
 export interface FilterDrawerProps {
+  filterAgeReq: number[];
+  setFilterAgeReq: Dispatch<SetStateAction<number[]>>;
 }
 
 export interface ToggleType {
