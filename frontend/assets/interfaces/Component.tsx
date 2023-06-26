@@ -14,9 +14,10 @@ export interface DailyTabsTypes {
 }
 
 export interface FilterDrawerProps {
-  ageReqList: string[];
   handleFilter: Function;
+  ageReqList: string[];
   xpReqList: string[];
+  eventTypeList: string[];
 }
 
 export interface ToggleType {

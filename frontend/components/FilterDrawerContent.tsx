@@ -1,7 +1,5 @@
 import { FilterDrawerProps } from "@/assets/interfaces";
-
 import { filteredEvents } from "@/pages/_app";
-
 import ButtonGroup from "@/components/UI/ButtonGroup";
 
 const ageLabels = [ 'kids only (12 and under)',
@@ -15,6 +13,7 @@ export default function FilterDrawerContent ({
   handleFilter,
   ageReqList,
   xpReqList,
+  eventTypeList
 }: FilterDrawerProps) {
 
   return (

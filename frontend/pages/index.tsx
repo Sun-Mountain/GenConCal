@@ -11,14 +11,17 @@ const ageReqMasterList = filteredEvents.ageRequirement;
 const xpReqMasterList = filteredEvents.experienceType;
 
 export default function Home () {
+  console.log(filteredEvents)
   // Lists
   const [ageReqList, setAgeReqList] = useState<string[]>([]);
   const [xpReqList, setXPReqList] = useState<string[]>([]);
+  const [eventTypeList, setEventTypeList] = useState<string[]>([]);
 
-  // Toggles
+  // Filters
   const [hideSoldOut, setHideSoldOut] = useState(false);
   const [ageReqFilter, setAgeReqFilter] = useState<number[]>([]);
   const [xpFilter, setXPFilter] = useState<number[]>([]);
+  const [eventTypeFilter, setEventTypeFilter] = useState<number[]>([]);
 
   const handleFilter = (
     groupLabel: string,
@@ -55,15 +58,18 @@ export default function Home () {
           hide={hideSoldOut}
           setHide={setHideSoldOut}
         />
-        <DrawerComponent>
-          <div id='filter-drawer-content-wrapper'>
-            <FilterDrawerContent
-              handleFilter={handleFilter}
-              ageReqList={ageReqList}
-              xpReqList={xpReqList}
-            />
-          </div>
-        </DrawerComponent>
+        <div className='drawer-container'>
+          <DrawerComponent>
+            <div id='filter-drawer-content-wrapper'>
+              <FilterDrawerContent
+                handleFilter={handleFilter}
+                ageReqList={ageReqList}
+                xpReqList={xpReqList}
+                eventTypeList={eventTypeList}
+              />
+            </div>
+          </DrawerComponent>
+        </div>
       </div>
       <DailyTabs
         filterOut={[...ageReqFilter, ...xpFilter]}
