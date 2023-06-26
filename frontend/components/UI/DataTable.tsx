@@ -1,9 +1,8 @@
-import { Suspense } from 'react';
 import dynamic from 'next/dynamic';
 import ZoomInIcon from '@mui/icons-material/ZoomIn';
 
 const EventListing = dynamic(() => import("@/components/UI/EventListing"), {
-  loading: () => <b>Loading...</b>,
+  loading: () => <div>Loading...</div>,
 });
 
 export default function DataTable ({ events }: { events: number[]}) {
@@ -32,10 +31,7 @@ export default function DataTable ({ events }: { events: number[]}) {
       <tbody>
         {events.map(eventIndex => {
           return (
-            // eslint-disable-next-line react/jsx-key
-            <Suspense>
-              <EventListing key={eventIndex} eventIndex={eventIndex} />
-            </Suspense>
+            <EventListing key={eventIndex} eventIndex={eventIndex} />
           )
         })}
       </tbody>

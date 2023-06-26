@@ -8,7 +8,7 @@ import { Analytics } from '@vercel/analytics/react'
 
 import getData from "@/helpers/getData"
 
-export const { eventData, filterTypes } = getData()
+export const { eventData, filteredEvents } = getData()
 
 import '@/assets/styles/application.scss'
 

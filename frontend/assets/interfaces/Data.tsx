@@ -1,9 +1,9 @@
 import { NewEvent } from "./Event";
-import { FilterTypes } from "./Filter";
+import { FilteredEvents } from "./Filter";
 
-export interface DataInterface {
+export interface DataProps {
   eventData: NewEvent[];
-  filterTypes: FilterTypes;
+  filteredEvents: FilteredEvents;
 }
 
 export interface CountObj {
