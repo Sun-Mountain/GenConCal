@@ -21,6 +21,10 @@ export interface FilterDrawerProps {
   setAgeReqList: Dispatch<SetStateAction<string[]>>;
   filterAgeReq: number[];
   setFilterAgeReq: Dispatch<SetStateAction<number[]>>;
+  xpReqList: string[];
+  setXPReqList: Dispatch<SetStateAction<string[]>>;
+  filterXPReq: number[];
+  setFilterXPReq: Dispatch<SetStateAction<number[]>>;
 }
 
 export interface ToggleType {

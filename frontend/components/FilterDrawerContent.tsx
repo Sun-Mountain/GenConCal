@@ -14,7 +14,11 @@ export default function FilterDrawerContent ({
   ageReqList,
   setAgeReqList,
   filterAgeReq,
-  setFilterAgeReq
+  setFilterAgeReq,
+  xpReqList,
+  setXPReqList,
+  filterXPReq,
+  setFilterXPReq,
 }: FilterDrawerProps) {
 
   return (
@@ -27,6 +31,15 @@ export default function FilterDrawerContent ({
         hiddenList={ageReqList}
         setHiddenList={setAgeReqList}
         labels={ageLabels}
+      />
+      <ButtonGroup
+        eventList={filteredEvents.experienceType}
+        filteredEvents={filterXPReq}
+        setFilteredEvents={setFilterXPReq}
+        groupLabel="Experience Requirement"
+        hiddenList={xpReqList}
+        setHiddenList={setXPReqList}
+        labels={Object.keys(filteredEvents.experienceType)}
       />
     </>
   )
