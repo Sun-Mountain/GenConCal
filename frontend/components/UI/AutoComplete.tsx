@@ -4,27 +4,29 @@ import TextField from '@mui/material/TextField';
 import { AutocompleteProps } from '@/assets/interfaces';
 
 export default function AutocompleteComponent({
-  componentLabel,
+  groupLabel,
   hiddenList,
   handleFilter,
   labels
 }: AutocompleteProps) {
   return (
-    <Autocomplete
-      multiple
-      id="tags-outlined"
-      options={labels}
-      getOptionLabel={(option) => option}
-      defaultValue={hiddenList || []}
-      onChange={(event, value) => handleFilter({ groupLabel: componentLabel, labelArray: value})}
-      filterSelectedOptions
-      renderInput={(params) => (
-        <TextField
-          {...params}
-          label={componentLabel}
-          placeholder={componentLabel}
-        />
-      )}
-    />
+    <>
+      <Autocomplete
+        multiple
+        id={`${groupLabel} search list`}
+        sx={{ width: 300 }}
+        options={labels}
+        getOptionLabel={(option) => option}
+        defaultValue={hiddenList || []}
+        onChange={(event, value) => handleFilter({groupLabel, labelList: value})}
+        filterSelectedOptions
+        renderInput={(params) => (
+          <TextField
+            {...params}
+            label={groupLabel}
+          />
+        )}
+      />
+    </>
   );
 }

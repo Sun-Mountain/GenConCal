@@ -1,3 +1,4 @@
+import { UniqueFilter } from "@/assets/interfaces";
 import { Dispatch, SetStateAction } from "react";
 // import { filteredEvents } from "@/pages/_app";
 // import { UniqueFilter } from "@/assets/interfaces";
@@ -41,16 +42,18 @@ import { Dispatch, SetStateAction } from "react";
 // }
 
 const filterForHelper = (
+  eventList: UniqueFilter,
+  setFilter: Dispatch<SetStateAction<number[]>>,
   labelList: string[],
   setLabelList: Dispatch<SetStateAction<string[]>>,
 ) => {
-  if (!labelList.includes(label)) {
-    addLabel(label, labelList, setLabelList);
-    addEventsToFilter(eventList[label], filter, setFilter);
-  } else {
-    removeLabel(label, labelList, setLabelList);
-    removeEventsFromFilter(eventList[label], filter, setFilter);
-  }
+  setLabelList(labelList);
+  var newFilters: number[] = [];
+  labelList.map(value => {
+    var filterValues = eventList[value];
+    newFilters = [...newFilters, ...filterValues];
+  })
+  setFilter(newFilters)
 }
 
 export default filterForHelper;

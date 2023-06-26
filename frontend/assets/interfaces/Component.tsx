@@ -2,7 +2,7 @@ import { Dispatch, ReactNode, SetStateAction } from "react";
 import { FilterProps, UniqueFilter } from "@/assets/interfaces";
 
 export interface AutocompleteProps {
-  componentLabel: string;
+  groupLabel: string;
   hiddenList: string[];
   handleFilter: Function;
   labels: string[];
@@ -16,6 +16,7 @@ export interface ButtonGroupProps {
 }
 
 export interface DailyTabsTypes {
+  filterFor: number[];
   filterOut: number[];
   hideSoldOut: boolean;
 }
@@ -25,6 +26,7 @@ export interface FilterDrawerProps {
   ageReqList: string[];
   xpReqList: string[];
   eventTypeList: string[];
+  gameSystemList: string[];
 }
 
 export interface ToggleType {

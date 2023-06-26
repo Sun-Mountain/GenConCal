@@ -6,10 +6,12 @@ import ToggleComponent from '@/components/UI/Toggle';
 
 import { filteredEvents } from './_app';
 import filterOutHelper from '@/helpers/filterOut';
+import filterForHelper from '@/helpers/filterFor';
 
 const ageReqMasterList = filteredEvents.ageRequirement;
 const xpReqMasterList = filteredEvents.experienceType;
 const eventTypeMasterList = filteredEvents.eventTypes;
+const gameSystemMasterList = filteredEvents.gameSystems;
 
 export default function Home () {
   console.log(filteredEvents)
@@ -17,17 +19,24 @@ export default function Home () {
   const [ageReqList, setAgeReqList] = useState<string[]>([]);
   const [xpReqList, setXPReqList] = useState<string[]>([]);
   const [eventTypeList, setEventTypeList] = useState<string[]>([]);
+  const [gameSystemList, setGameSystemList] = useState<string[]>([]);
 
   // Filters
   const [hideSoldOut, setHideSoldOut] = useState(false);
   const [ageReqFilter, setAgeReqFilter] = useState<number[]>([]);
   const [xpFilter, setXPFilter] = useState<number[]>([]);
   const [eventTypeFilter, setEventTypeFilter] = useState<number[]>([]);
+  const [gameSystemFilter, setGameSystemFilter] = useState<number[]>([]);
 
-  const handleFilter = async (
-    groupLabel: string,
-    label?: string
-  ) => {
+  const handleFilter = async ({
+    groupLabel,
+    label,
+    labelList
+  }: {
+    groupLabel: string;
+    label?: string;
+    labelList?: string[];
+  }) => {
     switch (groupLabel) {
       case 'Age Requirement':
         if (label) {
@@ -50,6 +59,20 @@ export default function Home () {
         }
         break;
       case 'Event Types':
+        if (labelList) {
+          await filterForHelper(eventTypeMasterList,
+                            setEventTypeFilter,
+                            labelList,
+                            setEventTypeList)
+        }
+        break;
+      case 'Game Systems':
+        if (labelList) {
+          await filterForHelper(gameSystemMasterList,
+                            setGameSystemFilter,
+                            labelList,
+                            setGameSystemList)
+        }
         break;
       default:
         console.log('ERROR');
@@ -73,12 +96,14 @@ export default function Home () {
                 ageReqList={ageReqList}
                 xpReqList={xpReqList}
                 eventTypeList={eventTypeList}
+                gameSystemList={gameSystemList}
               />
             </div>
           </DrawerComponent>
         </div>
       </div>
       <DailyTabs
+        filterFor={[...eventTypeFilter, ...gameSystemFilter]}
         filterOut={[...ageReqFilter, ...xpFilter]}
         hideSoldOut={hideSoldOut}
       />

@@ -28,6 +28,15 @@
   max-width: 800px;
 }
 
+.filter-content {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.autocomplete-container {
+  display: flex;
+}
+
 .filter-component-container {
   .btn-container {
     .hidden {
@@ -55,6 +64,12 @@
   #daily-tabs-container {
     button {
       font-size: 16px;
+    }
+  }
+
+  .filter-content {
+    .content-group+.content-group {
+      margin-left: 25px;
     }
   }
 }

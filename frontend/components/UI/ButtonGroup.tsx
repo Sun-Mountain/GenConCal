@@ -22,7 +22,7 @@ export default function ButtonGroup({
           return (
             <div key={label}>
               <Button
-                onClick={() => handleFilter(groupLabel, label)}
+                onClick={() => handleFilter({groupLabel, label})}
                 className={`${visible ? 'visible' : 'hidden'} toggle-btn`}
                 startIcon={visible ? <CheckIcon /> : <CloseIcon />}
               >
