@@ -40,7 +40,7 @@ export default function Home () {
         </DrawerComponent>
       </div>
       <DailyTabs
-        filterOut={[...filterAgeReq]}
+        filterOut={[...filterAgeReq, ...filterXPReq]}
         hideSoldOut={hideSoldOut}
       />
     </>
