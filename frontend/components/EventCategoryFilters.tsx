@@ -1,7 +1,8 @@
 import { FilterDrawerProps } from "@/assets/interfaces";
 import { filteredEvents } from "@/pages/_app";
 import ButtonGroup from "@/components/UI/ButtonGroup";
-import AutocompleteComponent from "./UI/AutoComplete";
+import AutocompleteComponent from "@/components/UI/AutoComplete";
+import RadioButtonsGroup from "@/components/UI/RadioGroup";
 
 const ageLabels = [ 'kids only (12 and under)',
                     'Everyone (6+)',
@@ -13,6 +14,8 @@ const eventTypeLabels = Object.keys(filteredEvents.eventTypes).sort()
 const gameSystemLabels = Object.keys(filteredEvents.gameSystems).sort()
 const groupLabels = Object.keys(filteredEvents.groups).sort()
 const locationLabels = Object.keys(filteredEvents.locations).sort()
+const tournamentOptions = [ { value: 'hide', choiceLabel: 'Hide Tournaments' },
+                            { value: 'show', choiceLabel: 'Only Show Tournaments' } ]
 
 export default function EventCategoryFilters ({
   handleFilter,
@@ -21,7 +24,9 @@ export default function EventCategoryFilters ({
   eventTypeList,
   gameSystemList,
   groupsList,
-  locationList
+  locationList,
+  tournamentFilter,
+  setTournamentFilter
 }: FilterDrawerProps) {
 
   return (
@@ -65,6 +70,14 @@ export default function EventCategoryFilters ({
           hiddenList={locationList}
           handleFilter={handleFilter}
           labels={locationLabels}
+        />
+      </div>
+      <div className="content-group">
+        <RadioButtonsGroup
+          label='Tournament Filter'
+          value={tournamentFilter}
+          setValue={setTournamentFilter}
+          options={tournamentOptions}
         />
       </div>
     </div>

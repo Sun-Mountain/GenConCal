@@ -1,5 +1,9 @@
 import { Dispatch, ReactNode, SetStateAction } from "react";
-import { FilterProps, UniqueFilter } from "@/assets/interfaces";
+
+interface RadioChoiceProps {
+  value: string;
+  choiceLabel: string;
+}
 
 export interface AutocompleteProps {
   groupLabel: string;
@@ -13,6 +17,13 @@ export interface ButtonGroupProps {
   hiddenList: string[];
   handleFilter: Function;
   labels: string[]
+}
+
+export interface RadioGroupProps {
+  value: string | null;
+  label: string;
+  options: RadioChoiceProps[];
+  setValue: Dispatch<SetStateAction<'' | 'hide' | 'show'>>;
 }
 
 export interface DailyTabsTypes {
@@ -29,6 +40,8 @@ export interface FilterDrawerProps {
   gameSystemList: string[];
   groupsList: string[];
   locationList: string[];
+  tournamentFilter: string | null;
+  setTournamentFilter: Dispatch<SetStateAction<'' | 'hide' | 'show'>>;
 }
 
 export interface ToggleType {

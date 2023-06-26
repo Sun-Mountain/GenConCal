@@ -36,7 +36,8 @@ export default function Home () {
   const [gameSystemFilter, setGameSystemFilter] = useState<number[]>([]);
   const [groupsFilter, setGroupsFilter] = useState<number[]>([]);
   const [locationFilter, setLocationFilter] = useState<number[]>([]);
-
+  const [tournamentFilter, setTournamentFilter] = useState<'' | 'hide' | 'show'>('');
+  
   const handleFilter = async ({
     groupLabel,
     label,
@@ -124,6 +125,8 @@ export default function Home () {
                 gameSystemList={gameSystemList}
                 groupsList={groupsList}
                 locationList={locationList}
+                tournamentFilter={tournamentFilter}
+                setTournamentFilter={setTournamentFilter}
               />
             </div>
           </DrawerComponent>
@@ -142,6 +145,7 @@ export default function Home () {
                     ...groupsFilter,
                     ...locationFilter]}
         filterOut={[...ageReqFilter, ...xpFilter]}
+        tournamentFilter={tournamentFilter}
         hideSoldOut={hideSoldOut}
       />
     </>
