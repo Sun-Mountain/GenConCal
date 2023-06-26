@@ -10,7 +10,7 @@ export default function AutocompleteComponent({
   labels
 }: AutocompleteProps) {
   return (
-    <>
+    <div className='autocomplete-container'>
       <Autocomplete
         multiple
         id={`${groupLabel} search list`}
@@ -27,6 +27,6 @@ export default function AutocompleteComponent({
           />
         )}
       />
-    </>
+    </div>
   );
 }

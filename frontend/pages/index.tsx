@@ -1,7 +1,10 @@
-import { Dispatch, SetStateAction, useState } from 'react';
+import { useState } from 'react';
+import FilterAltIcon from '@mui/icons-material/FilterAlt';
+import AccessTimeFilledIcon from '@mui/icons-material/AccessTimeFilled';
+
 import DailyTabs from '@/components/DailyTabs';
 import DrawerComponent from '@/components/UI/Drawer';
-import FilterDrawerContent from '@/components/FilterDrawerContent';
+import EventCategoryFilters from '@/components/EventCategoryFilters';
 import ToggleComponent from '@/components/UI/Toggle';
 
 import { filteredEvents } from './_app';
@@ -12,6 +15,8 @@ const ageReqMasterList = filteredEvents.ageRequirement;
 const xpReqMasterList = filteredEvents.experienceType;
 const eventTypeMasterList = filteredEvents.eventTypes;
 const gameSystemMasterList = filteredEvents.gameSystems;
+const groupsMasterList = filteredEvents.groups;
+const locationMasterList = filteredEvents.locations;
 
 export default function Home () {
   console.log(filteredEvents)
@@ -20,6 +25,8 @@ export default function Home () {
   const [xpReqList, setXPReqList] = useState<string[]>([]);
   const [eventTypeList, setEventTypeList] = useState<string[]>([]);
   const [gameSystemList, setGameSystemList] = useState<string[]>([]);
+  const [groupsList, setGroupsList] = useState<string[]>([]);
+  const [locationList, setLocationList] = useState<string[]>([]);
 
   // Filters
   const [hideSoldOut, setHideSoldOut] = useState(false);
@@ -27,6 +34,8 @@ export default function Home () {
   const [xpFilter, setXPFilter] = useState<number[]>([]);
   const [eventTypeFilter, setEventTypeFilter] = useState<number[]>([]);
   const [gameSystemFilter, setGameSystemFilter] = useState<number[]>([]);
+  const [groupsFilter, setGroupsFilter] = useState<number[]>([]);
+  const [locationFilter, setLocationFilter] = useState<number[]>([]);
 
   const handleFilter = async ({
     groupLabel,
@@ -74,6 +83,22 @@ export default function Home () {
                             setGameSystemList)
         }
         break;
+      case 'Company / Group':
+        if (labelList) {
+          await filterForHelper(groupsMasterList,
+                            setGroupsFilter,
+                            labelList,
+                            setGroupsList)
+        }
+        break;
+      case 'Locations':
+        if (labelList) {
+          await filterForHelper(locationMasterList,
+                            setLocationFilter,
+                            labelList,
+                            setLocationList)
+        }
+        break;
       default:
         console.log('ERROR');
         break;
@@ -89,21 +114,33 @@ export default function Home () {
           setHide={setHideSoldOut}
         />
         <div className='drawer-container'>
-          <DrawerComponent>
+          <DrawerComponent icon={<FilterAltIcon />} buttonText='Filter By Event Category'>
             <div id='filter-drawer-content-wrapper'>
-              <FilterDrawerContent
+              <EventCategoryFilters
                 handleFilter={handleFilter}
                 ageReqList={ageReqList}
                 xpReqList={xpReqList}
                 eventTypeList={eventTypeList}
                 gameSystemList={gameSystemList}
+                groupsList={groupsList}
+                locationList={locationList}
               />
+            </div>
+          </DrawerComponent>
+        </div>
+        <div className='drawer-container'>
+          <DrawerComponent icon={<AccessTimeFilledIcon />} buttonText='Filter By Time'>
+            <div id='filter-drawer-content-wrapper'>
+              Time Filters
             </div>
           </DrawerComponent>
         </div>
       </div>
       <DailyTabs
-        filterFor={[...eventTypeFilter, ...gameSystemFilter]}
+        filterFor={[...eventTypeFilter,
+                    ...gameSystemFilter,
+                    ...groupsFilter,
+                    ...locationFilter]}
         filterOut={[...ageReqFilter, ...xpFilter]}
         hideSoldOut={hideSoldOut}
       />

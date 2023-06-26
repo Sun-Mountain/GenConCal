@@ -12,7 +12,7 @@ export default function ButtonGroup({
   labels,
 }: ButtonGroupProps) {
   return (
-    <div className='filter-component-container'>
+    <div className='filter-component-container button-group-container'>
       <strong>
         {groupLabel}
       </strong>

@@ -11,24 +11,28 @@ const ageLabels = [ 'kids only (12 and under)',
 const xpLabels = Object.keys(filteredEvents.experienceType)
 const eventTypeLabels = Object.keys(filteredEvents.eventTypes).sort()
 const gameSystemLabels = Object.keys(filteredEvents.gameSystems).sort()
+const groupLabels = Object.keys(filteredEvents.groups).sort()
+const locationLabels = Object.keys(filteredEvents.locations).sort()
 
-export default function FilterDrawerContent ({
+export default function EventCategoryFilters ({
   handleFilter,
   ageReqList,
   xpReqList,
   eventTypeList,
-  gameSystemList
+  gameSystemList,
+  groupsList,
+  locationList
 }: FilterDrawerProps) {
 
   return (
     <div className="filter-content">
-      <div className="content-group">
+      <div className="content-group button-groups">
         <ButtonGroup
           groupLabel="Age Requirement"
           hiddenList={ageReqList}
           handleFilter={handleFilter}
           labels={ageLabels}
-        />
+        /><br />
         <ButtonGroup
           groupLabel="Experience Requirement"
           hiddenList={xpReqList}
@@ -37,6 +41,7 @@ export default function FilterDrawerContent ({
         />
       </div>
       <div className="content-group">
+        <strong>Filter By:</strong>
         <AutocompleteComponent
           groupLabel='Event Types'
           hiddenList={eventTypeList}
@@ -48,6 +53,18 @@ export default function FilterDrawerContent ({
           hiddenList={gameSystemList}
           handleFilter={handleFilter}
           labels={gameSystemLabels}
+        />
+        <AutocompleteComponent
+          groupLabel='Company / Group'
+          hiddenList={groupsList}
+          handleFilter={handleFilter}
+          labels={groupLabels}
+        />
+        <AutocompleteComponent
+          groupLabel='Locations'
+          hiddenList={locationList}
+          handleFilter={handleFilter}
+          labels={locationLabels}
         />
       </div>
     </div>

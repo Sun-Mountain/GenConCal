@@ -27,6 +27,8 @@ export interface FilterDrawerProps {
   xpReqList: string[];
   eventTypeList: string[];
   gameSystemList: string[];
+  groupsList: string[];
+  locationList: string[];
 }
 
 export interface ToggleType {

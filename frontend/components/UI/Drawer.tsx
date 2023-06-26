@@ -5,7 +5,15 @@ import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import IconButton from '@mui/material/IconButton';
 import KeyboardDoubleArrowUpIcon from '@mui/icons-material/KeyboardDoubleArrowUp';
 
-export default function DrawerComponent({ children }: { children: ReactNode }) {
+export default function DrawerComponent({
+  icon,
+  buttonText,
+  children
+}: {
+  icon: ReactNode,
+  buttonText: string, 
+  children: ReactNode
+}) {
   const [state, setState] = useState(false);
 
   const toggleDrawer =
@@ -24,7 +32,7 @@ export default function DrawerComponent({ children }: { children: ReactNode }) {
 
   return (
     <>
-      <Button id='filter-btn' onClick={toggleDrawer(true)} startIcon={<FilterAltIcon />}> Filter Events</Button>
+      <Button id='filter-btn' onClick={toggleDrawer(true)} startIcon={icon}>{buttonText}</Button>
       <Drawer
         anchor='top'
         open={state}

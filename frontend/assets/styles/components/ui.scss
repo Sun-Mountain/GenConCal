@@ -33,8 +33,17 @@
   flex-wrap: wrap;
 }
 
-.autocomplete-container {
+.drawer-content {
   display: flex;
+  flex-wrap: wrap;
+}
+
+.autocomplete-container {
+  margin-top: 20px;
+}
+
+.button-groups {
+  margin-bottom: 20px;
 }
 
 .filter-component-container {
@@ -68,8 +77,8 @@
   }
 
   .filter-content {
-    .content-group+.content-group {
-      margin-left: 25px;
+    .content-group {
+      margin: 5px;
     }
   }
 }
