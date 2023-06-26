@@ -20,20 +20,6 @@ export default function DailyTabs({
   hideSoldOut
 }: DailyTabsTypes) {
   const [tab, setTab] = useState(0);
-  const [eventCounts, setEventCounts] = useState<CountObj>({})
-
-  const countEvents = (list: UniqueFilter) => {
-    var counts: CountObj = {};
-    dayLabels.map(date => {
-      var num = list[date].length
-      counts[date] = num
-    })
-    setEventCounts(counts)
-  }
-
-  useEffect(() => {
-    countEvents(eventsListByDay)
-  }, [])
 
   const handleChange = (event: SyntheticEvent, newTab: number) => {
     setTab(newTab);
@@ -46,7 +32,6 @@ export default function DailyTabs({
     if (hideSoldOut) {
       eventsForDay = eventsForDay.filter(val => !soldOutEvents.includes(val))
     }
-
     return eventsForDay;
   }
 
