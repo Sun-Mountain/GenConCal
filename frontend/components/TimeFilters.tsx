@@ -17,6 +17,7 @@ export default function TimeFilters ({
 }) {
   return (
     <>
+      <strong>Filter By Event Start Time</strong><br /><br />
       <div className='time-range'>
         <AutocompleteTimeComponent
           label='Earliest Start Time'
