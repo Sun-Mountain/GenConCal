@@ -18,6 +18,8 @@ const dayLabels = Object.keys(eventsListByDay).sort();
 const timeLabels = Object.keys(eventsListByStartTime).sort();
 
 export default function DailyTabs({
+  earliestStartTime,
+  latestStartTime,
   filterFor,
   filterOut,
   hideSoldOut,
@@ -52,6 +54,13 @@ export default function DailyTabs({
     if (tournamentFilter === 'show') {
       eventsForDay = eventsForDay.filter(val => tournamentEvents.includes(val))
     }
+
+    timeLabels.map(timeLabel => {
+      if (timeLabel < earliestStartTime || timeLabel > latestStartTime) {
+        var events = eventsListByStartTime[timeLabel]
+        eventsForDay = eventsForDay.filter(val => !events.includes(val));
+      }
+    })
 
     return eventsForDay;
   }

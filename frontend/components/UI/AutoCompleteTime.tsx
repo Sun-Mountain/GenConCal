@@ -1,28 +1,38 @@
-import * as React from 'react';
+import { Dispatch, SetStateAction, useState } from 'react';
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
 import getQuarterHours from '@/helpers/getQuarterHours';
 
-const times = getQuarterHours();
-
-export default function AutocompleteTimeComponent() {
-  const [value, setValue] = React.useState<string | null>(times[0]);
-  const [inputValue, setInputValue] = React.useState('');
+export default function AutocompleteTimeComponent ({
+  label,
+  options,
+  defaultValue,
+  setValue,
+  value,
+}: {
+  label: string;
+  options: string[];
+  defaultValue: string;
+  setValue: Dispatch<SetStateAction<string>>;
+  value?: string | null;
+}) {
+  const [inputValue, setInputValue] = useState('');
 
   return (
     <>
       <Autocomplete
-        value={value}
+        value={value ? value : defaultValue}
         onChange={(event: any, newValue: string | null) => {
-          setValue(newValue);
+          var newTime = newValue ? newValue : defaultValue;
+          setValue(newTime);
         }}
         onInputChange={(event, newInputValue) => {
           setInputValue(newInputValue);
         }}
         id="controllable-states-demo"
-        options={times}
-        sx={{ width: 300 }}
-        renderInput={(params) => <TextField {...params} label="Controllable" />}
+        options={options}
+        sx={{ width: 150 }}
+        renderInput={(params) => <TextField {...params} label={label} />}
       />
     </>
   );

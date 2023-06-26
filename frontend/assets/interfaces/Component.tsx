@@ -27,6 +27,8 @@ export interface RadioGroupProps {
 }
 
 export interface DailyTabsTypes {
+  earliestStartTime: string;
+  latestStartTime: string;
   filterFor: number[];
   filterOut: number[];
   hideSoldOut: boolean;
