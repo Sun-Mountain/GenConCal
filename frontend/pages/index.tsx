@@ -10,6 +10,7 @@ import ToggleComponent from '@/components/UI/Toggle';
 import { filteredEvents } from './_app';
 import filterOutHelper from '@/helpers/filterOut';
 import filterForHelper from '@/helpers/filterFor';
+import TimeFilters from '@/components/TimeFilters';
 
 const ageReqMasterList = filteredEvents.ageRequirement;
 const xpReqMasterList = filteredEvents.experienceType;
@@ -134,7 +135,7 @@ export default function Home () {
         <div className='drawer-container'>
           <DrawerComponent icon={<AccessTimeFilledIcon />} buttonText='Filter By Time'>
             <div id='filter-drawer-content-wrapper'>
-              Time Filters
+              <TimeFilters />
             </div>
           </DrawerComponent>
         </div>
