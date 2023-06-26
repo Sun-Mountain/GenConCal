@@ -1,8 +1,12 @@
+import Link from "next/link";
+import ConfirmationNumberIcon from '@mui/icons-material/ConfirmationNumber';
 import findEvent from "@/helpers/findEvent"
-import TableRow from "./UI/TableRow"
+import TableRow from "@/components/UI/TableRow"
 
 export default function EventDetails ({ eventIndex }: { eventIndex: number }) {
-  const event = findEvent(eventIndex)
+  const event = findEvent(eventIndex);
+  var gameId = event.gameId,
+      eventLinkId = gameId.substring(7);
 
   const startDateTime = `${event.startDate}, ${event.startTime}`
   const endDateTime = `${event.endDate}, ${event.endTime}`
@@ -14,8 +18,23 @@ export default function EventDetails ({ eventIndex }: { eventIndex: number }) {
   return (
     <table>
       <tbody className='event-details-table'>
-        <TableRow category={'Title'} detail={event.title} />
-        <TableRow category={'Game Id'} detail={event.gameId} />
+        <tr className="modal-table-row">
+          <td className="table-label-container">
+            Title
+          </td>
+          <td className="table-value-container">
+            {event.title}<br />
+            <Link
+              className='ticket-link'
+              href={`https://www.gencon.com/events/${eventLinkId}`}
+              target="_blank"
+            >
+              <ConfirmationNumberIcon /> Wishlist / Purchase Option
+            </Link>
+          </td>
+        </tr>
+        {/* <TableRow category={'Title'} detail={event.title} /> */}
+        <TableRow category={'Game Id'} detail={gameId} />
         <TableRow category={'Event Type'} detail={event.eventType} />
         {event.gameSystem && (
           <TableRow category={'Game System'} detail={event.gameSystem} />

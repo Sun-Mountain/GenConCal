@@ -8,19 +8,19 @@ export default function Navigation () {
     <nav>
       <div id='navigation-container'>
         <div id='nav-title'>
-          <Link href='/'>
+          <Link className='nav-link' href='/'>
             <EventIcon fontSize='large' />
           </Link>
         </div>
         <ul id='nav-link-container'>
           <li className='link-container'>
-            <Link href='/'>
+            <Link className='nav-link' href='/'>
               <CottageIcon />&nbsp;
               Home
             </Link>
           </li>
           <li className='link-container'>
-            <Link href='/about'>
+            <Link className='nav-link' href='/about'>
               <InfoIcon />&nbsp;
               About
             </Link>
