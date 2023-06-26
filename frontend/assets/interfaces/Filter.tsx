@@ -4,7 +4,7 @@ export interface FilterContainerInterface {
   
 }
 
-export interface FilterTypes {
+export interface FilteredEvents {
   ageRequirement: UniqueFilter;
   cost: UniqueFilter;
   duration: UniqueFilter;

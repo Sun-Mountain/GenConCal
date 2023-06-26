@@ -1,9 +1,18 @@
 import { NewEvent } from "./Event";
-import { FilterTypes } from "./Filter";
+import { FilteredEvents } from "./Filter";
 
-export interface DataInterface {
+export interface filterSubProps {
+  [index: string]: boolean;
+}
+
+export interface filterCatProps {
+  [index: string]: filterSubProps;
+}
+
+export interface DataProps {
   eventData: NewEvent[];
-  filterTypes: FilterTypes;
+  filterCategories: filterCatProps;
+  filteredEvents: FilteredEvents;
 }
 
 export interface CountObj {

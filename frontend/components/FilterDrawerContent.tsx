@@ -1,4 +1,4 @@
-import { filterTypes } from "@/pages/_app"
+import { filteredEvents } from "@/pages/_app"
 
 export default function FilterDrawerContent () {
 
