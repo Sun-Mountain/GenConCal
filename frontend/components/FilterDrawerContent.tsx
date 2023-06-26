@@ -4,7 +4,15 @@ import { filteredEvents } from "@/pages/_app";
 
 import ButtonGroup from "@/components/UI/ButtonGroup";
 
+const ageLabels = [ 'kids only (12 and under)',
+                    'Everyone (6+)',
+                    'Teen (13+)',
+                    'Mature (18+)',
+                    '21+' ]
+
 export default function FilterDrawerContent ({
+  ageReqList,
+  setAgeReqList,
   filterAgeReq,
   setFilterAgeReq
 }: FilterDrawerProps) {
@@ -12,10 +20,13 @@ export default function FilterDrawerContent ({
   return (
     <>
       <ButtonGroup
+        eventList={filteredEvents.ageRequirement}
         filteredEvents={filterAgeReq}
         setFilteredEvents={setFilterAgeReq}
         groupLabel="Age Requirement"
-        list={filteredEvents.ageRequirement}
+        hiddenList={ageReqList}
+        setHiddenList={setAgeReqList}
+        labels={ageLabels}
       />
     </>
   )

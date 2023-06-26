@@ -28,6 +28,19 @@
   max-width: 800px;
 }
 
+.filter-component-container {
+  .btn-container {
+    .hidden {
+      background-color: $hidden-btn-bg-color;
+      color: $hidden-btn-color;
+    }
+
+    .toggle-btn {
+      text-transform: capitalize;
+    }
+  }
+}
+
 .tab-label {
   .tab-date {
     font-weight: 700;

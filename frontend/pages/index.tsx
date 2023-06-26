@@ -5,9 +5,12 @@ import FilterDrawerContent from '@/components/FilterDrawerContent';
 import ToggleComponent from '@/components/UI/Toggle';
 
 export default function Home () {
-  // Hide
+  // Lists
+  const [ageReqList, setAgeReqList] = useState<string[]>([]);
+
+  // Toggles
   const [hideSoldOut, setHideSoldOut] = useState(false);
-  const [filterAgeReq, setFilterAgeReq] = useState<number[]>([])
+  const [filterAgeReq, setFilterAgeReq] = useState<number[]>([]);
 
   // Filters
 
@@ -22,6 +25,8 @@ export default function Home () {
         <DrawerComponent>
           <div id='filter-drawer-content-wrapper'>
             <FilterDrawerContent
+              ageReqList={ageReqList}
+              setAgeReqList={setAgeReqList}
               filterAgeReq={filterAgeReq}
               setFilterAgeReq={setFilterAgeReq}
             />
@@ -29,6 +34,7 @@ export default function Home () {
         </DrawerComponent>
       </div>
       <DailyTabs
+        filterOut={[...filterAgeReq]}
         hideSoldOut={hideSoldOut}
       />
     </>

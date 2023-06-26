@@ -17,6 +17,7 @@ const dayLabels = Object.keys(eventsListByDay).sort();
 const timeLabels = Object.keys(eventsListByStartTime).sort();
 
 export default function DailyTabs({
+  filterOut,
   hideSoldOut
 }: DailyTabsTypes) {
   const [tab, setTab] = useState(0);
@@ -32,6 +33,11 @@ export default function DailyTabs({
     if (hideSoldOut) {
       eventsForDay = eventsForDay.filter(val => !soldOutEvents.includes(val))
     }
+
+    if (filterOut.length) {
+      eventsForDay = eventsForDay.filter(val => !filterOut.includes(val))
+    }
+
     return eventsForDay;
   }
 
