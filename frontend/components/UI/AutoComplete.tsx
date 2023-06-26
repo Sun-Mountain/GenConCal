@@ -17,7 +17,7 @@ export default function AutocompleteComponent({
         sx={{ width: 300 }}
         options={labels}
         getOptionLabel={(option) => option}
-        defaultValue={hiddenList || []}
+        value={hiddenList || []}
         onChange={(event, value) => handleFilter({groupLabel, labelList: value})}
         filterSelectedOptions
         renderInput={(params) => (
