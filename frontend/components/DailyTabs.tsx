@@ -13,13 +13,15 @@ import DataTable from './UI/DataTable';
 const eventsListByDay = filteredEvents.startDates;
 const eventsListByStartTime = filteredEvents.startTimes;
 const soldOutEvents = filteredEvents.noTickets;
+const tournamentEvents = filteredEvents.tournaments;
 const dayLabels = Object.keys(eventsListByDay).sort();
 const timeLabels = Object.keys(eventsListByStartTime).sort();
 
 export default function DailyTabs({
   filterFor,
   filterOut,
-  hideSoldOut
+  hideSoldOut,
+  tournamentFilter
 }: DailyTabsTypes) {
   const [tab, setTab] = useState(0);
 
@@ -41,6 +43,14 @@ export default function DailyTabs({
 
     if (filterOut.length) {
       eventsForDay = eventsForDay.filter(val => !filterOut.includes(val))
+    }
+
+    if (tournamentFilter === 'hide') {
+      eventsForDay = eventsForDay.filter(val => !tournamentEvents.includes(val))
+    }
+
+    if (tournamentFilter === 'show') {
+      eventsForDay = eventsForDay.filter(val => tournamentEvents.includes(val))
     }
 
     return eventsForDay;

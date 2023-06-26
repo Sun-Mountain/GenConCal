@@ -145,8 +145,8 @@ export default function Home () {
                     ...groupsFilter,
                     ...locationFilter]}
         filterOut={[...ageReqFilter, ...xpFilter]}
-        tournamentFilter={tournamentFilter}
         hideSoldOut={hideSoldOut}
+        tournamentFilter={tournamentFilter}
       />
     </>
   )

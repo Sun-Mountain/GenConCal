@@ -30,6 +30,7 @@ export interface DailyTabsTypes {
   filterFor: number[];
   filterOut: number[];
   hideSoldOut: boolean;
+  tournamentFilter: '' | 'hide' | 'show';
 }
 
 export interface FilterDrawerProps {
