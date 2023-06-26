@@ -1,5 +1,4 @@
 import { Dispatch, SetStateAction } from "react";
-import { filteredEvents } from "@/pages/_app";
 import { UniqueFilter } from "@/assets/interfaces";
 
 const addEventsToFilter = (

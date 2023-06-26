@@ -5,17 +5,18 @@ import FilterDrawerContent from '@/components/FilterDrawerContent';
 import ToggleComponent from '@/components/UI/Toggle';
 
 import { filteredEvents } from './_app';
-import filterOutHelper from '@/helpers/filterOut';
+import filterHelper from '@/helpers/filter';
 
 const ageReqMasterList = filteredEvents.ageRequirement;
 const xpReqMasterList = filteredEvents.experienceType;
+const eventTypeMasterList = filteredEvents.eventTypes;
 
 export default function Home () {
   console.log(filteredEvents)
   // Lists
   const [ageReqList, setAgeReqList] = useState<string[]>([]);
   const [xpReqList, setXPReqList] = useState<string[]>([]);
-  const [eventTypeList, setEventTypeList] = useState<string[]>([]);
+  const [eventTypeList, setEventTypeList] = useState<string[] | null>([]);
 
   // Filters
   const [hideSoldOut, setHideSoldOut] = useState(false);
@@ -23,26 +24,37 @@ export default function Home () {
   const [xpFilter, setXPFilter] = useState<number[]>([]);
   const [eventTypeFilter, setEventTypeFilter] = useState<number[]>([]);
 
-  const handleFilter = (
-    groupLabel: string,
-    label: string
-  ) => {
+  const handleFilter = ({
+    groupLabel,
+    label,
+    labelArray
+  }: {
+    groupLabel: string;
+    label?: string;
+    labelArray?: string[];
+  }) => {
     switch (groupLabel) {
       case 'Age Requirement':
-        filterOutHelper(ageReqMasterList,
-                      ageReqFilter,
-                      setAgeReqFilter,
-                      label,
-                      ageReqList,
-                      setAgeReqList)
+        if (label) {
+          filterHelper(ageReqMasterList,
+                        ageReqFilter,
+                        setAgeReqFilter,
+                        label,
+                        ageReqList,
+                        setAgeReqList)
+        }
         break;
       case 'Experience Requirement':
-        filterOutHelper(xpReqMasterList,
-                      xpFilter,
-                      setXPFilter,
-                      label,
-                      xpReqList,
-                      setXPReqList)
+        if (label) {
+          filterHelper(xpReqMasterList,
+                        xpFilter,
+                        setXPFilter,
+                        label,
+                        xpReqList,
+                        setXPReqList)
+        }
+        break;
+      case 'Event Types':
         break;
       default:
         console.log('ERROR');
@@ -72,6 +84,7 @@ export default function Home () {
         </div>
       </div>
       <DailyTabs
+        filterFor={[...eventTypeFilter]}
         filterOut={[...ageReqFilter, ...xpFilter]}
         hideSoldOut={hideSoldOut}
       />

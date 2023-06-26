@@ -1,6 +1,7 @@
 import { FilterDrawerProps } from "@/assets/interfaces";
 import { filteredEvents } from "@/pages/_app";
 import ButtonGroup from "@/components/UI/ButtonGroup";
+import AutocompleteComponent from "./UI/AutoComplete";
 
 const ageLabels = [ 'kids only (12 and under)',
                     'Everyone (6+)',
@@ -8,6 +9,7 @@ const ageLabels = [ 'kids only (12 and under)',
                     'Mature (18+)',
                     '21+' ]
 const xpLabels = Object.keys(filteredEvents.experienceType)
+const eventTypeLabels = Object.keys(filteredEvents.eventTypes).sort()
 
 export default function FilterDrawerContent ({
   handleFilter,
@@ -29,6 +31,12 @@ export default function FilterDrawerContent ({
         hiddenList={xpReqList}
         handleFilter={handleFilter}
         labels={xpLabels}
+      />
+      <AutocompleteComponent
+        componentLabel='Event Types'
+        hiddenList={eventTypeList}
+        handleFilter={handleFilter}
+        labels={eventTypeLabels}
       />
     </>
   )
