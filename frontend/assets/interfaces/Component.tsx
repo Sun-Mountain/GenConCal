@@ -3,7 +3,7 @@ import { FilterProps, UniqueFilter } from "@/assets/interfaces";
 
 export interface AutocompleteProps {
   componentLabel: string;
-  hiddenList: string[] | null;
+  hiddenList: string[];
   handleFilter: Function;
   labels: string[];
 }
@@ -16,7 +16,6 @@ export interface ButtonGroupProps {
 }
 
 export interface DailyTabsTypes {
-  filterFor: number[];
   filterOut: number[];
   hideSoldOut: boolean;
 }
@@ -25,7 +24,7 @@ export interface FilterDrawerProps {
   handleFilter: Function;
   ageReqList: string[];
   xpReqList: string[];
-  eventTypeList: string[] | null;
+  eventTypeList: string[];
 }
 
 export interface ToggleType {

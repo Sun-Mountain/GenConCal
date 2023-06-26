@@ -5,7 +5,7 @@ import FilterDrawerContent from '@/components/FilterDrawerContent';
 import ToggleComponent from '@/components/UI/Toggle';
 
 import { filteredEvents } from './_app';
-import filterHelper from '@/helpers/filter';
+import filterOutHelper from '@/helpers/filterOut';
 
 const ageReqMasterList = filteredEvents.ageRequirement;
 const xpReqMasterList = filteredEvents.experienceType;
@@ -16,7 +16,7 @@ export default function Home () {
   // Lists
   const [ageReqList, setAgeReqList] = useState<string[]>([]);
   const [xpReqList, setXPReqList] = useState<string[]>([]);
-  const [eventTypeList, setEventTypeList] = useState<string[] | null>([]);
+  const [eventTypeList, setEventTypeList] = useState<string[]>([]);
 
   // Filters
   const [hideSoldOut, setHideSoldOut] = useState(false);
@@ -24,19 +24,14 @@ export default function Home () {
   const [xpFilter, setXPFilter] = useState<number[]>([]);
   const [eventTypeFilter, setEventTypeFilter] = useState<number[]>([]);
 
-  const handleFilter = ({
-    groupLabel,
-    label,
-    labelArray
-  }: {
-    groupLabel: string;
-    label?: string;
-    labelArray?: string[];
-  }) => {
+  const handleFilter = async (
+    groupLabel: string,
+    label?: string
+  ) => {
     switch (groupLabel) {
       case 'Age Requirement':
         if (label) {
-          filterHelper(ageReqMasterList,
+          await filterOutHelper(ageReqMasterList,
                         ageReqFilter,
                         setAgeReqFilter,
                         label,
@@ -46,7 +41,7 @@ export default function Home () {
         break;
       case 'Experience Requirement':
         if (label) {
-          filterHelper(xpReqMasterList,
+          await filterOutHelper(xpReqMasterList,
                         xpFilter,
                         setXPFilter,
                         label,
@@ -84,7 +79,6 @@ export default function Home () {
         </div>
       </div>
       <DailyTabs
-        filterFor={[...eventTypeFilter]}
         filterOut={[...ageReqFilter, ...xpFilter]}
         hideSoldOut={hideSoldOut}
       />
