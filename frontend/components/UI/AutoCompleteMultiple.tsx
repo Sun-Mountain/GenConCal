@@ -3,7 +3,7 @@ import Autocomplete from '@mui/material/Autocomplete';
 import TextField from '@mui/material/TextField';
 import { AutocompleteProps } from '@/assets/interfaces';
 
-export default function AutocompleteComponent({
+export default function AutocompleteMultiComponent({
   groupLabel,
   hiddenList,
   handleFilter,
