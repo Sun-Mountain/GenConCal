@@ -3,7 +3,7 @@
   line-height: 14px;
 
   .fave-content {
-    padding: 12px 12px 0 12px !important;
+    padding: 12px 12px 12px 12px !important;
   }
 }
 
@@ -22,4 +22,10 @@
 .fave-title {
   font-weight: 700;
   padding-bottom: 4px;
+}
+
+.fave-label {
+  display: flex;
+  flex-direction: row;
+  line-height: 24px;
 }
