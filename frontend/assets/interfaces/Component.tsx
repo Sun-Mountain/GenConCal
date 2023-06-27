@@ -27,6 +27,9 @@ export interface RadioGroupProps {
 }
 
 export interface DailyTabsTypes {
+  durationFilter: number[];
+  earliestStartTime: string;
+  latestStartTime: string;
   filterFor: number[];
   filterOut: number[];
   hideSoldOut: boolean;
@@ -55,4 +58,24 @@ export interface TabPanelProps {
   children?: ReactNode;
   index: number;
   value: number;
+}
+
+export interface TimeFilterProps {
+  earliestStartTime: string;
+  setEarliestStartTime: Dispatch<SetStateAction<string>>;
+  latestStartTime: string;
+  setLatestStartTime: Dispatch<SetStateAction<string>>;
+  durationFilter: number[];
+  setDurationFilter: Dispatch<SetStateAction<number[]>>;
+}
+
+
+export interface DoubleSlideFilterProps {
+  label: string;
+  filterValues: number[];
+  setFilter: Dispatch<SetStateAction<number[]>>;
+  step: number;
+  min: number;
+  max: number;
+  unit: string;
 }

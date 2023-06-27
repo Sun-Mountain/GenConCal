@@ -14,16 +14,23 @@ const eventsListByDay = filteredEvents.startDates;
 const eventsListByStartTime = filteredEvents.startTimes;
 const soldOutEvents = filteredEvents.noTickets;
 const tournamentEvents = filteredEvents.tournaments;
+const durationList = filteredEvents.duration;
+const durationKeys = Object.keys(durationList).sort();
 const dayLabels = Object.keys(eventsListByDay).sort();
 const timeLabels = Object.keys(eventsListByStartTime).sort();
 
 export default function DailyTabs({
+  durationFilter,
+  earliestStartTime,
+  latestStartTime,
   filterFor,
   filterOut,
   hideSoldOut,
   tournamentFilter
 }: DailyTabsTypes) {
   const [tab, setTab] = useState(0);
+  const lowestDuration = durationFilter[0];
+  const highestDuration = durationFilter[1];
 
   const handleChange = (event: SyntheticEvent, newTab: number) => {
     setTab(newTab);
@@ -32,6 +39,19 @@ export default function DailyTabs({
   const getEvents = (day: string) => {
     const dayEvents = eventsListByDay[day]
     var eventsForDay = dayEvents;
+
+    if (Number(durationKeys[0]) != lowestDuration || Number(durationKeys[durationKeys.length - 1]) != highestDuration) {
+      durationKeys.map(key => {
+        if (Number(key) < lowestDuration){
+          var events = durationList[key]
+          eventsForDay = eventsForDay.filter(val => !events.includes(val));
+        }
+        if (Number(key) > highestDuration){
+          var events = durationList[key]
+          eventsForDay = eventsForDay.filter(val => !events.includes(val));
+        }
+      })
+    }
 
     if (hideSoldOut) {
       eventsForDay = eventsForDay.filter(val => !soldOutEvents.includes(val))
@@ -52,6 +72,13 @@ export default function DailyTabs({
     if (tournamentFilter === 'show') {
       eventsForDay = eventsForDay.filter(val => tournamentEvents.includes(val))
     }
+
+    timeLabels.map(timeLabel => {
+      if (timeLabel < earliestStartTime || timeLabel > latestStartTime) {
+        var events = eventsListByStartTime[timeLabel]
+        eventsForDay = eventsForDay.filter(val => !events.includes(val));
+      }
+    })
 
     return eventsForDay;
   }

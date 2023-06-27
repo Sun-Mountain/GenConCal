@@ -10,6 +10,7 @@ import ToggleComponent from '@/components/UI/Toggle';
 import { filteredEvents } from './_app';
 import filterOutHelper from '@/helpers/filterOut';
 import filterForHelper from '@/helpers/filterFor';
+import TimeFilters from '@/components/TimeFilters';
 
 const ageReqMasterList = filteredEvents.ageRequirement;
 const xpReqMasterList = filteredEvents.experienceType;
@@ -37,6 +38,9 @@ export default function Home () {
   const [groupsFilter, setGroupsFilter] = useState<number[]>([]);
   const [locationFilter, setLocationFilter] = useState<number[]>([]);
   const [tournamentFilter, setTournamentFilter] = useState<'' | 'hide' | 'show'>('');
+  const [earliestStartTime, setEarliestStartTime] = useState<string>('00:00');
+  const [latestStartTime, setLatestStartTime] = useState<string>('23:45');
+  const [durationFilter, setDurationFilter] = useState([0.5, 10])
   
   const handleFilter = async ({
     groupLabel,
@@ -134,12 +138,22 @@ export default function Home () {
         <div className='drawer-container'>
           <DrawerComponent icon={<AccessTimeFilledIcon />} buttonText='Filter By Time'>
             <div id='filter-drawer-content-wrapper'>
-              Time Filters
+              <TimeFilters
+                earliestStartTime={earliestStartTime}
+                setEarliestStartTime={setEarliestStartTime}
+                latestStartTime={latestStartTime}
+                setLatestStartTime={setLatestStartTime}
+                durationFilter={durationFilter}
+                setDurationFilter={setDurationFilter}
+              />
             </div>
           </DrawerComponent>
         </div>
       </div>
       <DailyTabs
+        durationFilter={durationFilter}
+        earliestStartTime={earliestStartTime}
+        latestStartTime={latestStartTime}
         filterFor={[...eventTypeFilter,
                     ...gameSystemFilter,
                     ...groupsFilter,
