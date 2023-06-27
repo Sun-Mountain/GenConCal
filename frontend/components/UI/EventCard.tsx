@@ -15,9 +15,10 @@ export default function EventCard({event}: {event: NewEvent}) {
     startTime,
     endDate,
     endTime,
-    ticketsAvailable,
+    gameId,
     materials,
-    tournament
+    ticketsAvailable,
+    tournament,
   } = event;
 
   const startDay = (new Date(startDate)).toDateString();
@@ -30,6 +31,7 @@ export default function EventCard({event}: {event: NewEvent}) {
   return (
     <Card className='fave-card' sx={{ minWidth: 275 }}>
       <CardContent className="fave-content">
+        <div className='fave-id'>{gameId}</div>
         <div className='fave-title'>{title}</div>
         <div className='fave-date-container'>
           {dateTime}

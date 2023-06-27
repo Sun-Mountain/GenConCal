@@ -21,7 +21,11 @@
 
 .fave-title {
   font-weight: 700;
-  padding-bottom: 4px;
+  padding: 4px 0;
+}
+
+.fave-id {
+  color: $fave-id-color;
 }
 
 .fave-label {
