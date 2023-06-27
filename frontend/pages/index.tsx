@@ -4,6 +4,7 @@ import AccessTimeFilledIcon from '@mui/icons-material/AccessTimeFilled';
 
 import DailyTabs from '@/components/DailyTabs';
 import DrawerComponent from '@/components/UI/Drawer';
+import EventCard from '@/components/UI/EventCard';
 import EventCategoryFilters from '@/components/EventCategoryFilters';
 import PopoverButton from '@/components/UI/PopOverButton';
 import ToggleComponent from '@/components/UI/Toggle';
@@ -11,6 +12,7 @@ import ToggleComponent from '@/components/UI/Toggle';
 import { filteredEvents } from './_app';
 import filterOutHelper from '@/helpers/filterOut';
 import filterForHelper from '@/helpers/filterFor';
+import findEvent from '@/helpers/findEvent';
 import TimeFilters from '@/components/TimeFilters';
 
 const ageReqMasterList = filteredEvents.ageRequirement;
@@ -173,7 +175,11 @@ export default function Home () {
           <PopoverButton
             numOfFaves={numOfFaves}
           >
-            Lalalala
+            {faves.map((fave, index) => {
+              var faveEvent = findEvent(fave)
+
+              return <EventCard key={index} event={faveEvent} />
+            })}
           </PopoverButton>
         </div>
       </div>
