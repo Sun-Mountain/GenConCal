@@ -17,13 +17,13 @@ export default function DataTable ({ events }: { events: number[]}) {
           <th className='zoom-column'>
             <ZoomInIcon />
           </th>
-          <th className='tickets-column'>
+          <th className='tickets-column extra-column'>
             Tickets
           </th>
-          <th className='duration-column'>
+          <th className='duration-column extra-column'>
             Duration
           </th>
-          <th className='cost-column'>
+          <th className='cost-column extra-column'>
             Cost
           </th>
         </tr>

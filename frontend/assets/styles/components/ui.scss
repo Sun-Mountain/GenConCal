@@ -83,7 +83,7 @@
   flex-direction: row;
 }
 
-@media only screen and (min-width: 600px) {
+@media only screen and (min-width: $s) {
   #daily-tabs-container {
     button {
       font-size: 16px;

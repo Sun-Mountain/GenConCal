@@ -55,3 +55,10 @@
 .cost-column {
   width: 2rem;
 }
+
+
+@media only screen and (max-width: $md) {
+  .extra-column {
+    display: none;
+  }
+}

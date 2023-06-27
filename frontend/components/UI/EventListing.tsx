@@ -34,13 +34,13 @@ export default function EventListing ({ eventIndex }: { eventIndex: number }) {
           <ZoomInIcon />
         </IconButton>
       </td>
-      <td className='center-items'>
+      <td className='center-items extra-column'>
         {ticketsAvailable} / {playersMax}
       </td>
-      <td className='center-items'>
+      <td className='center-items extra-column'>
         {duration} {durationPrefix}
       </td>
-      <td className='center-items'>
+      <td className='center-items extra-column'>
         ${cost}
       </td>
     </tr>
