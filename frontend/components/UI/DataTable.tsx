@@ -7,7 +7,7 @@ const EventListing = dynamic(() => import("@/components/UI/EventListing"), {
   loading: () => <div>Loading...</div>,
 });
 
-export default function DataTable ({ events, includesFave, handleFaves }: DataTableProps) {
+export default function DataTable ({ events, handleFaves, includesFave }: DataTableProps) {
 
   return (
     <table className='event-data-table'>
@@ -39,8 +39,8 @@ export default function DataTable ({ events, includesFave, handleFaves }: DataTa
             <EventListing
               key={eventIndex}
               eventIndex={eventIndex}
-              includesFave={includesFave}
-              handleFaves={handleFaves} />
+              handleFaves={handleFaves}
+              includesFave={includesFave} />
           )
         })}
       </tbody>

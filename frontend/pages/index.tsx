@@ -112,12 +112,19 @@ export default function Home () {
     }
   }
 
-  const handleFaves = (eventIndex: number) => {
-    console.log(eventIndex)
+  const includesFave = (eventIndex: number) => {
+    return faves.includes(eventIndex) ? true : false;
   }
 
-  const includesFave = (eventIndex: number) => {
-    faves.includes(eventIndex) ? true : false;
+  const handleFaves = (eventIndex: number) => {
+    var newFaves = faves;
+    if (includesFave(eventIndex)) {
+      var index = newFaves.indexOf(eventIndex);
+      newFaves.splice(index, 1);
+    } else {
+      newFaves.push(eventIndex);
+    }
+    setFaves(newFaves)
   }
 
   return (
@@ -164,14 +171,14 @@ export default function Home () {
         durationFilter={durationFilter}
         earliestStartTime={earliestStartTime}
         latestStartTime={latestStartTime}
+        handleFaves={handleFaves}
+        includesFave={includesFave}
         filterFor={[...eventTypeFilter,
           ...gameSystemFilter,
           ...groupsFilter,
           ...locationFilter]}
         filterOut={[...ageReqFilter, ...xpFilter]}
-        handleFaves={handleFaves}
         hideSoldOut={hideSoldOut}
-        includesFave={includesFave}
         tournamentFilter={tournamentFilter}
       />
     </>

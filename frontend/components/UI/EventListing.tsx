@@ -20,13 +20,19 @@ export default function EventListing ({ eventIndex, includesFave, handleFaves }:
   } = eventData[eventIndex];  
 
   const [open, setOpen] = useState(false);
+  const [fave, setFave] = useState(includesFave(eventIndex))
   const handleOpen = () => setOpen(true);
 
   const durationPrefix = duration > 1 ? 'hrs' : 'hr';
 
   const noTickets = ticketsAvailable === 0;
 
-  const aFave = includesFave(eventIndex) ? <FavoriteIcon /> : <FavoriteBorderIcon />;
+  const aFave = fave ? <FavoriteIcon style={{ color: '#d81159ff'}} /> : <FavoriteBorderIcon />;
+
+  const toggleFave = () => {
+    setFave(!fave)
+    handleFaves(eventIndex)
+  }
 
   return (
     <tr key={eventIndex} className={`${noTickets ? 'sold-out' : ''}`}>
@@ -35,9 +41,9 @@ export default function EventListing ({ eventIndex, includesFave, handleFaves }:
       </td>
       <td>
         <IconButton
-          className='icon-button'
+          className='icon-button favorite-event-icon'
           aria-label="zoom in icon"
-          onClick={() => handleFaves(eventIndex)}
+          onClick={toggleFave}
         >
           {aFave}
         </IconButton>
