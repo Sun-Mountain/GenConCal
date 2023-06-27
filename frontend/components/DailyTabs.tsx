@@ -6,9 +6,8 @@ import Box from '@mui/material/Box';
 import TabPanel from '@/components/UI/TabPanel';
 import a11yProps from '@/helpers/a11yProps';
 
-<<<<<<< HEAD
 import { filteredEvents } from '@/pages/_app';
-import { DailyTabsTypes, CountObj, UniqueFilter } from '@/assets/interfaces';
+import { DailyTabsTypes } from '@/assets/interfaces';
 import DataTable from './UI/DataTable';
 
 const eventsListByDay = filteredEvents.startDates;
@@ -26,46 +25,6 @@ export default function DailyTabs({
   latestStartTime,
   filterFor,
   filterOut,
-=======
-import { DailyTabs, TabPanelProps } from '@/interfaces/Components';
-
-import { tournamentFilterOptions } from '@/pages';
-
-function TabPanel(props: TabPanelProps) {
-  const { children, value, index, ...other } = props;
-
-  return (
-    <div
-      role="tabpanel"
-      hidden={value !== index}
-      id={`simple-tabpanel-${index}`}
-      aria-labelledby={`simple-tab-${index}`}
-      {...other}
-    >
-      {value === index && (
-        <>
-          {children}
-        </>
-      )}
-    </div>
-  );
-}
-
-function a11yProps(index: number) {
-  return {
-    id: `simple-tab-${index}`,
-    'aria-controls': `simple-tabpanel-${index}`,
-  };
-}
-
-export default function DailyTabs({
-  allBaseFilters,
-  showOnly,
-  dateList,
-  durationFilter,
-  durationLength,
-  hideMaterialReq,
->>>>>>> 1121cd00143d5578b0e87973b6b5698da48b0656
   hideSoldOut,
   tournamentFilter
 }: DailyTabsTypes) {
@@ -77,7 +36,6 @@ export default function DailyTabs({
     setTab(newTab);
   };
 
-<<<<<<< HEAD
   const getEvents = (day: string) => {
     const dayEvents = eventsListByDay[day]
     var eventsForDay = dayEvents;
@@ -93,32 +51,6 @@ export default function DailyTabs({
           eventsForDay = eventsForDay.filter(val => !events.includes(val));
         }
       })
-=======
-  const lowestDuration = durationFilter[0];
-  const highestDuration = durationFilter[1];
-  const durationKeys = Object.keys(durationLength).sort();
-
-  const getEventsList = (date: string) => {
-    const dayEvents = dateList[date]
-
-    var eventsForDay = dayEvents.filter(val => !allBaseFilters.includes(val));
-
-    if (Number(durationKeys[0]) != lowestDuration || Number(durationKeys[durationKeys.length - 1]) != highestDuration) {
-      durationKeys.map(key => {
-        if (Number(key) < lowestDuration){
-          var events = durationLength[key]
-          eventsForDay = eventsForDay.filter(val => !events.includes(val));
-        }
-        if (Number(key) > highestDuration){
-          var events = durationLength[key]
-          eventsForDay = eventsForDay.filter(val => !events.includes(val));
-        }
-      })
-    }
-
-    if (hideMaterialReq) {
-      eventsForDay = eventsForDay.filter(val => !materialsRequired.includes(val));
->>>>>>> 1121cd00143d5578b0e87973b6b5698da48b0656
     }
 
     if (hideSoldOut) {
