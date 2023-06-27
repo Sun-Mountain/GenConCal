@@ -112,6 +112,14 @@ export default function Home () {
     }
   }
 
+  const handleFaves = (eventIndex: number) => {
+    console.log(eventIndex)
+  }
+
+  const includesFave = (eventIndex: number) => {
+    faves.includes(eventIndex) ? true : false;
+  }
+
   return (
     <>
       <div id='filters-container'>
@@ -157,11 +165,13 @@ export default function Home () {
         earliestStartTime={earliestStartTime}
         latestStartTime={latestStartTime}
         filterFor={[...eventTypeFilter,
-                    ...gameSystemFilter,
-                    ...groupsFilter,
-                    ...locationFilter]}
+          ...gameSystemFilter,
+          ...groupsFilter,
+          ...locationFilter]}
         filterOut={[...ageReqFilter, ...xpFilter]}
+        handleFaves={handleFaves}
         hideSoldOut={hideSoldOut}
+        includesFave={includesFave}
         tournamentFilter={tournamentFilter}
       />
     </>

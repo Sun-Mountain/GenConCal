@@ -25,7 +25,9 @@ export default function DailyTabs({
   latestStartTime,
   filterFor,
   filterOut,
+  handleFaves,
   hideSoldOut,
+  includesFave,
   tournamentFilter
 }: DailyTabsTypes) {
   const [tab, setTab] = useState(0);
@@ -117,7 +119,10 @@ export default function DailyTabs({
                 return (
                   <div key={time}>
                     <h3>{time}</h3>
-                    <DataTable events={events} />
+                    <DataTable
+                      events={events}
+                      includesFave={includesFave}
+                      handleFaves={handleFaves} />
                   </div>
                 )
               }

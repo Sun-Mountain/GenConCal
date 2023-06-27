@@ -1,14 +1,16 @@
-import { useState } from 'react';
-import ModalComponent from '@/components/UI/Modal';
-import EventDetails from '@/components/EventDetails';
-import { eventData } from '@/pages/_app';
+import { MouseEvent, useState } from 'react';
+
 import IconButton from '@mui/material/IconButton'
-import ZoomInIcon from '@mui/icons-material/ZoomIn';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
+import ZoomInIcon from '@mui/icons-material/ZoomIn';
+import ModalComponent from '@/components/UI/Modal';
+
+import EventDetails from '@/components/EventDetails';
+import { eventData } from '@/pages/_app';
 import { EventListingProps } from '@/assets/interfaces';
 
-export default function EventListing ({ eventIndex }: EventListingProps) {
+export default function EventListing ({ eventIndex, includesFave, handleFaves }: EventListingProps) {
   const {
     title,
     duration,
@@ -24,12 +26,21 @@ export default function EventListing ({ eventIndex }: EventListingProps) {
 
   const noTickets = ticketsAvailable === 0;
 
+  const aFave = includesFave(eventIndex) ? <FavoriteIcon /> : <FavoriteBorderIcon />;
+
   return (
     <tr key={eventIndex} className={`${noTickets ? 'sold-out' : ''}`}>
       <td>
         {title}
       </td>
       <td>
+        <IconButton
+          className='icon-button'
+          aria-label="zoom in icon"
+          onClick={() => handleFaves(eventIndex)}
+        >
+          {aFave}
+        </IconButton>
       </td>
       <td className='center-items'>
         <ModalComponent open={open} setOpen={setOpen}>

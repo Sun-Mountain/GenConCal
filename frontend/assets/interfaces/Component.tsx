@@ -23,6 +23,8 @@ export interface ButtonGroupProps {
 
 export interface DataTableProps {
   events: number[];
+  handleFaves: Function;
+  includesFave: Function;
 }
 
 export interface DoubleSlideFilterProps {
@@ -37,6 +39,13 @@ export interface DoubleSlideFilterProps {
 
 export interface EventListingProps {
   eventIndex: number;
+  handleFaves: Function;
+  includesFave: Function;
+}
+
+export interface LikeButtonProps {
+  handleFaves: Function;
+  includesFave: Function;
 }
 
 export interface RadioGroupProps {
@@ -67,6 +76,8 @@ export interface DailyTabsTypes {
   latestStartTime: string;
   filterFor: number[];
   filterOut: number[];
+  handleFaves: Function;
+  includesFave: Function;
   hideSoldOut: boolean;
   tournamentFilter: '' | 'hide' | 'show';
 }
