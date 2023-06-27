@@ -1,0 +1,98 @@
+#daily-tabs-container {
+  button {
+    border: 1px solid $border-color;
+    border-bottom: 0;
+    border-top-left-radius: 15px 15px;
+    border-top-right-radius: 15px 15px;
+  }
+
+  button+button {
+    border-left: 0;
+  }
+
+  .Mui-selected {
+    background-color: $select-bg-color;
+    color: $select-color;
+  }
+}
+
+#filters-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  padding: 10px 10px 25px 10px;
+}
+
+#filter-drawer-content-wrapper {
+  padding: 25px 5px;
+  margin: 0 auto;
+  max-width: 1200px;
+}
+
+.ticket-link {
+  display: flex;
+}
+
+.filter-content {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.drawer-content {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.autocomplete-container {
+  margin-top: 20px;
+}
+
+.button-groups {
+  margin-bottom: 20px;
+}
+
+.filter-component-container {
+  .btn-container {
+    .hidden {
+      background-color: $hidden-btn-bg-color;
+      color: $hidden-btn-color;
+    }
+
+    .toggle-btn {
+      text-transform: capitalize;
+    }
+  }
+}
+
+.content-group {
+  margin-bottom: 15px;
+}
+
+.tab-label {
+  .tab-date {
+    font-weight: 700;
+  }
+
+  .tab-count {
+    font-size: 14px;
+  }
+}
+
+.time-range {
+  display: flex;
+  flex-direction: row;
+}
+
+@media only screen and (min-width: 600px) {
+  #daily-tabs-container {
+    button {
+      font-size: 16px;
+    }
+  }
+
+  .filter-content {
+    .content-group {
+      margin: 5px 15px;
+    }
+  }
+}

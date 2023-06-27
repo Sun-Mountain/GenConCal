@@ -1,5 +1,4 @@
-import { eventData } from "@/pages";
-
-export default function findEvent (eventIndex: number) {
-  return eventData[eventIndex];
+import { eventData } from "@/pages/_app";
+export default function findEvent (index: number) {
+  return eventData[index]
 }

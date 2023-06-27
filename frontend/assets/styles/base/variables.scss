@@ -1,0 +1,44 @@
+// Colors
+$bice: #006ba6ff;
+$dodger: #0496ffff;
+$dodger-20: rgba(4, 150, 255, 0.2);
+$xanthous: #ffbc42ff;
+$raspberry: #d81159ff;
+$quinacridone: #8f2d56ff;
+$cerulean: #0081a7ff;
+$verdigris: #00afb9ff;
+$lightYellow: #fdfcdcff;
+$lightOrange: #fed9b7ff;
+$lightOrange-50: rgba(254, 217, 183, 0.5);
+$bittersweet: #f07167ff;
+$seasalt: #f8f9faff;
+$platinum: #dee2e6ff;
+$french: #838a90;
+$outer: #495057ff;
+$eerie: #212529ff;
+
+// General
+$font-color: $outer;
+$link-color: $bice;
+$link-hover: $seasalt;
+$nav-bg: $dodger;
+$nav-color: $seasalt;
+$nav-link-color: $seasalt;
+$nav-link-hover: $lightOrange;
+
+// Toggle Buttons
+$hidden-btn-bg-color: $seasalt;
+$hidden-btn-color: $raspberry;
+
+// Tabs
+$border-color: $eerie;
+$select-bg-color: $bice;
+$select-color: $seasalt;
+
+// Table Row
+$theader-bg-color: $bice;
+$theader-font: $seasalt;
+$sold-out-row-text: $french;
+$sold-out-row-bg: $platinum;
+$row-alt-color: $dodger-20;
+$event-details-row: $lightOrange-50;

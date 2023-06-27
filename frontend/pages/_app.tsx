@@ -1,13 +1,18 @@
 'use client'
 
-import type { ReactElement, ReactNode } from 'react'
+import { ReactElement, ReactNode, useEffect, useState } from 'react'
 import type { NextPage } from 'next'
 import type { AppProps } from 'next/app'
-import { useEffect, useState } from 'react'
 import Head from 'next/head'
-import Navigation from '@/components/Navigation'
+import { Analytics } from '@vercel/analytics/react'
 
-import '@/styles/styles.css'
+import getData from "@/helpers/getData"
+
+export const { eventData, filteredEvents } = getData()
+
+import '@/assets/styles/application.scss'
+
+import Navigation from '@/components/UI/Navigation'
 
 export const metadata = {
   title: 'GenCon Cal',
@@ -22,18 +27,12 @@ type AppPropsWithLayout = AppProps & {
   Component: NextPageWithLayout
 }
 
-export default function MyApp(
-  { Component, pageProps }: AppPropsWithLayout
-) {
-  const [hasMounted, setHasMounted] = useState<boolean>(false);
+export default function MyApp({ Component, pageProps }: AppPropsWithLayout) {
+  const [hasMounted, setHasMounted] = useState<boolean>(false)
 
   useEffect(() => {
-    setHasMounted(true);
-  }, []);
-
-  if (!hasMounted) {
-    return 'Loading...'
-  }
+    setHasMounted(true)
+  }, [])
 
   return (
     <>
@@ -41,7 +40,16 @@ export default function MyApp(
         <link rel='icon' href='/favicon.ico'/>
       </Head>
       <Navigation />
-      <Component {...pageProps} />
+      <main>
+        { !hasMounted ? (
+          <div>
+            Loading...
+          </div>
+        ) : (
+          <Component {...pageProps} />
+        )}
+        <Analytics />
+      </main>
     </>
   )
 }

@@ -1,112 +1,82 @@
-import { ReactNode, SyntheticEvent, useEffect, useState } from 'react';
+import { Suspense, SyntheticEvent, useEffect, useState } from 'react';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
 
-import TimeComponent from './TimeComponent';
+import TabPanel from '@/components/UI/TabPanel';
+import a11yProps from '@/helpers/a11yProps';
 
-import { DailyTabs, TabPanelProps } from '@/interfaces/Components';
+import { filteredEvents } from '@/pages/_app';
+import { DailyTabsTypes } from '@/assets/interfaces';
+import DataTable from './UI/DataTable';
 
-import { tournamentFilterOptions } from '@/pages';
-
-function TabPanel(props: TabPanelProps) {
-  const { children, value, index, ...other } = props;
-
-  return (
-    <div
-      role="tabpanel"
-      hidden={value !== index}
-      id={`simple-tabpanel-${index}`}
-      aria-labelledby={`simple-tab-${index}`}
-      {...other}
-    >
-      {value === index && (
-        <>
-          {children}
-        </>
-      )}
-    </div>
-  );
-}
-
-function a11yProps(index: number) {
-  return {
-    id: `simple-tab-${index}`,
-    'aria-controls': `simple-tabpanel-${index}`,
-  };
-}
+const eventsListByDay = filteredEvents.startDates;
+const eventsListByStartTime = filteredEvents.startTimes;
+const soldOutEvents = filteredEvents.noTickets;
+const tournamentEvents = filteredEvents.tournaments;
+const durationList = filteredEvents.duration;
+const durationKeys = Object.keys(durationList).sort();
+const dayLabels = Object.keys(eventsListByDay).sort();
+const timeLabels = Object.keys(eventsListByStartTime).sort();
 
 export default function DailyTabs({
-  allBaseFilters,
-  showOnly,
-  dateList,
   durationFilter,
-  durationLength,
-  hideMaterialReq,
+  earliestStartTime,
+  latestStartTime,
+  filterFor,
+  filterOut,
   hideSoldOut,
-  materialsRequired,
-  soldOutEvents,
-  tournamentFilter,
-  tourneyList,
-  earlyStartTime,
-  lateStartTime,
-  startTimes
-}: DailyTabs) {
-  const dates = Object.keys(dateList).sort();
-  const timeLabels = Object.keys(startTimes).sort();
+  tournamentFilter
+}: DailyTabsTypes) {
   const [tab, setTab] = useState(0);
-  const handleChange = (event: SyntheticEvent, newValue: number) => {
-    setTab(newValue);
-  };
-
   const lowestDuration = durationFilter[0];
   const highestDuration = durationFilter[1];
-  const durationKeys = Object.keys(durationLength).sort();
 
-  const getEventsList = (date: string) => {
-    const dayEvents = dateList[date]
+  const handleChange = (event: SyntheticEvent, newTab: number) => {
+    setTab(newTab);
+  };
 
-    var eventsForDay = dayEvents.filter(val => !allBaseFilters.includes(val));
+  const getEvents = (day: string) => {
+    const dayEvents = eventsListByDay[day]
+    var eventsForDay = dayEvents;
 
     if (Number(durationKeys[0]) != lowestDuration || Number(durationKeys[durationKeys.length - 1]) != highestDuration) {
       durationKeys.map(key => {
         if (Number(key) < lowestDuration){
-          var events = durationLength[key]
+          var events = durationList[key]
           eventsForDay = eventsForDay.filter(val => !events.includes(val));
         }
         if (Number(key) > highestDuration){
-          var events = durationLength[key]
+          var events = durationList[key]
           eventsForDay = eventsForDay.filter(val => !events.includes(val));
         }
       })
     }
 
-    if (hideMaterialReq) {
-      eventsForDay = eventsForDay.filter(val => !materialsRequired.includes(val));
-    }
-
     if (hideSoldOut) {
-      eventsForDay = eventsForDay.filter(val => !soldOutEvents.includes(val));
+      eventsForDay = eventsForDay.filter(val => !soldOutEvents.includes(val))
     }
 
-    if (tournamentFilter === tournamentFilterOptions[1]) {
-      eventsForDay = eventsForDay.filter(val => tourneyList.includes(val))
+    if (filterFor.length) {
+      eventsForDay = eventsForDay.filter(val => filterFor.includes(val))
     }
 
-    if (tournamentFilter === tournamentFilterOptions[2]) {
-      eventsForDay = eventsForDay.filter(val => !tourneyList.includes(val))
+    if (filterOut.length) {
+      eventsForDay = eventsForDay.filter(val => !filterOut.includes(val))
+    }
+
+    if (tournamentFilter === 'hide') {
+      eventsForDay = eventsForDay.filter(val => !tournamentEvents.includes(val))
+    }
+
+    if (tournamentFilter === 'show') {
+      eventsForDay = eventsForDay.filter(val => tournamentEvents.includes(val))
     }
 
     timeLabels.map(timeLabel => {
-      if (timeLabel < earlyStartTime || timeLabel > lateStartTime) {
-        var events = startTimes[timeLabel]
+      if (timeLabel < earliestStartTime || timeLabel > latestStartTime) {
+        var events = eventsListByStartTime[timeLabel]
         eventsForDay = eventsForDay.filter(val => !events.includes(val));
-      }
-    })
-
-    showOnly.map(array => {
-      if (array.length > 0) {
-        eventsForDay = eventsForDay.filter(val => array.includes(val));
       }
     })
 
@@ -114,36 +84,42 @@ export default function DailyTabs({
   }
 
   return (
-    <Box className='tabs-container' sx={{ width: '100%' }}>
+    <Box id='daily-tabs-container' sx={{ width: '100%' }}>
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-        <Tabs value={tab} onChange={handleChange} variant='scrollable' aria-label="basic tabs example">
-          {dates.map((date: string, index: number) => {
-            const dateEvents = getEventsList(date);
-            const eventCount = dateEvents.length;
-            const dateLabel = <>{date}<br />{eventCount.toLocaleString("en-US")} events</>;
-
-            return <Tab key={date} label={dateLabel} {...a11yProps(index)} />
+        <Tabs
+          variant="scrollable"
+          scrollButtons="auto"
+          value={tab}
+          onChange={handleChange}
+          aria-label="basic tabs example"
+        >
+          {dayLabels.map((day, index) => {
+            var eventsForDay = getEvents(day),
+                eventNum = (eventsForDay.length).toLocaleString(),
+                dateLabel = (<div className='tab-label'>
+                  <div className='tab-date'>{day}</div>
+                  <div className='tab-count'>{eventNum} events</div>
+                </div>)
+            return (
+              <Tab key={day} label={dateLabel} {...a11yProps(index)} />
+            )
           })}
         </Tabs>
       </Box>
-      {dates.map((date: string, index: number) => {
-        const dateEvents = getEventsList(date);
-
+      {dayLabels.map((day, index) => {
+        var eventsForDay = getEvents(day)
         return (
           <TabPanel key={index} value={tab} index={index}>
             {timeLabels.map(time => {
-              if (time >= earlyStartTime || time <= lateStartTime) {
-                const events = dateEvents.filter(val => startTimes[time].includes(val))
+              const events = eventsForDay.filter(val => eventsListByStartTime[time].includes(val))
 
-                if (events.length) {
-                    return (
-                      <TimeComponent
-                        key={time}
-                        events={events}
-                        time={time}
-                      />
-                    )
-                }
+              if (events.length) {
+                return (
+                  <div key={time}>
+                    <h3>{time}</h3>
+                    <DataTable events={events} />
+                  </div>
+                )
               }
             })}
           </TabPanel>
