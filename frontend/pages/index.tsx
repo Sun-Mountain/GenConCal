@@ -20,7 +20,6 @@ const groupsMasterList = filteredEvents.groups;
 const locationMasterList = filteredEvents.locations;
 
 export default function Home () {
-  console.log(filteredEvents)
   // Lists
   const [ageReqList, setAgeReqList] = useState<string[]>([]);
   const [xpReqList, setXPReqList] = useState<string[]>([]);
