@@ -1,4 +1,3 @@
-import { NewEvent } from "@/assets/interfaces";
 import Card from '@mui/material/Card';
 import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
@@ -8,6 +7,10 @@ import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import ListAltIcon from '@mui/icons-material/ListAlt';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 
+import { NewEvent } from "@/assets/interfaces";
+
+import EventModal from '@/components/EventModal';
+
 export default function EventCard({event}: {event: NewEvent}) {
   const {
     title,
@@ -16,6 +19,7 @@ export default function EventCard({event}: {event: NewEvent}) {
     endDate,
     endTime,
     gameId,
+    id,
     materials,
     ticketsAvailable,
     tournament,
@@ -57,9 +61,9 @@ export default function EventCard({event}: {event: NewEvent}) {
           </div>
         )}
       </CardContent>
-      {/* <CardActions>
-        <Button size="small">Learn More</Button>
-      </CardActions> */}
+      <CardActions>
+        <EventModal eventIndex={id} showLabel={true} />
+      </CardActions>
     </Card>
   );
 }

@@ -1,12 +1,10 @@
-import { MouseEvent, useState } from 'react';
+import { useState } from 'react';
 
 import IconButton from '@mui/material/IconButton'
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
-import ZoomInIcon from '@mui/icons-material/ZoomIn';
-import ModalComponent from '@/components/UI/Modal';
 
-import EventDetails from '@/components/EventDetails';
+import EventModal from '@/components/EventModal';
 import { eventData } from '@/pages/_app';
 import { EventListingProps } from '@/assets/interfaces';
 
@@ -19,9 +17,7 @@ export default function EventListing ({ eventIndex, includesFave, handleFaves }:
     ticketsAvailable
   } = eventData[eventIndex];  
 
-  const [open, setOpen] = useState(false);
   const [fave, setFave] = useState(includesFave(eventIndex))
-  const handleOpen = () => setOpen(true);
 
   const durationPrefix = duration > 1 ? 'hrs' : 'hr';
 
@@ -49,17 +45,7 @@ export default function EventListing ({ eventIndex, includesFave, handleFaves }:
         </IconButton>
       </td>
       <td className='center-items'>
-        <ModalComponent open={open} setOpen={setOpen}>
-          <EventDetails eventIndex={eventIndex} />
-        </ModalComponent>
-        <IconButton
-          className='icon-button'
-          aria-label="zoom in icon"
-          color="secondary"
-          onClick={handleOpen}
-        >
-          <ZoomInIcon />
-        </IconButton>
+        <EventModal eventIndex={eventIndex} />
       </td>
       <td className='center-items extra-column'>
         {ticketsAvailable} / {playersMax}
