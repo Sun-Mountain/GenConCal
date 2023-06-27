@@ -5,6 +5,7 @@ import AccessTimeFilledIcon from '@mui/icons-material/AccessTimeFilled';
 import DailyTabs from '@/components/DailyTabs';
 import DrawerComponent from '@/components/UI/Drawer';
 import EventCategoryFilters from '@/components/EventCategoryFilters';
+import PopoverButton from '@/components/UI/PopOverButton';
 import ToggleComponent from '@/components/UI/Toggle';
 
 import { filteredEvents } from './_app';
@@ -39,10 +40,11 @@ export default function Home () {
   const [tournamentFilter, setTournamentFilter] = useState<'' | 'hide' | 'show'>('');
   const [earliestStartTime, setEarliestStartTime] = useState<string>('00:00');
   const [latestStartTime, setLatestStartTime] = useState<string>('23:45');
-  const [durationFilter, setDurationFilter] = useState([0.5, 10])
+  const [durationFilter, setDurationFilter] = useState([0.5, 10]);
 
   // Favorites
-  const [faves, setFaves] = useState<number[]>([])
+  const [faves, setFaves] = useState<number[]>([]);
+  const [numOfFaves, setNumOfFaves] = useState(faves.length);
   
   const handleFilter = async ({
     groupLabel,
@@ -116,7 +118,7 @@ export default function Home () {
     return faves.includes(eventIndex) ? true : false;
   }
 
-  const handleFaves = (eventIndex: number) => {
+  const handleFaves = async (eventIndex: number) => {
     var newFaves = faves;
     if (includesFave(eventIndex)) {
       var index = newFaves.indexOf(eventIndex);
@@ -125,6 +127,7 @@ export default function Home () {
       newFaves.push(eventIndex);
     }
     setFaves(newFaves)
+    await setNumOfFaves(newFaves.length);
   }
 
   return (
@@ -165,6 +168,13 @@ export default function Home () {
               />
             </div>
           </DrawerComponent>
+        </div>
+        <div>
+          <PopoverButton
+            numOfFaves={numOfFaves}
+          >
+            Lalalala
+          </PopoverButton>
         </div>
       </div>
       <DailyTabs
