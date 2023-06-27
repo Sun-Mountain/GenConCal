@@ -1,0 +1,7 @@
+.fave-card:nth-child(odd) {
+  background-color: $card-odd-bg;
+}
+
+.fave-card:nth-child(even) {
+  background-color: $card-even-bg;
+}

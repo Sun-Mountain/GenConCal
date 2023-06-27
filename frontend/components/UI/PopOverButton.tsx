@@ -30,7 +30,7 @@ export default function PopoverButton({
       <Button aria-describedby={id} variant={numOfFaves ? 'contained' : 'outlined'} onClick={handleClick}>
         {numOfFaves ? (
           <>
-            <FavoriteIcon style={{ color: '#d81159ff'}} /> ({numOfFaves})
+            <FavoriteIcon style={{ color: '#d81159ff'}} />&nbsp;({numOfFaves})
           </>
         ) : (
           <FavoriteBorderIcon style={{ color: '#d81159ff'}} />
