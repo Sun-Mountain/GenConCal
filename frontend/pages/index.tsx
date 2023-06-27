@@ -40,6 +40,9 @@ export default function Home () {
   const [earliestStartTime, setEarliestStartTime] = useState<string>('00:00');
   const [latestStartTime, setLatestStartTime] = useState<string>('23:45');
   const [durationFilter, setDurationFilter] = useState([0.5, 10])
+
+  // Favorites
+  const [faves, setFaves] = useState<number[]>([])
   
   const handleFilter = async ({
     groupLabel,

@@ -4,8 +4,11 @@ import EventDetails from '@/components/EventDetails';
 import { eventData } from '@/pages/_app';
 import IconButton from '@mui/material/IconButton'
 import ZoomInIcon from '@mui/icons-material/ZoomIn';
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
+import { EventListingProps } from '@/assets/interfaces';
 
-export default function EventListing ({ eventIndex }: { eventIndex: number }) {
+export default function EventListing ({ eventIndex }: EventListingProps) {
   const {
     title,
     duration,
@@ -26,11 +29,18 @@ export default function EventListing ({ eventIndex }: { eventIndex: number }) {
       <td>
         {title}
       </td>
+      <td>
+      </td>
       <td className='center-items'>
         <ModalComponent open={open} setOpen={setOpen}>
           <EventDetails eventIndex={eventIndex} />
         </ModalComponent>
-        <IconButton className='icon-button' aria-label="zoom in icon" color="secondary" onClick={handleOpen}>
+        <IconButton
+          className='icon-button'
+          aria-label="zoom in icon"
+          color="secondary"
+          onClick={handleOpen}
+        >
           <ZoomInIcon />
         </IconButton>
       </td>
