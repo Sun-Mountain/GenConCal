@@ -176,9 +176,8 @@ export default function Home () {
             numOfFaves={numOfFaves}
           >
             {faves.map((fave, index) => {
-              var faveEvent = findEvent(fave)
-
-              return <EventCard key={index} event={faveEvent} />
+              var faveEvent = findEvent(fave);
+              return <EventCard key={index} event={faveEvent} />;
             })}
           </PopoverButton>
         </div>
