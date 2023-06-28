@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
 
 import IconButton from '@mui/material/IconButton'
 import FavoriteIcon from '@mui/icons-material/Favorite';
@@ -17,7 +17,8 @@ export default function EventListing ({ eventIndex, includesFave, handleFaves }:
     ticketsAvailable
   } = eventData[eventIndex];  
 
-  const [fave, setFave] = useState(includesFave(eventIndex))
+  const [fave, setFave] = useState(includesFave(eventIndex));
+  const [buttonLoading, setButtonLoading] = useState(false);
 
   const durationPrefix = duration > 1 ? 'hrs' : 'hr';
 
@@ -26,8 +27,10 @@ export default function EventListing ({ eventIndex, includesFave, handleFaves }:
   const aFave = fave ? <FavoriteIcon style={{ color: '#d81159ff'}} /> : <FavoriteBorderIcon />;
 
   const toggleFave = () => {
+    setButtonLoading(!buttonLoading)
     setFave(!fave)
     handleFaves(eventIndex)
+    setButtonLoading(!!buttonLoading)
   }
 
   return (
@@ -36,13 +39,16 @@ export default function EventListing ({ eventIndex, includesFave, handleFaves }:
         {title}
       </td>
       <td>
-        <IconButton
-          className='icon-button favorite-event-icon'
-          aria-label="zoom in icon"
-          onClick={toggleFave}
-        >
-          {aFave}
-        </IconButton>
+        <Suspense>
+          <IconButton
+            className='icon-button favorite-event-icon'
+            aria-label="zoom in icon"
+            disabled={buttonLoading}
+            onClick={toggleFave}
+          >
+            {aFave}
+          </IconButton>
+        </Suspense>
       </td>
       <td className='center-items'>
         <EventModal eventIndex={eventIndex} />

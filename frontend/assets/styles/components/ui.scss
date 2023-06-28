@@ -83,6 +83,11 @@
   flex-direction: row;
 }
 
+.modal-close-btn-container {
+  display: flex;
+  justify-content: end;
+}
+
 @media only screen and (min-width: $s) {
   #daily-tabs-container {
     button {
