@@ -194,22 +194,22 @@ export default function Home ({
           <PopoverButton
             numOfFaves={numOfFaves}
           >
+            <div>
+              <Button
+                className='export-btn'
+                href="/export"
+                size='small'
+                startIcon={<OpenInNewIcon />}
+                target="_blank"
+                variant='outlined'
+              >
+                Export Favorites
+              </Button>
+            </div>
             {faves.map((fave, index) => {
               var faveEvent = findEvent(fave);
               return (
                 <>
-                  <div>
-                    <Button
-                      className='export-btn'
-                      href="/export"
-                      size='small'
-                      startIcon={<OpenInNewIcon />}
-                      target="_blank"
-                      variant='outlined'
-                    >
-                      Export Favorites
-                    </Button>
-                  </div>
                   <EventCard key={index} event={faveEvent} />
                 </>
               );
