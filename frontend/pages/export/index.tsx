@@ -32,23 +32,21 @@ const organizeFilters = (
   })
 
   faves.map(fave => {
-    var { startDate, startTime } = eventData[fave];
-    filteredFaves[startDate][startTime].push(fave)
+    var { startDate, startTime } = eventData[fave],
+        hr = startTime.substring(0,2);
+    timeLabels.map(timeLabel => {
+      var timeHr = timeLabel.substring(0,2),
+          timeMin = timeLabel.substring(timeLabel.length - 2);
+      if (timeHr === hr && timeMin === '00') {
+        filteredFaves[startDate][timeLabel].push(fave)
+      }
+    })
   })
-  console.log(filteredFaves)
+  return filteredFaves;
 }
 
 export default function ExportPage () {
   const faves = JSON.parse(localStorage.getItem('faves') || '[]');
-
-  useEffect(() => {
-    if (faves.length) {
-      organizeFilters(faves,
-                      filteredEvents.startTimes,
-                      filteredEvents.startDates,
-                      )
-    }
-  }, [faves])
 
   if (!faves || !faves.length) {
     return (
@@ -58,19 +56,37 @@ export default function ExportPage () {
     )
   }
 
+  const filteredFaves = organizeFilters(faves,
+                                        filteredEvents.startTimes,
+                                        filteredEvents.startDates);
+
+  const anyFaves = (dayLabel: string, timeLabel: string) => {
+    var filterNum = filteredFaves[dayLabel][timeLabel].length;
+
+    if (!filterNum) {
+      return '';
+    }
+
+    if (filterNum > 1) {
+      return 'More than 1!';
+    }
+
+    return 'Only 1';
+  }
+
   return (
     <>
       Export Page
 
       <div>
-        <table>
+        <table className='export-table'>
           <thead>
-            <th>
+            <th className='export-column'>
               <AccessTimeIcon />
             </th>
             {dayLabels.map(day => {
               return (
-                <th key={`${day}-column`}>
+                <th key={`${day}-column`} className='export-column'>
                   {day}
                 </th>
               )
@@ -81,13 +97,13 @@ export default function ExportPage () {
               // var favesFilteredByTime = favesByTime(timeLabel)
               return (
                 <tr key={`${timeLabel}-row`}>
-                  <td>
+                  <td className='export-column'>
                     {timeLabel}
                   </td>
                   {dayLabels.map(dayLabel => {
                     return (
-                      <td key={`${timeLabel}-row-${dayLabel}-cell`}>
-
+                      <td key={`${timeLabel}-row-${dayLabel}-cell`} className='export-column'>
+                        {anyFaves(dayLabel, timeLabel)}
                       </td>
                     )
                   })}

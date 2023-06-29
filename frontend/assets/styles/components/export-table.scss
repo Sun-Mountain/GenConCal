@@ -1,0 +1,14 @@
+.export-table {
+  border:none;
+  border-collapse: collapse;
+
+  th, td {
+    border-left: 1px solid #000;
+    border-right: 1px solid #000;
+  }
+
+  tr {
+    border-bottom: 1px solid #EEE;
+    border-top: 1px solid #EEE;
+  }
+}
