@@ -14,3 +14,5 @@ jobs:
       run: 7z x events.zip
     - name: Install convert-excel-to-json
       run: npm install convert-excel-to-json
+    - name: Convert to JSON
+      run: convert-excel-to-json --sourceFile="events.xlsx" > frontend/assets/events/testing.json
