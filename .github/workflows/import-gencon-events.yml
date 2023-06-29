@@ -12,15 +12,18 @@ jobs:
       with:
         repository: ${{ github.event.pull_request.head.repo.full_name }}
         ref: ${{ github.event.pull_request.head.ref }}
+    - uses: actions/setup-node@v3
+      with:
+        node-version: 18
     - name: Download Zip File
       run: curl https://www.gencon.com/downloads/events.zip -L -o events.zip
     - name: Unzip file
       run: 7z x events.zip
     - name: Install convert-excel-to-json
-      run: |
-        npm install convert-excel-to-json;
-        convert-excel-to-json --sourceFile="events.xlsx" > ./frontend/assets/events/test2.json
+      run: npm install -g convert-excel-to-json
+    - name: Convert to JSON
+      run: convert-excel-to-json --sourceFile="events.xlsx" > ./frontend/assets/events/test1.json
     - uses: EndBug/add-and-commit@v9
       with:
-        remove: './frontend/assets/events/test1.json'
-        add: './frontend/assets/events/test2.json'
+        remove: './frontend/assets/events/test2.json'
+        add: './frontend/assets/events/test1.json'
