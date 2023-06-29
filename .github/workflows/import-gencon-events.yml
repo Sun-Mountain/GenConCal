@@ -5,6 +5,7 @@ on:
     branches: [ parse-json ]
 
 jobs:
+  runs-on: ubuntu-20.04
   steps:
   - name: Download Zip File
     run: curl https://www.gencon.com/downloads/events.zip -L -O events.zip
