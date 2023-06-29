@@ -9,6 +9,7 @@ unzip file.zip -d destination_folder
 
 <!-- Save to JSON and save to location -->
 
+install convert-excel-to-json
 convert-excel-to-json --sourceFile="events.xlsx" > events.json
 
 <!-- EXTRA: parse json to more readable format -->

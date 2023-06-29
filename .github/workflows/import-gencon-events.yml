@@ -1,0 +1,12 @@
+name: Import GenCon Events
+
+on:
+  push:
+    branches: [ parse-json ]
+
+jobs:
+  steps:
+  - name: Download zipfile
+    run: curl https://www.gencon.com/downloads/events.zip -L -O events.zip
+  - name: Unzip file
+    run: 7z x
