@@ -19,8 +19,7 @@ jobs:
     - name: Install convert-excel-to-json
       run: |
         npm install convert-excel-to-json \
-        convert-excel-to-json --sourceFile="events.xlsx" > test.json
+        convert-excel-to-json --sourceFile="events.xlsx" > ./frontend/assets/events/test.json
     - uses: EndBug/add-and-commit@v9
       with:
-        remove: './frontend/assets/events/events2Parse.json'
-        add: 'test.json'
+        add: './frontend/assets/events/test.json'
