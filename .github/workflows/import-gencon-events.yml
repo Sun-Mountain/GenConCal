@@ -25,4 +25,3 @@ jobs:
         remove: './frontend/assets/events/events2Parse.json'
         add: 'test.json'
         new_branch: testing-new-branch
-        push: false
