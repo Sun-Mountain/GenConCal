@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import { eventData, filteredEvents } from "@/pages/_app";
 import getQuarterHours from "@/helpers/getQuarterHours";
@@ -17,6 +16,15 @@ interface FilteredFavesProps {
   [index: string]: TimeFilterProps;
 }
 
+const calendarItem = (eventIndex: number) => {
+  var { title } = eventData[eventIndex]
+
+  return (
+    <div className='calendar-item'>
+      {title}
+    </div>
+  )
+}
 
 const organizeFilters = (
   faves: number[],
@@ -61,17 +69,14 @@ export default function ExportPage () {
                                         filteredEvents.startDates);
 
   const anyFaves = (dayLabel: string, timeLabel: string) => {
-    var filterNum = filteredFaves[dayLabel][timeLabel].length;
+    var favesForTimeAndDay = filteredFaves[dayLabel][timeLabel],
+        filterNum = favesForTimeAndDay.length;
 
     if (!filterNum) {
       return '';
     }
 
-    if (filterNum > 1) {
-      return 'More than 1!';
-    }
-
-    return 'Only 1';
+    favesForTimeAndDay.map(fave => calendarItem(fave))
   }
 
   return (
@@ -94,16 +99,24 @@ export default function ExportPage () {
           </thead>
           <tbody>
             {timeLabels.map(timeLabel => {
-              // var favesFilteredByTime = favesByTime(timeLabel)
               return (
                 <tr key={`${timeLabel}-row`}>
                   <td className='export-column'>
                     {timeLabel}
                   </td>
                   {dayLabels.map(dayLabel => {
+                    var faveList = filteredFaves[dayLabel][timeLabel]
                     return (
                       <td key={`${timeLabel}-row-${dayLabel}-cell`} className='export-column'>
-                        {anyFaves(dayLabel, timeLabel)}
+                        {faveList.length > 0 && (
+                          <div className='calendar-items-container'>
+                            <div className='items-wrapper'>
+                              {faveList.map(fave => {
+                                return calendarItem(fave)
+                              })}
+                            </div>
+                          </div>
+                        )}
                       </td>
                     )
                   })}

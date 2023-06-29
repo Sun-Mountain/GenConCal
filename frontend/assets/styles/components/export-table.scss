@@ -3,12 +3,37 @@
   border-collapse: collapse;
 
   th, td {
-    border-left: 1px solid #000;
-    border-right: 1px solid #000;
+    border-left: 1px solid $column-border;
+    border-right: 1px solid $column-border;
   }
 
   tr {
-    border-bottom: 1px solid #EEE;
-    border-top: 1px solid #EEE;
+    border-bottom: 1px solid $row-border;
+    border-top: 1px solid $row-border;
   }
+}
+
+.calendar-items-container {
+  position: relative;
+
+  .items-wrapper {
+    display: flex;
+    position: absolute;
+  }
+}
+
+.calendar-item {
+  border: 1px solid $item-border;
+}
+
+.calendar-item:first-child {
+  margin-left: 5px;
+}
+
+.calendar-item:last-child {
+  margin-right: 5px;
+}
+
+.calendar-item+.calendar-item {
+  margin-left: 5px;
 }
