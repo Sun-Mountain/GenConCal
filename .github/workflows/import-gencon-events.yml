@@ -12,3 +12,5 @@ jobs:
       run: curl https://www.gencon.com/downloads/events.zip -L -o events.zip
     - name: Unzip file
       run: 7z x events.zip
+    - name: Install convert-excel-to-json
+      run: npm install convert-excel-to-json
