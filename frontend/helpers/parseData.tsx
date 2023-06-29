@@ -70,7 +70,25 @@ function cleanParsedData (
         costKey = Object.keys(masterList).find(key => masterList[key] === "Cost $"),
         durationKey = Object.keys(masterList).find(key => masterList[key] === "Duration"),
         shortDescriptionKey = Object.keys(masterList).find(key => masterList[key] === "Short Description"),
-        longDescriptionKey = Object.keys(masterList).find(key => masterList[key] === "Long Description");
+        longDescriptionKey = Object.keys(masterList).find(key => masterList[key] === "Long Description"),
+        eventTypeKey = Object.keys(masterList).find(key => masterList[key] === "Event Type"),
+        experienceTypeKey = Object.keys(masterList).find(key => masterList[key] === "Experience Required"),
+        gameIdKey = Object.keys(masterList).find(key => masterList[key] === "Game ID"),
+        gameSystemKey = Object.keys(masterList).find(key => masterList[key] === "Game System"),
+        gmNamesKey = Object.keys(masterList).find(key => masterList[key] === "GM Names"),
+        groupKey = Object.keys(masterList).find(key => masterList[key] === "Group"),
+        locationKey = Object.keys(masterList).find(key => masterList[key] === "Location"),
+        materialsKey = Object.keys(masterList).find(key => masterList[key] === "Materials Required Details"),
+        playersMinKey = Object.keys(masterList).find(key => masterList[key] === "Minimum Players"),
+        playersMaxKey = Object.keys(masterList).find(key => masterList[key] === "Maximum Players"),
+        tableNumKey = Object.keys(masterList).find(key => masterList[key] === "Table Number"),
+        ticketsKey = Object.keys(masterList).find(key => masterList[key] === "Tickets Available"),
+        titleKey = Object.keys(masterList).find(key => masterList[key] === "Title"),
+        tournamentKey = Object.keys(masterList).find(key => masterList[key] === "Tournament?"),
+        roomKey = Object.keys(masterList).find(key => masterList[key] === "Room Name"),
+        roundKey = Object.keys(masterList).find(key => masterList[key] === "Round Number"),
+        roundTotalKey = Object.keys(masterList).find(key => masterList[key] === "Total Rounds"),
+        websiteKey = Object.keys(masterList).find(key => masterList[key] === "Website");
 
     var rawStart = startDateTimeKey && new Date(event[startDateTimeKey]),
         rawEnd = endDateTimeKey && new Date(event[endDateTimeKey]),
@@ -84,24 +102,24 @@ function cleanParsedData (
         eventStartTime = rawStart && getTime(rawStart),
         eventEndDate = rawEnd && rawEnd.toLocaleDateString(),
         eventEndTime = rawEnd &&getTime(rawEnd),
-        eventType = event['Event Type'],
-        experienceReq = event['Experience Required'],
-        gameId = event['Game ID'],
-        gameSystem = event['Game System'],
-        gmNames = event['GM Names'],
-        group = event['Group'],
-        location = event['Location']?.toUpperCase(),
-        materials = event['Materials Required Details'],
-        playersMin = Number(event['Minimum Players']),
-        playersMax = Number(event['Maximum Players']),
-        tableNum = Number(event['Table Number']),
-        ticketsAvailable = Number(event['Tickets Available']),
-        title = event['Title'],
-        tournament = trueOrFalse(event['Tournament?']),
-        room = event['Room Name'],
-        round = Number(event['Round Number']),
-        roundTotal = Number(event['Total Rounds']),
-        website = event['Website'];
+        eventType = eventTypeKey && event[eventTypeKey],
+        experienceReq = experienceTypeKey && event[experienceTypeKey],
+        gameId = gameIdKey && event[gameIdKey],
+        gameSystem = gameSystemKey && event[gameSystemKey],
+        gmNames = gmNamesKey && event[gmNamesKey],
+        group = groupKey && event[groupKey],
+        location = locationKey && event[locationKey]?.toUpperCase(),
+        materials = materialsKey && event[materialsKey],
+        playersMin = playersMinKey && Number(event[playersMinKey]),
+        playersMax = playersMaxKey && Number(event[playersMaxKey]),
+        tableNum = tableNumKey && Number(event[tableNumKey]),
+        ticketsAvailable = ticketsKey && Number(event[ticketsKey]),
+        title = titleKey && event[titleKey],
+        tournament = tournamentKey && trueOrFalse(event[tournamentKey]),
+        room = roomKey && event[roomKey],
+        round = roundKey && Number(event[roundKey]),
+        roundTotal = roundTotalKey && Number(event[roundTotalKey]),
+        website = websiteKey && event[websiteKey];
 
     newEvent.id = index;
 
@@ -115,6 +133,10 @@ function cleanParsedData (
     // Contact
     if (contact) {
       newEvent.contact = contact
+    }
+
+    if (website) {
+      newEvent.website = website
     }
 
     // Cost
@@ -171,6 +193,110 @@ function cleanParsedData (
       newEvent.startTime = eventStartTime
     }
 
+    // Event Type
+    if (eventType) {
+      if (!data.filteredEvents.eventTypes[eventType]) {
+        data.filteredEvents.eventTypes[eventType] = []
+      }
+      data.filteredEvents.eventTypes[eventType].push(index)
+      newEvent.eventType = eventType
+    }
+
+    // Experience Type
+    if (experienceReq) {
+      if (!data.filteredEvents.experienceType[experienceReq]) {
+        data.filteredEvents.experienceType[experienceReq] = [];
+      }
+      data.filteredEvents.experienceType[experienceReq].push(index)
+      newEvent.experienceType = experienceReq
+    }
+
+    if (gameId) {
+      newEvent.gameId = gameId;
+    }
+
+    // Game System
+    if (gameSystem) {
+      if (!data.filteredEvents.gameSystems[gameSystem]) {
+        data.filteredEvents.gameSystems[gameSystem] = []
+      }
+      data.filteredEvents.gameSystems[gameSystem].push(index)
+      newEvent.gameSystem = gameSystem
+    }
+
+    // GM Names
+    if (gmNames) {
+      newEvent.gmNames = gmNames
+    }
+
+    // Group
+    if (group) {
+      if (!data.filteredEvents.groups[group]) {
+        data.filteredEvents.groups[group] = []
+      }
+      data.filteredEvents.groups[group].push(index)
+      newEvent.group = group
+    }
+
+    // Location
+    if (location) {
+      if (!data.filteredEvents.locations[location]) {
+        data.filteredEvents.locations[location] = []
+      }
+      data.filteredEvents.locations[location].push(index)
+      newEvent.location = location
+    }
+
+    // Materials Required
+    if (materials) {
+      data.filteredEvents.materialsRequired.push(index)
+      newEvent.materials = materials
+    }
+
+    // Player Numbers
+    if (playersMin) {
+      newEvent.playersMin = playersMin
+    }
+
+    if (playersMax) {
+      newEvent.playersMax = playersMax
+    }
+
+    // Room and Table
+    if (tableNum) {
+      newEvent.tableNum = tableNum
+    }
+
+    if (room) {
+      newEvent.room = room
+    }
+
+    // Tickets
+
+    if (!ticketsAvailable) {
+      data.filteredEvents.noTickets.push(index)
+    } else {
+      newEvent.ticketsAvailable = ticketsAvailable
+    }
+
+    // Title
+    newEvent.title = title
+
+    // Tournament 
+    if (tournament) {
+      data.filteredEvents.tournaments.push(index)
+      newEvent.tournament = tournament
+    }
+
+    // Rounds
+    if (round) {
+      newEvent.round = round
+    }
+
+    if (roundTotal) {
+      newEvent.roundTotal = roundTotal
+    }
+
     data.eventData.push(newEvent)
   })
 
@@ -192,6 +318,6 @@ export default function parseData() {
 
   const parsedData = cleanParsedData(masterList, rawEventList);
 
-  console.log(parsedData);
+  console.log(parsedData.eventData);
   return parsedData;
 }
