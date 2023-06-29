@@ -66,19 +66,23 @@ function cleanParsedData (
     var startDateTimeKey = Object.keys(masterList).find(key => masterList[key] === "Start Date & Time"),
         endDateTimeKey = Object.keys(masterList).find(key => masterList[key] === "End Date & Time"),
         ageRequiredKey = Object.keys(masterList).find(key => masterList[key] === "Age Required"),
-        emailKey = Object.keys(masterList).find(key => masterList[key] === "Email");
+        emailKey = Object.keys(masterList).find(key => masterList[key] === "Email"),
+        costKey = Object.keys(masterList).find(key => masterList[key] === "Cost $"),
+        durationKey = Object.keys(masterList).find(key => masterList[key] === "Duration"),
+        shortDescriptionKey = Object.keys(masterList).find(key => masterList[key] === "Short Description"),
+        longDescriptionKey = Object.keys(masterList).find(key => masterList[key] === "Long Description");
 
     var rawStart = startDateTimeKey && new Date(event[startDateTimeKey]),
         rawEnd = endDateTimeKey && new Date(event[endDateTimeKey]),
         ageReq = ageRequiredKey && event[ageRequiredKey],
         contact = emailKey && event[emailKey],
-        cost = Number(event['Cost $']),
-        duration = Number(event.Duration),
-        descriptionShort = event['Short Description'],
-        descriptionLong = event['Long Description'],
-        eventStartDate = rawStart && rawStart.toLocaleString(),
+        cost = costKey && Number(event[costKey]),
+        duration = Number(durationKey),
+        descriptionShort = shortDescriptionKey && event[shortDescriptionKey],
+        descriptionLong = longDescriptionKey && event[longDescriptionKey],
+        eventStartDate = rawStart && rawStart.toLocaleDateString(),
         eventStartTime = rawStart && getTime(rawStart),
-        eventEndDate = rawEnd && rawEnd.toLocaleString(),
+        eventEndDate = rawEnd && rawEnd.toLocaleDateString(),
         eventEndTime = rawEnd &&getTime(rawEnd),
         eventType = event['Event Type'],
         experienceReq = event['Experience Required'],
@@ -111,6 +115,60 @@ function cleanParsedData (
     // Contact
     if (contact) {
       newEvent.contact = contact
+    }
+
+    // Cost
+    if (cost || cost === 0) {
+      if (!data.filteredEvents.cost[cost]) {
+        data.filteredEvents.cost[cost] = []
+      }
+      data.filteredEvents.cost[cost].push(index)
+      newEvent.cost = cost
+    }
+
+    // Duration
+    if (duration) {
+      if (!data.filteredEvents.duration[duration]) {
+        data.filteredEvents.duration[duration] = []
+      }
+      data.filteredEvents.duration[duration].push(index)
+      newEvent.duration = duration
+    }
+
+    newEvent.descriptionShort = descriptionShort
+    newEvent.descriptionLong = descriptionLong
+
+    // Event Start and End Dates and Times
+    if (eventEndDate) {
+      if (!data.filteredEvents.endDates[eventEndDate]) {
+        data.filteredEvents.endDates[eventEndDate] = []
+      }
+      data.filteredEvents.endDates[eventEndDate].push(index)
+      newEvent.endDate = eventEndDate
+    }
+
+    if (eventEndTime) {
+      if (!data.filteredEvents.endTimes[eventEndTime]) {
+        data.filteredEvents.endTimes[eventEndTime] = []
+      }
+      data.filteredEvents.endTimes[eventEndTime].push(index)
+      newEvent.endTime = eventEndTime
+    }
+
+    if (eventStartDate) {
+      if (!data.filteredEvents.startDates[eventStartDate]) {
+        data.filteredEvents.startDates[eventStartDate] = []
+      }
+      data.filteredEvents.startDates[eventStartDate].push(index)
+      newEvent.startDate = eventStartDate
+    }
+
+    if (eventStartTime) {
+      if (!data.filteredEvents.startTimes[eventStartTime]) {
+        data.filteredEvents.startTimes[eventStartTime] = []
+      }
+      data.filteredEvents.startTimes[eventStartTime].push(index)
+      newEvent.startTime = eventStartTime
     }
 
     data.eventData.push(newEvent)
