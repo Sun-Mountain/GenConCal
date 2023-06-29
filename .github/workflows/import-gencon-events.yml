@@ -15,4 +15,4 @@ jobs:
     - name: Install convert-excel-to-json
       run: npm install convert-excel-to-json
     - name: Convert to JSON
-      run: convert-excel-to-json --sourceFile="events.xlsx" > frontend/assets/events/testing.json
+      run: convert-excel-to-json --sourceFile="events.xlsx" > ./frontend/assets/events/testing.json
