@@ -18,9 +18,9 @@ jobs:
       run: 7z x events.zip
     - name: Install convert-excel-to-json
       run: |
-        npm install convert-excel-to-json \
-        convert-excel-to-json --sourceFile="events.xlsx" > ./frontend/assets/events/test1.json
+        npm install convert-excel-to-json;
+        convert-excel-to-json --sourceFile="events.xlsx" > ./frontend/assets/events/test2.json
     - uses: EndBug/add-and-commit@v9
       with:
-        remove: './frontend/assets/events/test.json'
-        add: './frontend/assets/events/test1.json'
+        remove: './frontend/assets/events/test1.json'
+        add: './frontend/assets/events/test2.json'
