@@ -12,6 +12,9 @@ jobs:
       with:
         repository: ${{ github.event.pull_request.head.repo.full_name }}
         ref: ${{ github.event.pull_request.head.ref }}
+    - uses: actions/setup-node@v3
+      with:
+        node-version: 18
     - name: Download Zip File
       run: curl https://www.gencon.com/downloads/events.zip -L -o events.zip
     - name: Unzip file
