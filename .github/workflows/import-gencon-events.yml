@@ -18,5 +18,5 @@ jobs:
         convert-excel-to-json --sourceFile="events.xlsx" > test.json
     - uses: EndBug/add-and-commit@v9
       with:
-        add: 'frontend/assets/events/test.json'
+        add: './frontend/assets/events/test.json'
         push: true
