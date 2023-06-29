@@ -24,3 +24,4 @@ jobs:
       with:
         remove: './frontend/assets/events/events2Parse.json'
         add: 'test.json'
+        push: false
