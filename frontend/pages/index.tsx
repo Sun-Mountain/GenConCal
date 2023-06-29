@@ -1,6 +1,9 @@
-import { useState } from 'react';
-import FilterAltIcon from '@mui/icons-material/FilterAlt';
+import { Dispatch, SetStateAction, useState } from 'react';
+
+import Button from '@mui/material/Button';
 import AccessTimeFilledIcon from '@mui/icons-material/AccessTimeFilled';
+import FilterAltIcon from '@mui/icons-material/FilterAlt';
+import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 
 import DailyTabs from '@/components/DailyTabs';
 import DrawerComponent from '@/components/UI/Drawer';
@@ -22,7 +25,13 @@ const gameSystemMasterList = filteredEvents.gameSystems;
 const groupsMasterList = filteredEvents.groups;
 const locationMasterList = filteredEvents.locations;
 
-export default function Home () {
+export default function Home ({
+  faves,
+  setFaves
+}: {
+  faves: number[];
+  setFaves: Dispatch<SetStateAction<number[]>>;
+}) {
   // Lists
   const [ageReqList, setAgeReqList] = useState<string[]>([]);
   const [xpReqList, setXPReqList] = useState<string[]>([]);
@@ -45,7 +54,6 @@ export default function Home () {
   const [durationFilter, setDurationFilter] = useState([0.5, 10]);
 
   // Favorites
-  const [faves, setFaves] = useState<number[]>([]);
   const [numOfFaves, setNumOfFaves] = useState(faves.length);
   
   const handleFilter = async ({
@@ -125,8 +133,10 @@ export default function Home () {
     if (includesFave(eventIndex)) {
       var index = newFaves.indexOf(eventIndex);
       newFaves.splice(index, 1);
+      localStorage.setItem('faves', JSON.stringify(newFaves));
     } else {
       newFaves.push(eventIndex);
+      localStorage.setItem('faves', JSON.stringify(newFaves));
     }
     setFaves(newFaves)
     await setNumOfFaves(newFaves.length);
@@ -177,7 +187,21 @@ export default function Home () {
           >
             {faves.map((fave, index) => {
               var faveEvent = findEvent(fave);
-              return <EventCard key={index} event={faveEvent} />;
+              return (
+                <>
+                  <Button
+                    className='export-btn'
+                    href="/export"
+                    size='small'
+                    startIcon={<OpenInNewIcon />}
+                    target="_blank"
+                    variant='outlined'
+                  >
+                    Export Favorites
+                  </Button>
+                  <EventCard key={index} event={faveEvent} />
+                </>
+              );
             })}
           </PopoverButton>
         </div>
