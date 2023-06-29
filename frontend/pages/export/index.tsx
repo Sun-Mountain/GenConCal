@@ -68,17 +68,6 @@ export default function ExportPage () {
                                         filteredEvents.startTimes,
                                         filteredEvents.startDates);
 
-  const anyFaves = (dayLabel: string, timeLabel: string) => {
-    var favesForTimeAndDay = filteredFaves[dayLabel][timeLabel],
-        filterNum = favesForTimeAndDay.length;
-
-    if (!filterNum) {
-      return '';
-    }
-
-    favesForTimeAndDay.map(fave => calendarItem(fave))
-  }
-
   return (
     <>
       Export Page
