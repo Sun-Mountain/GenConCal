@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, useState } from 'react';
+import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 
 import Button from '@mui/material/Button';
 import AccessTimeFilledIcon from '@mui/icons-material/AccessTimeFilled';
@@ -55,7 +55,16 @@ export default function Home ({
 
   // Favorites
   const [numOfFaves, setNumOfFaves] = useState(faves.length);
-  
+
+  useEffect(() => {
+    var localFaves = JSON.parse(localStorage.getItem('faves') || '[]')
+
+    if (localFaves.length) {
+      setFaves(localFaves);
+      setNumOfFaves(localFaves.length)
+    }
+  }, [setFaves])
+
   const handleFilter = async ({
     groupLabel,
     label,
@@ -189,16 +198,18 @@ export default function Home ({
               var faveEvent = findEvent(fave);
               return (
                 <>
-                  <Button
-                    className='export-btn'
-                    href="/export"
-                    size='small'
-                    startIcon={<OpenInNewIcon />}
-                    target="_blank"
-                    variant='outlined'
-                  >
-                    Export Favorites
-                  </Button>
+                  <div>
+                    <Button
+                      className='export-btn'
+                      href="/export"
+                      size='small'
+                      startIcon={<OpenInNewIcon />}
+                      target="_blank"
+                      variant='outlined'
+                    >
+                      Export Favorites
+                    </Button>
+                  </div>
                   <EventCard key={index} event={faveEvent} />
                 </>
               );

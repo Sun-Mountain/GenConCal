@@ -1,5 +1,7 @@
+import { eventData, filteredEvents } from "@/pages/_app";
+
 export default function ExportPage () {
-  const faves = localStorage.getItem('faves' || '[]');
+  const faves = JSON.parse(localStorage.getItem('faves') || '[]');
 
   if (!faves || !faves.length) {
     return (
