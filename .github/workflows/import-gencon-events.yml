@@ -11,7 +11,7 @@ jobs:
     - name: Get current date
       run: echo "STORED_DATE=$(date +'%Y%m%d%H%M%S')" >> $GITHUB_ENV
     - name: Get oldest file
-      run: echo "OLDEST_FILE=$( find /frontend/assets/events -type f | head -n 1)" >> $GITHUB_ENV
+      run: echo "OLDEST_FILE=$( find /frontend/assets/events ls -lt | tail -1)" >> $GITHUB_ENV
     - uses: actions/checkout@v3
       with:
         repository: ${{ github.event.pull_request.head.repo.full_name }}
