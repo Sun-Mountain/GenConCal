@@ -1,12 +1,12 @@
 import Card from '@mui/material/Card';
-import { CardActions, CardContent } from '@mui/material';
-import { CalendarMonth, DoNotDisturb, EmojiEvents, ListAlt } from '@mui/icons-material/';
+import { CardActions, CardContent, IconButton } from '@mui/material';
+import { CalendarMonth, Delete, DoNotDisturb, EmojiEvents, ListAlt } from '@mui/icons-material/';
 
 import { NewEvent } from "@/assets/interfaces";
 
 import EventModal from '@/components/EventModal';
 
-export default function EventCard({ event }: { event: NewEvent; }) {
+export default function EventCard({ event, handleFaves }: { event: NewEvent; handleFaves: Function; }) {
   const {
     title,
     startDate,
@@ -26,6 +26,10 @@ export default function EventCard({ event }: { event: NewEvent; }) {
   const multiDay = startDate != endDate;
 
   const dateTime = multiDay ? `${startDay},  ${startTime} - ${endDay} ${endTime}` : `${startDay} ${startTime} - ${endTime}`;
+
+  const deleteFave = () => {
+    handleFaves(id);
+  }
 
   return (
     <Card className='fave-card' sx={{ minWidth: 275 }}>
@@ -56,8 +60,12 @@ export default function EventCard({ event }: { event: NewEvent; }) {
           </div>
         )}
       </CardContent>
-      <CardActions>
+      <CardActions className='favorite-actions'>
         <EventModal eventIndex={id} showLabel={true} />
+
+        <IconButton onClick={deleteFave}>
+          <Delete />
+        </IconButton>
       </CardActions>
     </Card>
   );

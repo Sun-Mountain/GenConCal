@@ -177,7 +177,7 @@ export default function Home () {
           >
             {faves.map((fave, index) => {
               var faveEvent = findEvent(fave);
-              return <EventCard key={index} event={faveEvent} />;
+              return <EventCard key={index} event={faveEvent} handleFaves={handleFaves} />;
             })}
           </PopoverButton>
         </div>
