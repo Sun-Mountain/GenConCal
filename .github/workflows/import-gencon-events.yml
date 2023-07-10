@@ -39,4 +39,6 @@ jobs:
       run: echo "OLDEST_FILE=$( find ./frontend/assets/events -type f | head -n 1)" >> $GITHUB_ENV
     - name: Remove oldest file
       if: env.FILE_COUNT > 2
-      run: echo "${{ env.OLDEST_FILE }}"
+      uses: EndBug/add-and-commit@v9
+      with:
+        remove: '${{ env.OLDEST_FILE }}'
