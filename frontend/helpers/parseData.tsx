@@ -315,7 +315,6 @@ export default function parseData() {
   delete rawEventList[0];
 
   // clean data
-
   const parsedData = cleanParsedData(masterList, rawEventList);
 
   return parsedData;
