@@ -32,6 +32,6 @@ jobs:
       with:
         add: './frontend/assets/events/events-${{ env.STORED_DATE }}.json'
     - name: Count files
-      run: |
-        echo "FILE_COUNT=$( find ./frontend/assets/events -type f | wc -l)" >> $GITHUB_ENV |
-        echo "${{ env.FILE_COUNT }}"
+      run: echo "FILE_COUNT=$( find ./frontend/assets/events -type f | wc -l)" >> $GITHUB_ENV
+    - name: Print file count
+      run: echo $FILE_COUNT
