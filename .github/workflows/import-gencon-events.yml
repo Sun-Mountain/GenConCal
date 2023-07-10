@@ -10,8 +10,6 @@ jobs:
     steps:
     - name: Get current date
       run: echo "STORED_DATE=$(date +'%Y%m%d%H%M%S')" >> $GITHUB_ENV
-    - name: Find oldest file
-      run: echo "OLDEST_FILE=$( find ./frontend/assets/events -type f | sort | head -n 1)" >> $GITHUB_ENV
     - uses: actions/checkout@v3
       with:
         repository: ${{ github.event.pull_request.head.repo.full_name }}
@@ -19,6 +17,10 @@ jobs:
     - uses: actions/setup-node@v3
       with:
         node-version: 18
+    - name: Find oldest file
+      run: echo "OLDEST_FILE=$( find ./frontend/assets/events -type f | sort | head -n 1)" >> $GITHUB_ENV
+    - name: Find newest file
+      run: echo "NEWEST_FILE=$( find ./frontend/assets/events -type f | sort | tail -n 1)" >> $GITHUB_ENV
     - name: Download zip file
       run: curl https://www.gencon.com/downloads/events.zip -L -o events.zip
     - name: Unzip file
