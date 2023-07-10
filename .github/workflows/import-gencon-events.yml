@@ -31,6 +31,7 @@ jobs:
         add: './frontend/assets/events/events-${{ env.STORED_DATE }}.json'
     - name: Find oldest file
       run: echo "OLDEST_FILE=$( find ./frontend/assets/events -type f | sort | head -n 1)" >> $GITHUB_ENV
+    - name: Find newest file
     - name: Count files
       run: echo 'FILE_COUNT=$(find ./frontend/assets/events ls | wc -l)'
     - name: Remove oldest file
