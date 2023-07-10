@@ -62,7 +62,6 @@ function cleanParsedData (
       website: ''
     }
 
-    // Keys
     var startDateTimeKey = Object.keys(masterList).find(key => masterList[key] === "Start Date & Time"),
         endDateTimeKey = Object.keys(masterList).find(key => masterList[key] === "End Date & Time"),
         ageRequiredKey = Object.keys(masterList).find(key => masterList[key] === "Age Required"),
@@ -88,14 +87,13 @@ function cleanParsedData (
         roomKey = Object.keys(masterList).find(key => masterList[key] === "Room Name"),
         roundKey = Object.keys(masterList).find(key => masterList[key] === "Round Number"),
         roundTotalKey = Object.keys(masterList).find(key => masterList[key] === "Total Rounds"),
-        websiteKey = Object.keys(masterList).find(key => masterList[key] === "Website");
-
-    const rawStart = startDateTimeKey && new Date(event[startDateTimeKey]),
+        websiteKey = Object.keys(masterList).find(key => masterList[key] === "Website"),
+        rawStart = startDateTimeKey && new Date(event[startDateTimeKey]),
         rawEnd = endDateTimeKey && new Date(event[endDateTimeKey]),
         ageReq = ageRequiredKey && event[ageRequiredKey],
         contact = emailKey && event[emailKey],
         cost = costKey && Number(event[costKey]),
-        duration = Number(durationKey),
+        duration = durationKey && Number(event[durationKey]),
         descriptionShort = shortDescriptionKey && event[shortDescriptionKey],
         descriptionLong = longDescriptionKey && event[longDescriptionKey],
         eventStartDate = rawStart && rawStart.toLocaleDateString(),
