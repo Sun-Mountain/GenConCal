@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Get current date
-      run: echo "STORED_DATE=$(date +'%Y%m%d%H%M%S')" >> $GITHUB_ENV"
+      run: echo "STORED_DATE=$(date +'%Y%m%d%H%M%S')" >> $GITHUB_ENV
     - name: Find oldest file
       run: echo "OLDEST_FILE=$( find ./frontend/assets/events -type f | head -n 1)" >> $GITHUB_ENV
     - uses: actions/checkout@v3
