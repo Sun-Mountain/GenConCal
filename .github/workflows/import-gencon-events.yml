@@ -16,6 +16,8 @@ jobs:
       with:
         repository: ${{ github.event.pull_request.head.repo.full_name }}
         ref: ${{ github.event.pull_request.head.ref }}
+    - name: Rename events file
+      run: mv -i ./frontend/assets/events/events.json ./frontend/assets/events/events-${{ env.STORED_DATE }}.json
     - uses: actions/setup-node@v3
       with:
         node-version: 18
@@ -26,11 +28,11 @@ jobs:
     - name: Install convert-excel-to-json
       run: npm install -g convert-excel-to-json
     - name: Convert to JSON
-      run: convert-excel-to-json --sourceFile="events.xlsx" > ./frontend/assets/events/events-${{ env.STORED_DATE }}.json
+      run: convert-excel-to-json --sourceFile="events.xlsx" > ./frontend/assets/events/events.json
     - name: Add new file
       uses: EndBug/add-and-commit@v9
       with:
-        add: './frontend/assets/events/events-${{ env.STORED_DATE }}.json'
+        add: './frontend/assets/events/events.json'
     - name: Count files
       run: echo "FILE_COUNT=$( find ./frontend/assets/events -type f | wc -l)" >> $GITHUB_ENV
     - name: Find oldest file
