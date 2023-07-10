@@ -16,8 +16,6 @@ jobs:
       with:
         repository: ${{ github.event.pull_request.head.repo.full_name }}
         ref: ${{ github.event.pull_request.head.ref }}
-    - name: Rename events file
-      run: mv -i ./frontend/assets/events/events.json ./frontend/assets/events/events-${{ env.STORED_DATE }}.json
     - uses: actions/setup-node@v3
       with:
         node-version: 18
