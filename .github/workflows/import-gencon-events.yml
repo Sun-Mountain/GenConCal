@@ -9,9 +9,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Get current date
-      run: |
-        echo "STORED_DATE=$(date +'%Y%m%d%H%M%S')" >> $GITHUB_ENV |
-        echo "${{ env.STORED_DATE }}"
+      run: echo "STORED_DATE=$(date +'%Y%m%d%H%M%S')" >> $GITHUB_ENV
+    - name: Find oldest file
+      run: echo "OLDEST_FILE=$( find ./frontend/assets/events -type f | head -n 1)" >> $GITHUB_ENV
     - uses: actions/checkout@v3
       with:
         repository: ${{ github.event.pull_request.head.repo.full_name }}
@@ -35,8 +35,6 @@ jobs:
         add: './frontend/assets/events/events.json'
     - name: Count files
       run: echo "FILE_COUNT=$( find ./frontend/assets/events -type f | wc -l)" >> $GITHUB_ENV
-    - name: Find oldest file
-      run: echo "OLDEST_FILE=$( find ./frontend/assets/events -type f | head -n 1)" >> $GITHUB_ENV
     - name: Remove oldest file
       if: env.FILE_COUNT > 2
       uses: EndBug/add-and-commit@v9
