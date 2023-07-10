@@ -9,8 +9,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Get current date
-      run: echo "STORED_DATE=$(date +'%Y%m%d%H%M%S')" >> $GITHUB_ENV
-      run: echo $STORED_DATE
+      run: |
+        echo "STORED_DATE=$(date +'%Y%m%d%H%M%S')" >> $GITHUB_ENV |
+        echo $STORED_DATE
     - uses: actions/checkout@v3
       with:
         repository: ${{ github.event.pull_request.head.repo.full_name }}
@@ -31,4 +32,3 @@ jobs:
         add: './frontend/assets/events/events-${{ env.STORED_DATE }}.json'
     - name: 'Count Files'
       run: echo "FILE_COUNT=$( find ./frontend/assets/events -type f | wc -l)" >> $GITHUB_ENV
-      run: echo $FILE_COUNT
