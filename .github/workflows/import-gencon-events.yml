@@ -30,6 +30,5 @@ jobs:
       with:
         add: './frontend/assets/events/events-${{ steps.date.outputs.date }}.json'
     - name: 'Count Files'
-      run: |
-        'COUNT=$(cd ./frontend/assets/events ls | wc -l)' \
-        echo '$COUNT'
+      id: count
+      run: echo "::set-output name=count::$(cd ./frontend/assets/events ls | wc -l)"
