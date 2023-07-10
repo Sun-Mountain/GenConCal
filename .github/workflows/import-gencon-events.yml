@@ -34,7 +34,7 @@ jobs:
     - name: Count files
       run: echo "FILE_COUNT=$( find ./frontend/assets/events -type f | wc -l)" >> $GITHUB_ENV
     - name: Find oldest file
-      run: echo "OLDEST_FILE=$( find ./frontend/assets/events -type f | ls | head -n 1)" >> $GITHUB_ENV
+      run: echo "OLDEST_FILE=$( find ./frontend/assets/events -type f | head -n 1)" >> $GITHUB_ENV
     - name: Remove oldest file
       if: env.FILE_COUNT > 2
       run: echo "${{ env.OLDEST_FILE }}"
