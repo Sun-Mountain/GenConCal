@@ -6,9 +6,10 @@ import type { AppProps } from 'next/app'
 import Head from 'next/head'
 import { Analytics } from '@vercel/analytics/react'
 
+import getData from "@/helpers/getData"
 import parseData from '@/helpers/parseData'
 
-export const { eventData, filteredEvents } = parseData()
+export const { eventData, filteredEvents } = getData()
 
 import '@/assets/styles/application.scss'
 
