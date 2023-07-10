@@ -21,6 +21,8 @@ jobs:
       run: echo "OLDEST_FILE=$( find ./frontend/assets/events -type f | sort | head -n 1)" >> $GITHUB_ENV
     - name: Find newest file
       run: echo "NEWEST_FILE=$( find ./frontend/assets/events -type f | sort | tail -n 1)" >> $GITHUB_ENV
+    - name: Count files
+      run: echo 'FILE_COUNT=$(find ./frontend/assets/events ls | wc -l)'
     - name: Download zip file
       run: curl https://www.gencon.com/downloads/events.zip -L -o events.zip
     - name: Unzip file
@@ -33,9 +35,8 @@ jobs:
       uses: EndBug/add-and-commit@v9
       with:
         add: './frontend/assets/events/events-${{ env.STORED_DATE }}.json'
-    - name: Count files
-      run: echo 'FILE_COUNT=$(find ./frontend/assets/events ls | wc -l)'
     - name: Remove oldest file
+      if: ${{ env.FILE_COUNT }} > 2
       uses: EndBug/add-and-commit@v9
       with:
         remove: '${{ env.OLDEST_FILE }}'
