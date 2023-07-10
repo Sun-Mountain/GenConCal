@@ -30,5 +30,5 @@ jobs:
         add: './frontend/assets/events/events-$STORED_DATE.json'
     - name: 'Count Files'
       run: |
-        "FILE_COUNT=$( find ./frontend/assets/events -type f | wc -l)" \
+        echo "FILE_COUNT=$( find ./frontend/assets/events -type f | wc -l)" \
         echo $FILE_COUNT
