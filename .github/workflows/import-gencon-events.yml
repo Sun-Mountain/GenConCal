@@ -11,7 +11,7 @@ jobs:
     - name: Get current date
       run: |
         echo "STORED_DATE=$(date +'%Y%m%d%H%M%S')" >> $GITHUB_ENV |
-        echo $STORED_DATE
+        echo $env:STORED_DATE
     - uses: actions/checkout@v3
       with:
         repository: ${{ github.event.pull_request.head.repo.full_name }}
@@ -34,4 +34,4 @@ jobs:
     - name: Count files
       run: |
         echo "FILE_COUNT=$( find ./frontend/assets/events -type f | wc -l)" >> $GITHUB_ENV |
-        echo $FILE_COUNT
+        echo $env:FILE_COUNT
