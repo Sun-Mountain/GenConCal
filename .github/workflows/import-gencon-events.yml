@@ -24,11 +24,9 @@ jobs:
     - name: Install convert-excel-to-json
       run: npm install -g convert-excel-to-json
     - name: Convert to JSON
-      run: convert-excel-to-json --sourceFile="events.xlsx" > ./frontend/assets/events/events-$STORED_DATE.json
+      run: convert-excel-to-json --sourceFile="events.xlsx" > ./frontend/assets/events/events-${{ STORED_DATE }}.json
     - uses: EndBug/add-and-commit@v9
       with:
-        add: './frontend/assets/events/events-$STORED_DATE.json'
+        add: './frontend/assets/events/events-${STORED_DATE}.json'
     - name: 'Count Files'
-      run: |
-        echo "FILE_COUNT=$( find ./frontend/assets/events -type f | wc -l)" |
-        echo $FILE_COUNT
+      run: echo "FILE_COUNT=$( find ./frontend/assets/events -type f | wc -l)"
