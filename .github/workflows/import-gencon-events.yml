@@ -36,4 +36,4 @@ jobs:
     - name: Remove oldest file
       uses: EndBug/add-and-commit@v9
       with:
-        remove: [${{ env.OLDEST_FILE }}, ./events.xlsx, ./events.zip]
+        remove: ['${{ env.OLDEST_FILE }}', './events.xlsx', './events.zip']
