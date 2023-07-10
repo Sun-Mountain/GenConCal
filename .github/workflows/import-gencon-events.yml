@@ -37,3 +37,11 @@ jobs:
       uses: EndBug/add-and-commit@v9
       with:
         remove: '${{ env.OLDEST_FILE }}'
+    - name: Remove xlsx file
+      uses: EndBug/add-and-commit@v9
+      with:
+        remove: 'events.xlsx'
+    - name: Remove zip file
+      uses: EndBug/add-and-commit@v9
+      with:
+        remove: 'events.zip'
