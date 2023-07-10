@@ -22,7 +22,7 @@ jobs:
     - name: Find newest file
       run: echo "NEWEST_FILE=$( find ./frontend/assets/events -type f | sort | tail -n 1)" >> $GITHUB_ENV
     - name: Count files
-      run: echo 'FILE_COUNT=$(find ./frontend/assets/events ls | wc -l)'
+      run: echo "FILE_COUNT=$(find ./frontend/assets/events ls | wc -l)" >> $GITHUB_ENV
     - name: Download zip file
       run: curl https://www.gencon.com/downloads/events.zip -L -o events.zip
     - name: Unzip file
