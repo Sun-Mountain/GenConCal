@@ -31,7 +31,5 @@ jobs:
         add: './frontend/assets/events/events-${{ steps.date.outputs.date }}.json'
     - name: 'Count Files'
       run: |
-        'COUNT=$(cd "$DIR" ls | wc -l)' \
+        'COUNT=$(cd ./frontend/assets/events ls | wc -l)' \
         echo '$COUNT'
-      env:
-        DIR: ./frontend/assets/events
