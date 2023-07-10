@@ -1,4 +1,4 @@
-import Events from '@/assets/events/events.json';
+import Events from '@/assets/eventsJSON.json';
 import cleanData from './cleanData'
 import { RawEvent } from '@/assets/interfaces'
 

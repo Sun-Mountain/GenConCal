@@ -90,7 +90,7 @@ function cleanParsedData (
         roundTotalKey = Object.keys(masterList).find(key => masterList[key] === "Total Rounds"),
         websiteKey = Object.keys(masterList).find(key => masterList[key] === "Website");
 
-    var rawStart = startDateTimeKey && new Date(event[startDateTimeKey]),
+    const rawStart = startDateTimeKey && new Date(event[startDateTimeKey]),
         rawEnd = endDateTimeKey && new Date(event[endDateTimeKey]),
         ageReq = ageRequiredKey && event[ageRequiredKey],
         contact = emailKey && event[emailKey],
@@ -310,12 +310,13 @@ export default function parseData() {
 
   // create enum
   const masterList = rawEventList[0];
-  Object.freeze(masterList);
 
   delete rawEventList[0];
 
   // clean data
   const parsedData = cleanParsedData(masterList, rawEventList);
+
+  console.log(parsedData)
 
   return parsedData;
 }
