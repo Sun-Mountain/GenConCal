@@ -9,7 +9,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Get current date
-      run: echo "STORED_DATE=$(date +'%Y%m%d%H%M%S')"
+      run: echo "STORED_DATE=$(date +'%Y%m%d%H%M%S')" >> $GITHUB_ENV
+      run: echo $STORED_DATE
     - uses: actions/checkout@v3
       with:
         repository: ${{ github.event.pull_request.head.repo.full_name }}
@@ -24,9 +25,10 @@ jobs:
     - name: Install convert-excel-to-json
       run: npm install -g convert-excel-to-json
     - name: Convert to JSON
-      run: convert-excel-to-json --sourceFile="events.xlsx" > ./frontend/assets/events/events-${{ STORED_DATE }}.json
+      run: convert-excel-to-json --sourceFile="events.xlsx" > ./frontend/assets/events/events-${{ env.STORED_DATE }}.json
     - uses: EndBug/add-and-commit@v9
       with:
-        add: './frontend/assets/events/events-${STORED_DATE}.json'
+        add: './frontend/assets/events/events-${{ env.STORED_DATE }}.json'
     - name: 'Count Files'
-      run: echo "FILE_COUNT=$( find ./frontend/assets/events -type f | wc -l)"
+      run: echo "FILE_COUNT=$( find ./frontend/assets/events -type f | wc -l)" >> $GITHUB_ENV
+      run: echo $FILE_COUNT
