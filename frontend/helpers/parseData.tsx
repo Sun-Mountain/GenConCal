@@ -318,6 +318,5 @@ export default function parseData() {
 
   const parsedData = cleanParsedData(masterList, rawEventList);
 
-  console.log(parsedData.eventData);
   return parsedData;
 }
