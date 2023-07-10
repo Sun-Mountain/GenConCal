@@ -19,7 +19,7 @@ jobs:
     - uses: actions/setup-node@v3
       with:
         node-version: 18
-    - name: Download Zip File
+    - name: Download zip file
       run: curl https://www.gencon.com/downloads/events.zip -L -o events.zip
     - name: Unzip file
       run: 7z x events.zip
@@ -27,8 +27,11 @@ jobs:
       run: npm install -g convert-excel-to-json
     - name: Convert to JSON
       run: convert-excel-to-json --sourceFile="events.xlsx" > ./frontend/assets/events/events-${{ env.STORED_DATE }}.json
-    - uses: EndBug/add-and-commit@v9
+    - name: Add new file
+      uses: EndBug/add-and-commit@v9
       with:
         add: './frontend/assets/events/events-${{ env.STORED_DATE }}.json'
-    - name: 'Count Files'
-      run: echo "FILE_COUNT=$( find ./frontend/assets/events -type f | wc -l)" >> $GITHUB_ENV
+    - name: Count files
+      run: |
+        echo "FILE_COUNT=$( find ./frontend/assets/events -type f | wc -l)" >> $GITHUB_ENV |
+        echo $FILE_COUNT
