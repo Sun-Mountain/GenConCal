@@ -35,14 +35,6 @@ jobs:
       uses: EndBug/add-and-commit@v9
       with:
         add: './frontend/assets/events/events-${{ env.STORED_DATE }}.json'
-    - name: Get diff
-      uses: LouisBrunner/diff-action@v0.2.0
-      with:
-        old: ${{ env.NEWEST_FILE }}
-        new: ./frontend/assets/events/events-${{ env.STORED_DATE }}.json
-        mode: addition
-        tolerance: better
-        output: ./frontend/assets/events/diff.txt
     - name: Remove oldest file
       if: ${{ env.FILE_COUNT }} > 2
       uses: EndBug/add-and-commit@v9
