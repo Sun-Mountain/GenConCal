@@ -30,10 +30,10 @@ jobs:
       with:
         add: './frontend/assets/events/events-${{ env.STORED_DATE }}.json'
     - name: Find oldest file
-      run: echo "OLDEST_FILE=$( find ./frontend/assets/events -type f | head -n 1)" >> $GITHUB_ENV
+      run: echo "OLDEST_FILE=$( find ./frontend/assets/events -type f | sort | head -n 1)" >> $GITHUB_ENV
     - name: Count files
       run: echo 'FILE_COUNT=$(find ./frontend/assets/events ls | wc -l)'
     - name: Remove oldest file
       uses: EndBug/add-and-commit@v9
       with:
-        remove: ${{ env.OLDEST_FILE }}
+        remove: [${{ env.OLDEST_FILE }}, ./events.xlsx, ./events.zip]
