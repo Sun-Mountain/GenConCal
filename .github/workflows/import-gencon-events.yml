@@ -17,12 +17,12 @@ jobs:
     - uses: actions/setup-node@v3
       with:
         node-version: 18
+    - name: Rename event.json
+      run: mv -i ./frontend/assets/events/events.json ./frontend/assets/events/events-${{ env.STORED_DATE }}.json
     - name: Find oldest file
       run: echo "OLDEST_FILE=$( find ./frontend/assets/events -type f | sort | head -n 1)" >> $GITHUB_ENV
     - name: Find newest file
       run: echo "NEWEST_FILE=$( find ./frontend/assets/events -type f | sort | tail -n 1)" >> $GITHUB_ENV
-    - name: Count files
-      run: echo "FILE_COUNT=$(find ./frontend/assets/events ls | wc -l)" >> $GITHUB_ENV
     - name: Download zip file
       run: curl https://www.gencon.com/downloads/events.zip -L -o events.zip
     - name: Unzip file
@@ -30,11 +30,13 @@ jobs:
     - name: Install convert-excel-to-json
       run: npm install -g convert-excel-to-json
     - name: Convert to JSON
-      run: convert-excel-to-json --sourceFile="events.xlsx" > ./frontend/assets/events/events-${{ env.STORED_DATE }}.json
+      run: convert-excel-to-json --sourceFile="events.xlsx" > ./frontend/assets/events/events.json
     - name: Add new file
       uses: EndBug/add-and-commit@v9
       with:
-        add: './frontend/assets/events/events-${{ env.STORED_DATE }}.json'
+        add: './frontend/assets/events/events.json'
+    - name: Count files
+      run: echo "FILE_COUNT=$(find ./frontend/assets/events ls | wc -l)" >> $GITHUB_ENV
     - name: Remove oldest file
       if: ${{ env.FILE_COUNT }} > 2
       uses: EndBug/add-and-commit@v9
