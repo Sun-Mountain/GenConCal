@@ -1,4 +1,4 @@
-import Events from '@/assets/events/events2Parse.json';
+import Events from '@/assets/events/events.json';
 import returnFirstKey from './returnFirstKey';
 import { DataProps, NewEvent, UnparsedProps } from '@/assets/interfaces';
 import getTime from './getTime';
