@@ -7,8 +7,10 @@ import Head from 'next/head'
 import { Analytics } from '@vercel/analytics/react'
 
 import getData from "@/helpers/getData"
+import parseData from "@/helpers/parseData"
 
 export const { eventData, filteredEvents } = getData()
+export const data = parseData()
 
 import '@/assets/styles/application.scss'
 
