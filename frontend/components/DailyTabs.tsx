@@ -23,6 +23,8 @@ export default function DailyTabs({
   durationFilter,
   earliestStartTime,
   latestStartTime,
+  handleFaves,
+  includesFave,
   filterFor,
   filterOut,
   hideSoldOut,
@@ -108,6 +110,17 @@ export default function DailyTabs({
       </Box>
       {dayLabels.map((day, index) => {
         var eventsForDay = getEvents(day)
+
+        if (eventsForDay.length === 0) {
+          return (
+            <TabPanel key={index} value={tab} index={index}>
+              <div key={index} className='no-events'>
+                There are no events that match the criteria for this day.
+              </div>
+            </TabPanel>
+          )
+        }
+
         return (
           <TabPanel key={index} value={tab} index={index}>
             {timeLabels.map(time => {
@@ -117,7 +130,10 @@ export default function DailyTabs({
                 return (
                   <div key={time}>
                     <h3>{time}</h3>
-                    <DataTable events={events} />
+                    <DataTable
+                      events={events}
+                      handleFaves={handleFaves}
+                      includesFave={includesFave} />
                   </div>
                 )
               }

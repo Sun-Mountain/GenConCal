@@ -1,46 +1,62 @@
-import { useState } from 'react';
-import ModalComponent from '@/components/UI/Modal';
-import EventDetails from '@/components/EventDetails';
-import { eventData } from '@/pages/_app';
-import IconButton from '@mui/material/IconButton'
-import ZoomInIcon from '@mui/icons-material/ZoomIn';
+import { Suspense, useState } from 'react';
 
-export default function EventListing ({ eventIndex }: { eventIndex: number }) {
+import IconButton from '@mui/material/IconButton'
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
+
+import EventModal from '@/components/EventModal';
+import { eventData } from '@/pages/_app';
+import { EventListingProps } from '@/assets/interfaces';
+
+export default function EventListing ({ eventIndex, includesFave, handleFaves }: EventListingProps) {
   const {
     title,
     duration,
     cost,
     playersMax,
     ticketsAvailable
-  } = eventData[eventIndex];  
-
-  const [open, setOpen] = useState(false);
-  const handleOpen = () => setOpen(true);
+  } = eventData[eventIndex];
+  const [buttonLoading, setButtonLoading] = useState(false);
 
   const durationPrefix = duration > 1 ? 'hrs' : 'hr';
 
   const noTickets = ticketsAvailable === 0;
+
+  const aFave = includesFave(eventIndex) ? <FavoriteIcon style={{ color: '#d81159ff'}} /> : <FavoriteBorderIcon />;
+
+  const toggleFave = () => {
+    setButtonLoading(!buttonLoading)
+    handleFaves(eventIndex)
+    setButtonLoading(!!buttonLoading)
+  }
 
   return (
     <tr key={eventIndex} className={`${noTickets ? 'sold-out' : ''}`}>
       <td>
         {title}
       </td>
-      <td className='center-items'>
-        <ModalComponent open={open} setOpen={setOpen}>
-          <EventDetails eventIndex={eventIndex} />
-        </ModalComponent>
-        <IconButton className='icon-button' aria-label="zoom in icon" color="secondary" onClick={handleOpen}>
-          <ZoomInIcon />
-        </IconButton>
+      <td>
+        <Suspense>
+          <IconButton
+            className='icon-button favorite-event-icon'
+            aria-label="zoom in icon"
+            disabled={buttonLoading}
+            onClick={toggleFave}
+          >
+            {aFave}
+          </IconButton>
+        </Suspense>
       </td>
       <td className='center-items'>
+        <EventModal eventIndex={eventIndex} />
+      </td>
+      <td className='center-items extra-column'>
         {ticketsAvailable} / {playersMax}
       </td>
-      <td className='center-items'>
+      <td className='center-items extra-column'>
         {duration} {durationPrefix}
       </td>
-      <td className='center-items'>
+      <td className='center-items extra-column'>
         ${cost}
       </td>
     </tr>

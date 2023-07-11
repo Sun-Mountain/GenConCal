@@ -17,18 +17,27 @@ $french: #838a90;
 $outer: #495057ff;
 $eerie: #212529ff;
 
+// Break Points
+$xs: 375px;
+$s: 600px;
+$md: 800px;
+$lg: 1000px;
+$xl: 1200px;
+
 // General
 $font-color: $outer;
 $link-color: $bice;
-$link-hover: $seasalt;
+$link-hover: $raspberry;
 $nav-bg: $dodger;
 $nav-color: $seasalt;
 $nav-link-color: $seasalt;
 $nav-link-hover: $lightOrange;
+$no-data-color: $french;
 
 // Toggle Buttons
 $hidden-btn-bg-color: $seasalt;
 $hidden-btn-color: $raspberry;
+$favorite-btn-color: $raspberry;
 
 // Tabs
 $border-color: $eerie;
@@ -42,3 +51,11 @@ $sold-out-row-text: $french;
 $sold-out-row-bg: $platinum;
 $row-alt-color: $dodger-20;
 $event-details-row: $lightOrange-50;
+
+// Cards
+$card-odd-bg: $lightYellow;
+$card-even-bg: $lightOrange;
+$fave-id-color: $french;
+
+// Content
+$subtext-color: $french;

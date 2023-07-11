@@ -4,12 +4,15 @@ import AccessTimeFilledIcon from '@mui/icons-material/AccessTimeFilled';
 
 import DailyTabs from '@/components/DailyTabs';
 import DrawerComponent from '@/components/UI/Drawer';
+import EventCard from '@/components/UI/EventCard';
 import EventCategoryFilters from '@/components/EventCategoryFilters';
+import PopoverButton from '@/components/UI/PopOverButton';
 import ToggleComponent from '@/components/UI/Toggle';
 
 import { filteredEvents } from './_app';
 import filterOutHelper from '@/helpers/filterOut';
 import filterForHelper from '@/helpers/filterFor';
+import findEvent from '@/helpers/findEvent';
 import TimeFilters from '@/components/TimeFilters';
 
 const ageReqMasterList = filteredEvents.ageRequirement;
@@ -39,7 +42,11 @@ export default function Home () {
   const [tournamentFilter, setTournamentFilter] = useState<'' | 'hide' | 'show'>('');
   const [earliestStartTime, setEarliestStartTime] = useState<string>('00:00');
   const [latestStartTime, setLatestStartTime] = useState<string>('23:45');
-  const [durationFilter, setDurationFilter] = useState([0.5, 10])
+  const [durationFilter, setDurationFilter] = useState([0.5, 10]);
+
+  // Favorites
+  const [faves, setFaves] = useState<number[]>([]);
+  const [numOfFaves, setNumOfFaves] = useState(faves.length);
   
   const handleFilter = async ({
     groupLabel,
@@ -109,6 +116,22 @@ export default function Home () {
     }
   }
 
+  const includesFave = (eventIndex: number) => {
+    return faves.includes(eventIndex) ? true : false;
+  }
+
+  const handleFaves = async (eventIndex: number) => {
+    var newFaves = faves;
+    if (includesFave(eventIndex)) {
+      var index = newFaves.indexOf(eventIndex);
+      newFaves.splice(index, 1);
+    } else {
+      newFaves.push(eventIndex);
+    }
+    setFaves(newFaves)
+    await setNumOfFaves(newFaves.length);
+  }
+
   return (
     <>
       <div id='filters-container'>
@@ -148,15 +171,27 @@ export default function Home () {
             </div>
           </DrawerComponent>
         </div>
+        <div>
+          <PopoverButton
+            numOfFaves={numOfFaves}
+          >
+            {faves.map((fave, index) => {
+              var faveEvent = findEvent(fave);
+              return <EventCard key={index} event={faveEvent} handleFaves={handleFaves} />;
+            })}
+          </PopoverButton>
+        </div>
       </div>
       <DailyTabs
         durationFilter={durationFilter}
         earliestStartTime={earliestStartTime}
         latestStartTime={latestStartTime}
+        handleFaves={handleFaves}
+        includesFave={includesFave}
         filterFor={[...eventTypeFilter,
-                    ...gameSystemFilter,
-                    ...groupsFilter,
-                    ...locationFilter]}
+          ...gameSystemFilter,
+          ...groupsFilter,
+          ...locationFilter]}
         filterOut={[...ageReqFilter, ...xpFilter]}
         hideSoldOut={hideSoldOut}
         tournamentFilter={tournamentFilter}
