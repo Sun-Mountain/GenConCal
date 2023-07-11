@@ -24,11 +24,10 @@ ul {
 }
 
 a, a:visited {
-  border-bottom: $link-color solid 2px;
   color: $link-color;
   text-decoration: none;
 }
 
 a:hover {
-  border-bottom: $link-hover solid 2px;
+  color: $link-hover;
 }
