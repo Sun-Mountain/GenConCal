@@ -1,5 +1,7 @@
 import EventData from '@/assets/events/rawEvents.json';
-import { KeyProps, EventListingProps, DataProps } from '@/assets/interfaces';
+import { DataProps, EventListingProps, KeyProps, NewEvent } from '@/assets/interfaces';
+import getTime from './getTime';
+import trueOrFalse from "./trueOrFalse";
 
 const getFirstKey = (object: any) => {
   const keyList = Object.keys(object)
@@ -67,7 +69,98 @@ const cleanData = ({ keyList, eventList }: {
   const roundTotalKey = getKeyByValue(keyList, "Total Rounds");
   const websiteKey = getKeyByValue(keyList, "Website");
 
-  eventList.map((event, index) => {
+  eventList.map((event: any, index) => {
+    var newEvent: NewEvent = {
+      id: 0,
+      ageRequirement: '',
+      contact: '',
+      cost: 0,
+      descriptionShort: '',
+      descriptionLong: '',
+      duration: 0,
+      endDate: '',
+      endTime: '',
+      eventType: '',
+      experienceType: '',
+      gameId: '',
+      gameSystem: '',
+      gmNames: '',
+      group: '',
+      location: '',
+      materials: '',
+      playersMin: 0,
+      playersMax: 0,
+      startDate: '',
+      startTime: '',
+      tableNum: 0,
+      ticketsAvailable: 0,
+      title: '',
+      tournament: false,
+      room: '',
+      round: 0,
+      roundTotal: 0,
+      website: ''
+    }
+
+    var rawStart = new Date(event[startDateTimeKey!]),
+        rawEnd = new Date(event[endDateTimeKey!]),
+        eventStartDate = rawStart.toLocaleDateString(),
+        eventStartTime = getTime(rawStart),
+        eventEndDate = rawEnd.toLocaleDateString(),
+        eventEndTime = getTime(rawEnd),
+        ageReq = event[ageRequirementKey!],
+        contact = event[contactKey!],
+        cost = Number(event[costKey!]),
+        duration = Number(event[durationKey!]),
+        descriptionShort = event[descriptionShortKey!],
+        descriptionLong = event[descriptionLongKey!],
+        eventType = event[eventTypeKey!],
+        experienceReq = event[expKey!],
+        gameId = event[gameIdKey!],
+        gameSystem = event[gameSystemKey!],
+        gmNames = event[gmNamesKey!],
+        group = event[groupKey!],
+        location = event[locationKey!],
+        materials = event[materialsKey!],
+        playersMin = Number(event[playersMinKey!]),
+        playersMax = Number(event[playersMaxKey!]),
+        tableNum = Number(event[tableNumKey!]),
+        ticketsAvailable = Number(event[ticketCountKey!]),
+        title = event[titleKey!],
+        tournament = event[tournamentKey!],
+        room = event[roomKey!],
+        round = Number(event[roundKey!]),
+        roundTotal = Number(event[roundTotalKey!]),
+        website = event[websiteKey!];
+
+    newEvent.id = index;
+
+    // Event start and end dates and times
+    if (!data.filteredEvents.endDates[eventEndDate]) {
+      data.filteredEvents.endDates[eventEndDate] = [];
+    };
+    data.filteredEvents.endDates[eventEndDate].push(index);
+    newEvent.endDate = eventEndDate;
+
+    if (!data.filteredEvents.endTimes[eventEndTime]) {
+      data.filteredEvents.endTimes[eventEndTime] = [];
+    };
+    data.filteredEvents.endTimes[eventEndTime].push(index);
+    newEvent.endTime = eventEndTime;
+
+    if (!data.filteredEvents.startDates[eventStartDate]) {
+      data.filteredEvents.startDates[eventStartDate] = [];
+    };
+    data.filteredEvents.startDates[eventStartDate].push(index);
+    newEvent.startDate = eventStartDate;
+
+    if (!data.filteredEvents.startTimes[eventStartTime]) {
+      data.filteredEvents.startTimes[eventStartTime] = [];
+    };
+    data.filteredEvents.startTimes[eventStartTime].push(index);
+    newEvent.startTime = eventStartTime;
+
+    data.eventData.push(newEvent)
   })
 
   return data;
@@ -92,5 +185,7 @@ export default function parseData () {
   // Events list
   const rawEventsList = rawJsonValues;
 
-  cleanData({ keyList: labelKey, eventList: rawEventsList });
+  const cleanedData = cleanData({ keyList: labelKey, eventList: rawEventsList });
+
+  console.log(cleanedData)
 };
