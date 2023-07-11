@@ -160,6 +160,145 @@ const cleanData = ({ keyList, eventList }: {
     data.filteredEvents.startTimes[eventStartTime].push(index);
     newEvent.startTime = eventStartTime;
 
+    // Age Requirement
+    if (!data.filteredEvents.ageRequirement[ageReq]) {
+      data.filteredEvents.ageRequirement[ageReq] = [];
+    }
+    data.filteredEvents.ageRequirement[ageReq].push(index)
+    newEvent.ageRequirement = ageReq
+
+    // Contact
+    if (contact) {
+      newEvent.contact = contact
+    }
+
+    if (website) {
+      newEvent.website = website
+    }
+
+    // Cost
+    if (!data.filteredEvents.cost[cost]) {
+      data.filteredEvents.cost[cost] = []
+    }
+    data.filteredEvents.cost[cost].push(index)
+    newEvent.cost = cost
+
+    // Duration
+    if (duration) {
+      if (!data.filteredEvents.duration[duration]) {
+        data.filteredEvents.duration[duration] = []
+      }
+      data.filteredEvents.duration[duration].push(index)
+    }
+    newEvent.duration = duration
+
+    // Descriptions
+    newEvent.descriptionShort = descriptionShort
+    newEvent.descriptionLong = descriptionLong
+
+    // Event Type
+    if (!data.filteredEvents.eventTypes[eventType]) {
+      data.filteredEvents.eventTypes[eventType] = []
+    }
+    data.filteredEvents.eventTypes[eventType].push(index)
+    newEvent.eventType = eventType
+
+    // Experience Type
+    if (!data.filteredEvents.experienceType[experienceReq]) {
+      data.filteredEvents.experienceType[experienceReq] = [];
+    }
+    data.filteredEvents.experienceType[experienceReq].push(index)
+    newEvent.experienceType = experienceReq
+
+    // Game Id
+    newEvent.gameId = gameId
+
+
+    // Game System
+    if (gameSystem) {
+      var gameSystemLabel = gameSystem;
+
+      gameSystemLabel = gameSystem.toString().replace(/:/g,'');
+      // gameSystemLabel = gameSystemLabel.toUpperCase();
+
+      if (!data.filteredEvents.gameSystems[gameSystemLabel]) {
+        data.filteredEvents.gameSystems[gameSystemLabel] = []
+      }
+      data.filteredEvents.gameSystems[gameSystemLabel].push(index)
+      newEvent.gameSystem = gameSystem
+    }
+
+    // GM Names
+    if (gmNames) {
+      newEvent.gmNames = gmNames
+    }
+
+    // Group
+    if (group) {
+      if (!data.filteredEvents.groups[group]) {
+        data.filteredEvents.groups[group] = []
+      }
+      data.filteredEvents.groups[group].push(index)
+      newEvent.group = group
+    }
+
+    // Location
+    if (location) {
+      if (!data.filteredEvents.locations[location.toUpperCase()]) {
+        data.filteredEvents.locations[location.toUpperCase()] = []
+      }
+      data.filteredEvents.locations[location.toUpperCase()].push(index)
+      newEvent.location = location
+    }
+
+    // Materials Required
+    if (materials) {
+      data.filteredEvents.materialsRequired.push(index)
+      newEvent.materials = materials
+    }
+
+    // Player Numbers
+    if (playersMin) {
+      newEvent.playersMin = playersMin
+    }
+
+    if (playersMax) {
+      newEvent.playersMax = playersMax
+    }
+
+    // Room and Table
+    if (tableNum) {
+      newEvent.tableNum = tableNum
+    }
+
+    if (room) {
+      newEvent.room = room
+    }
+
+    // Tickets
+    if (!ticketsAvailable) {
+      data.filteredEvents.noTickets.push(index)
+    }
+    newEvent.ticketsAvailable = ticketsAvailable
+
+    // Title
+    newEvent.title = title
+
+    // Tournament 
+    if (tournament) {
+      data.filteredEvents.tournaments.push(index)
+    }
+    newEvent.tournament = tournament
+
+    // Rounds
+    if (round) {
+      newEvent.round = round
+    }
+
+    if (roundTotal) {
+      newEvent.roundTotal = roundTotal
+    }
+
     data.eventData.push(newEvent)
   })
 
@@ -187,5 +326,5 @@ export default function parseData () {
 
   const cleanedData = cleanData({ keyList: labelKey, eventList: rawEventsList });
 
-  console.log(cleanedData)
+  return cleanedData
 };
