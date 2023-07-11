@@ -11,10 +11,10 @@ export default function About() {
 
       <h3>Acknowledgements</h3>
       <div className='paragraph'>
-        This website was inspired by Jon Schultz&apos;s <Link href='https://gencon.eventdb.us/' target='_blank'>GenCon Event Database</Link>.
+        Inspired by Jon Schultz&apos;s <Link href='https://gencon.eventdb.us/' target='_blank'>GenCon Event Database</Link>.
       </div>
       <div className='paragraph'>
-        This website was made with the <Link href='https://mui.com/' target='_blank'>Material UI</Link> library.
+        Made with the <Link href='https://mui.com/' target='_blank'>Material UI</Link> library.
       </div>
 
       <h3>Important Links</h3>
@@ -27,7 +27,7 @@ export default function About() {
             </div>
           </Link>
         </li>
-        <li>
+        {/* <li>
           <Link href='https://www.paypal.com/donate/?hosted_button_id=SWMVBLFAF77T6' target='_blank' className='link-with-icon'>
             <AttachMoney />
             <div className='label'>
@@ -37,7 +37,7 @@ export default function About() {
           <div className='subtext'>
             If you would like to be listed as a supporter, please include your name and/or a link to whatever you would like to promote. I may use discretion if the name and/or link is deemed inappropriate for a general audience.
           </div>
-        </li>
+        </li> */}
       </ul>
     </div>
   )
