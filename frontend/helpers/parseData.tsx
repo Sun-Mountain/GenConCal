@@ -132,39 +132,40 @@ const cleanData = ({ keyList, eventList }: {
         round = Number(event[roundKey!]),
         roundTotal = Number(event[roundTotalKey!]),
         website = event[websiteKey!];
+    const newId = index - 1;
 
-    newEvent.id = index;
+    newEvent.id = newId;
 
     // Event start and end dates and times
     if (!data.filteredEvents.endDates[eventEndDate]) {
       data.filteredEvents.endDates[eventEndDate] = [];
     };
-    data.filteredEvents.endDates[eventEndDate].push(index);
+    data.filteredEvents.endDates[eventEndDate].push(newId);
     newEvent.endDate = eventEndDate;
 
     if (!data.filteredEvents.endTimes[eventEndTime]) {
       data.filteredEvents.endTimes[eventEndTime] = [];
     };
-    data.filteredEvents.endTimes[eventEndTime].push(index);
+    data.filteredEvents.endTimes[eventEndTime].push(newId);
     newEvent.endTime = eventEndTime;
 
     if (!data.filteredEvents.startDates[eventStartDate]) {
       data.filteredEvents.startDates[eventStartDate] = [];
     };
-    data.filteredEvents.startDates[eventStartDate].push(index);
+    data.filteredEvents.startDates[eventStartDate].push(newId);
     newEvent.startDate = eventStartDate;
 
     if (!data.filteredEvents.startTimes[eventStartTime]) {
       data.filteredEvents.startTimes[eventStartTime] = [];
     };
-    data.filteredEvents.startTimes[eventStartTime].push(index);
+    data.filteredEvents.startTimes[eventStartTime].push(newId);
     newEvent.startTime = eventStartTime;
 
     // Age Requirement
     if (!data.filteredEvents.ageRequirement[ageReq]) {
       data.filteredEvents.ageRequirement[ageReq] = [];
     }
-    data.filteredEvents.ageRequirement[ageReq].push(index)
+    data.filteredEvents.ageRequirement[ageReq].push(newId)
     newEvent.ageRequirement = ageReq
 
     // Contact
@@ -180,7 +181,7 @@ const cleanData = ({ keyList, eventList }: {
     if (!data.filteredEvents.cost[cost]) {
       data.filteredEvents.cost[cost] = []
     }
-    data.filteredEvents.cost[cost].push(index)
+    data.filteredEvents.cost[cost].push(newId)
     newEvent.cost = cost
 
     // Duration
@@ -188,7 +189,7 @@ const cleanData = ({ keyList, eventList }: {
       if (!data.filteredEvents.duration[duration]) {
         data.filteredEvents.duration[duration] = []
       }
-      data.filteredEvents.duration[duration].push(index)
+      data.filteredEvents.duration[duration].push(newId)
     }
     newEvent.duration = duration
 
@@ -200,14 +201,14 @@ const cleanData = ({ keyList, eventList }: {
     if (!data.filteredEvents.eventTypes[eventType]) {
       data.filteredEvents.eventTypes[eventType] = []
     }
-    data.filteredEvents.eventTypes[eventType].push(index)
+    data.filteredEvents.eventTypes[eventType].push(newId)
     newEvent.eventType = eventType
 
     // Experience Type
     if (!data.filteredEvents.experienceType[experienceReq]) {
       data.filteredEvents.experienceType[experienceReq] = [];
     }
-    data.filteredEvents.experienceType[experienceReq].push(index)
+    data.filteredEvents.experienceType[experienceReq].push(newId)
     newEvent.experienceType = experienceReq
 
     // Game Id
@@ -224,7 +225,7 @@ const cleanData = ({ keyList, eventList }: {
       if (!data.filteredEvents.gameSystems[gameSystemLabel]) {
         data.filteredEvents.gameSystems[gameSystemLabel] = []
       }
-      data.filteredEvents.gameSystems[gameSystemLabel].push(index)
+      data.filteredEvents.gameSystems[gameSystemLabel].push(newId)
       newEvent.gameSystem = gameSystem
     }
 
@@ -238,7 +239,7 @@ const cleanData = ({ keyList, eventList }: {
       if (!data.filteredEvents.groups[group]) {
         data.filteredEvents.groups[group] = []
       }
-      data.filteredEvents.groups[group].push(index)
+      data.filteredEvents.groups[group].push(newId)
       newEvent.group = group
     }
 
@@ -247,13 +248,13 @@ const cleanData = ({ keyList, eventList }: {
       if (!data.filteredEvents.locations[location.toUpperCase()]) {
         data.filteredEvents.locations[location.toUpperCase()] = []
       }
-      data.filteredEvents.locations[location.toUpperCase()].push(index)
+      data.filteredEvents.locations[location.toUpperCase()].push(newId)
       newEvent.location = location
     }
 
     // Materials Required
     if (materials) {
-      data.filteredEvents.materialsRequired.push(index)
+      data.filteredEvents.materialsRequired.push(newId)
       newEvent.materials = materials
     }
 
@@ -277,7 +278,7 @@ const cleanData = ({ keyList, eventList }: {
 
     // Tickets
     if (!ticketsAvailable) {
-      data.filteredEvents.noTickets.push(index)
+      data.filteredEvents.noTickets.push(newId)
     }
     newEvent.ticketsAvailable = ticketsAvailable
 
@@ -286,7 +287,7 @@ const cleanData = ({ keyList, eventList }: {
 
     // Tournament 
     if (tournament) {
-      data.filteredEvents.tournaments.push(index)
+      data.filteredEvents.tournaments.push(newId)
     }
     newEvent.tournament = tournament
 
