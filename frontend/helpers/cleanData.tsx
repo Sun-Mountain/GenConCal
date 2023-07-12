@@ -1,4 +1,4 @@
-import { DataProps, EventListingProps, KeyProps, NewEvent } from '@/assets/interfaces';
+import { DataProps, EventDataProps, KeyProps, NewEvent } from '@/assets/interfaces';
 import getTime from './getTime';
 import trueOrFalse from "./trueOrFalse";
 
@@ -9,7 +9,7 @@ const getKeyByValue = (object: any, value: string) => {
 
 export const cleanData = ({ keyList, eventList }: {
   keyList: KeyProps;
-  eventList: EventListingProps[];
+  eventList: EventDataProps[];
 }) => {
   var data: DataProps = {
     eventData: [],

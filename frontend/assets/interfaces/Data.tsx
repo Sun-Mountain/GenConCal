@@ -45,6 +45,6 @@ export interface KeyProps {
   AF: 'Last Modified'
 }
 
-export interface EventListingProps {
+export interface EventDataProps {
   [index: string]: string | number;
 }
