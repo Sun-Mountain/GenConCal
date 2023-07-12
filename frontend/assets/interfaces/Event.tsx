@@ -64,3 +64,7 @@ export interface RawEvent {
   'Tickets Available'?: string;
   'Last Modified': string;
 }
+
+export interface UnparsedProps {
+  [index: string]: string;
+}

@@ -7,7 +7,7 @@ export interface DataProps {
 }
 
 export interface CountObj {
-  [index: string]: number
+  [index: string]: number;
 }
 
 export interface KeyProps {
