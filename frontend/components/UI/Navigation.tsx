@@ -7,10 +7,10 @@ console.log(lastUpdated)
 
 export default function Navigation () {
 
-  const dateValue = JSON.parse(lastUpdated.date);
-  // const newDate = new Date(dateValue);
+  const dateValue = new Date(JSON.parse(lastUpdated.date));
+  const dateString = dateValue.toUTCString()
 
-  console.log(dateValue)
+  console.log(dateString)
 
   return (
     <nav>
@@ -31,8 +31,8 @@ export default function Navigation () {
             </li>
           </ul>
         </div>
-        <div>
-          {/* {dateValue} */}
+        <div id='update-date-container'>
+          Lasted Updated: {dateString}
         </div>
       </div>
     </nav>
