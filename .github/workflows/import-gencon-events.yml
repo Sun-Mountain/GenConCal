@@ -1,8 +1,8 @@
 name: Import GenCon Events
 
 on:
-  schedule:
-    - cron: "0 0 * * *"
+  push:
+    branches: [ parse-json ]
 
 jobs:
   import-json:
