@@ -1,9 +1,17 @@
 import Link from 'next/link';
 import { AttachMoney, GitHub } from '@mui/icons-material';
+import lastUpdated from '@/assets/events/lastUpdate.json';
 
 export default function About() {
+
+  const dateValue = new Date(JSON.parse(lastUpdated.date));
+  const dateString = dateValue.toLocaleString()
+
   return (
     <div className='about-content'>
+      <div>
+      <strong>Event data was last updated on:</strong> {dateString}
+      </div>
       <h2>About The App</h2>
       <div className='paragraph'>
         GenCon Calendar (or GenConCal for short) is an open source project inspired by my frustration in trying to keep track of what events I want to attend and prioritize. What ends up happening is going back and forth between the <Link href='https://www.gencon.com/events' target='_blank'>GenCon Event Finder</Link> and a very involved spreadsheet.

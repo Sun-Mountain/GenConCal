@@ -6,7 +6,7 @@ import InfoIcon from '@mui/icons-material/Info';
 export default function Navigation () {
   return (
     <nav>
-      <div id='navigation-container'>
+      <div id='navigation-links-container'>
         <div id='nav-title'>
           <Link className='nav-link' href='/'>
             <EventIcon fontSize='large' />
