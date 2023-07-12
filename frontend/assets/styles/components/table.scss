@@ -40,7 +40,7 @@
   text-align: center;
 }
 
-.zoom-column {
+.icon-column {
   width: 2rem;
 }
 
@@ -54,4 +54,11 @@
 
 .cost-column {
   width: 2rem;
+}
+
+
+@media only screen and (max-width: $md) {
+  .extra-column {
+    display: none;
+  }
 }

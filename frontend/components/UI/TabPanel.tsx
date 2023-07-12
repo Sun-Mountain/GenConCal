@@ -13,9 +13,9 @@ export default function TabPanel(props: TabPanelProps) {
       {...other}
     >
       {value === index && (
-        <div>
+        <>
           {children}
-        </div>
+        </>
       )}
     </div>
   );
