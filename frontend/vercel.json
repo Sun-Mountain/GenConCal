@@ -1,7 +1,7 @@
 {
   "git": {
     "deploymentEnabled": {
-      "fix-parse-json": false
+      "parse-json": false
     }
   }
 }
