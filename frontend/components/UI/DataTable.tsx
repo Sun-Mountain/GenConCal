@@ -3,9 +3,7 @@ import ZoomInIcon from '@mui/icons-material/ZoomIn';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import { DataTableProps } from '@/assets/interfaces';
 
-const EventListing = dynamic(() => import("@/components/UI/EventListing"), {
-  loading: () => <div>Loading...</div>,
-});
+const EventListing = dynamic(() => import("@/components/UI/EventListing"));
 
 export default function DataTable ({ events, handleFaves, includesFave }: DataTableProps) {
 
