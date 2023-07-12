@@ -42,6 +42,12 @@ jobs:
       uses: EndBug/add-and-commit@v9
       with:
         remove: '${{ env.OLDEST_FILE }}'
+    - name: Update last updated date
+      uses: jossef/action-set-json-field@v2.1
+      with:
+        file: ./frontend/assets/events/lastUpdate.json
+        field: date
+        value: ${{ env.STORED_DATE }}
     - name: Remove xlsx file
       uses: EndBug/add-and-commit@v9
       with:
