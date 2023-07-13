@@ -99,3 +99,21 @@ export interface TabPanelProps {
   index: number;
   value: number;
 }
+
+export interface DrawerFiltersProps {
+  handleFilter: Function;
+  ageReqList: string[];
+  xpReqList: string[];
+  eventTypeList: string[];
+  locationList: string[];
+  gameSystemList: string[];
+  groupsList: string[];
+  tournamentFilter: string | null;
+  setTournamentFilter: Dispatch<SetStateAction<'' | 'hide' | 'show'>>;
+  earliestStartTime: string;
+  setEarliestStartTime: Dispatch<SetStateAction<string>>;
+  latestStartTime: string;
+  setLatestStartTime: Dispatch<SetStateAction<string>>;
+  durationFilter: number[];
+  setDurationFilter: Dispatch<SetStateAction<number[]>>;
+}
