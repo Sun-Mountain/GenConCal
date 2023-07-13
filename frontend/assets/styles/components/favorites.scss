@@ -42,6 +42,13 @@
   text-transform: capitalize;
 }
 
+.export-btn, .export-btn:visited {
+  border-color: $export-btn-color;
+  color: $export-btn-color;
+  float: right;
+  margin-bottom: 8px;
+}
+
 .favorite-actions {
   display: flex;
   justify-content: space-between;

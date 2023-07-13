@@ -28,7 +28,8 @@ type AppPropsWithLayout = AppProps & {
 }
 
 export default function MyApp({ Component, pageProps }: AppPropsWithLayout) {
-  const [hasMounted, setHasMounted] = useState<boolean>(false)
+  const [hasMounted, setHasMounted] = useState<boolean>(false);
+  const [faves, setFaves] = useState<number[]>([]);
 
   useEffect(() => {
     setHasMounted(true)
@@ -46,7 +47,7 @@ export default function MyApp({ Component, pageProps }: AppPropsWithLayout) {
             Loading...
           </div>
         ) : (
-          <Component {...pageProps} />
+          <Component faves={faves} setFaves={setFaves} {...pageProps} />
         )}
         <Analytics />
       </main>
