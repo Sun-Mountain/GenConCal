@@ -15,7 +15,7 @@ This documentation will guide you through the installation process, explain the 
 ## 1. Installation
 
 ### Prerequisites
-Before installing the Gencon Calendar App, ensure you have the following installed on your machine:
+Before installing the GenCon Calendar App, ensure you have the following installed on your machine:
 
 * Node.js (version 14 or higher)
 * npm or yarn package manager
@@ -26,23 +26,19 @@ Before installing the Gencon Calendar App, ensure you have the following install
 3. Install the project dependencies by running:
 ```
 npm install
-```
-
-or
-
-```
+// or
 yarn install
+// or
+pnpm install
 ```
 
 4. Once the installation is complete, start the development server:
 ```
 npm run dev
-```
-
-or
-
-```
+// or
 yarn dev
+// or 
+pnpm dev
 ```
 
 5. Open your web browser and navigate to `http://localhost:3000` to access the GenCon Calendar App.
