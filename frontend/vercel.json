@@ -1,6 +1,7 @@
 {
   "git": {
     "deploymentEnabled": {
+      "update-docs": false
     }
   }
 }

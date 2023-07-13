@@ -1,16 +1,15 @@
 import Link from 'next/link';
 import { AttachMoney, GitHub } from '@mui/icons-material';
 import lastUpdated from '@/assets/events/lastUpdate.json';
+import { parseDate } from '@/helpers/parseDate';
 
 export default function About() {
-
-  const dateValue = new Date(JSON.parse(lastUpdated.date));
-  const dateString = dateValue.toLocaleString()
+  const dateString = parseDate(lastUpdated.date)
 
   return (
     <div className='about-content'>
       <div>
-      <strong>Event data was last updated on:</strong> {dateString}
+      <strong>Event data was last updated on:</strong> {dateString} UTC
       </div>
       <h2>About The App</h2>
       <div className='paragraph'>
