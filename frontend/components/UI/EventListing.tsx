@@ -15,20 +15,17 @@ export default function EventListing ({ eventIndex, includesFave, handleFaves }:
     cost,
     playersMax,
     ticketsAvailable
-  } = eventData[eventIndex];  
-
-  const [fave, setFave] = useState(includesFave(eventIndex));
+  } = eventData[eventIndex];
   const [buttonLoading, setButtonLoading] = useState(false);
 
   const durationPrefix = duration > 1 ? 'hrs' : 'hr';
 
   const noTickets = ticketsAvailable === 0;
 
-  const aFave = fave ? <FavoriteIcon style={{ color: '#d81159ff'}} /> : <FavoriteBorderIcon />;
+  const aFave = includesFave(eventIndex) ? <FavoriteIcon style={{ color: '#d81159ff'}} /> : <FavoriteBorderIcon />;
 
   const toggleFave = () => {
     setButtonLoading(!buttonLoading)
-    setFave(!fave)
     handleFaves(eventIndex)
     setButtonLoading(!!buttonLoading)
   }

@@ -208,11 +208,15 @@ export default function Home ({
             </div>
             {faves.map((fave, index) => {
               var faveEvent = findEvent(fave);
+<<<<<<< HEAD
               return (
                 <>
                   <EventCard key={index} event={faveEvent} />
                 </>
               );
+=======
+              return <EventCard key={index} event={faveEvent} handleFaves={handleFaves} />;
+>>>>>>> main
             })}
           </PopoverButton>
         </div>

@@ -1,0 +1,64 @@
+name: Import GenCon Events
+
+on:
+  schedule:
+    - cron: 0 0 * * *
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to update events'
+        type: environment
+        required: true
+
+jobs:
+  import-json:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Get current date
+      run: echo "STORED_DATE=$(date +'%Y%m%d%H%M%S')" >> $GITHUB_ENV
+    - uses: actions/checkout@v3
+      with:
+        repository: ${{ github.event.pull_request.head.repo.full_name }}
+        ref: ${{ github.event.pull_request.head.ref }}
+    - uses: actions/setup-node@v3
+      with:
+        node-version: 18
+    - name: Rename event.json
+      run: mv -i ./frontend/assets/events/events.json ./frontend/assets/events/events-${{ env.STORED_DATE }}.json
+    - name: Find oldest file
+      run: echo "OLDEST_FILE=$( find ./frontend/assets/events -type f | sort | head -n 1)" >> $GITHUB_ENV
+    - name: Find newest file
+      run: echo "NEWEST_FILE=$( find ./frontend/assets/events -type f | sort | tail -n 1)" >> $GITHUB_ENV
+    - name: Download zip file
+      run: curl https://www.gencon.com/downloads/events.zip -L -o events.zip
+    - name: Unzip file
+      run: 7z x events.zip
+    - name: Install convert-excel-to-json
+      run: npm install -g convert-excel-to-json
+    - name: Convert to JSON
+      run: convert-excel-to-json --sourceFile="events.xlsx" > ./frontend/assets/events/events.json
+    - name: Add new file
+      uses: EndBug/add-and-commit@v9
+      with:
+        add: './frontend/assets/events/events.json'
+    - name: Count files
+      run: echo "FILE_COUNT=$(find ./frontend/assets/events ls | wc -l)" >> $GITHUB_ENV
+    - name: Remove oldest file
+      if: ${{ env.FILE_COUNT }} > 2
+      uses: EndBug/add-and-commit@v9
+      with:
+        remove: '${{ env.OLDEST_FILE }}'
+    - name: Update last updated date
+      uses: jossef/action-set-json-field@v2.1
+      with:
+        file: ./frontend/assets/events/lastUpdate.json
+        field: date
+        value: ${{ env.STORED_DATE }}
+    - name: Remove xlsx file
+      uses: EndBug/add-and-commit@v9
+      with:
+        remove: 'events.xlsx'
+    - name: Remove zip file
+      uses: EndBug/add-and-commit@v9
+      with:
+        remove: 'events.zip'

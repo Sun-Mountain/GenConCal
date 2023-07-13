@@ -1,0 +1,27 @@
+.about-content {
+  line-height: 1.5rem;
+  padding: 0 15px;
+
+  .paragraph+.paragraph {
+    margin-top: 10px;
+  }
+}
+
+.link-with-icon {
+  display: flex;
+  max-width: 300px;
+  padding-bottom: 10px;
+
+  .label {
+    padding-left: 4px;
+  }
+}
+
+.subtext {
+  color: $subtext-color;
+  font-size: 0.8rem;
+  line-height: normal;
+  margin-top: -8px;
+  margin-left: 28px;
+  max-width: 300px;
+}

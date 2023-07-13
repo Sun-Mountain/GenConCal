@@ -85,7 +85,12 @@
 
 .modal-close-btn-container {
   display: flex;
-  justify-content: end;
+  justify-content: flex-end;
+}
+
+.no-events {
+  color: $no-data-color;
+  padding: 15px 0;
 }
 
 @media only screen and (min-width: $s) {
