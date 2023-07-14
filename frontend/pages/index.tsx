@@ -10,12 +10,12 @@ import ToggleComponent from '@/components/UI/Toggle';
 import { HomePageProps } from '@/assets/interfaces';
 import Favorites from '@/components/Favorites';
 
-const ageReqMasterList = filteredEvents.ageRequirement;
-const xpReqMasterList = filteredEvents.experienceType;
-const eventTypeMasterList = filteredEvents.eventTypes;
-const gameSystemMasterList = filteredEvents.gameSystems;
-const groupsMasterList = filteredEvents.groups;
-const locationMasterList = filteredEvents.locations;
+export const ageReqMasterList = filteredEvents.ageRequirement;
+export const xpReqMasterList = filteredEvents.experienceType;
+export const eventTypeMasterList = filteredEvents.eventTypes;
+export const gameSystemMasterList = filteredEvents.gameSystems;
+export const groupsMasterList = filteredEvents.groups;
+export const locationMasterList = filteredEvents.locations;
 
 export default function Home ({ faves, setFaves }: HomePageProps) {
   // Lists
@@ -39,6 +39,9 @@ export default function Home ({ faves, setFaves }: HomePageProps) {
   const [latestStartTime, setLatestStartTime] = useState<string>('23:45');
   const [durationFilter, setDurationFilter] = useState([0.5, 10]);
 
+  // Favorites
+  const [numOfFaves, setNumOfFaves] = useState(faves.length);
+  
   const handleFilter = async ({
     groupLabel,
     label,
@@ -120,6 +123,8 @@ export default function Home ({ faves, setFaves }: HomePageProps) {
       newFaves.push(eventIndex);
     }
     setFaves(newFaves)
+    localStorage.setItem('faves', JSON.stringify(newFaves))
+    await setNumOfFaves(newFaves.length);
   }
 
   return (
