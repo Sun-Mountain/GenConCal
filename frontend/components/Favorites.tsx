@@ -5,9 +5,8 @@ import EventCard from "@/components/UI/EventCard";
 import PopoverButton from '@/components/UI/PopOverButton';
 import findEvent from "@/helpers/findEvent";
 
-export default function Favorites ({ handleFaves }: FavoritesProps) {
-  const listOfFaves = JSON.parse(localStorage.getItem('faves') || '[]');
-  const numOfFaves = listOfFaves.length;
+export default function Favorites ({ faves, handleFaves }: FavoritesProps) {
+  const numOfFaves = faves.length;
 
   return (
     <div>
@@ -24,7 +23,7 @@ export default function Favorites ({ handleFaves }: FavoritesProps) {
         >
           Export Favorites
         </Button>
-        {listOfFaves.map((fave: number, index: number) => {
+        {faves.map((fave: number, index: number) => {
           var faveEvent = findEvent(fave);
           return <EventCard key={index} event={faveEvent} handleFaves={handleFaves} />;
         })}

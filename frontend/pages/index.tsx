@@ -38,7 +38,7 @@ export default function Home ({ faves, setFaves }: HomePageProps) {
   const [earliestStartTime, setEarliestStartTime] = useState<string>('00:00');
   const [latestStartTime, setLatestStartTime] = useState<string>('23:45');
   const [durationFilter, setDurationFilter] = useState([0.5, 10]);
-  
+
   const handleFilter = async ({
     groupLabel,
     label,
@@ -108,7 +108,7 @@ export default function Home ({ faves, setFaves }: HomePageProps) {
   }
 
   const includesFave = (eventIndex: number) => {
-    return faves.includes(eventIndex);
+    return faves.includes(eventIndex) ? true : false;
   }
 
   const handleFaves = async (eventIndex: number) => {
@@ -119,7 +119,7 @@ export default function Home ({ faves, setFaves }: HomePageProps) {
     } else {
       newFaves.push(eventIndex);
     }
-    setFaves(newFaves);
+    setFaves(newFaves)
   }
 
   return (
@@ -147,7 +147,7 @@ export default function Home ({ faves, setFaves }: HomePageProps) {
           durationFilter={durationFilter}
           setDurationFilter={setDurationFilter}
         />
-        <Favorites handleFaves={handleFaves} />
+        <Favorites faves={faves} handleFaves={handleFaves} />
       </div>
       <DailyTabs
         durationFilter={durationFilter}
