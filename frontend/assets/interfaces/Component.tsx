@@ -117,3 +117,8 @@ export interface DrawerFiltersProps {
   durationFilter: number[];
   setDurationFilter: Dispatch<SetStateAction<number[]>>;
 }
+
+export interface FavoritesProps {
+  faves: number[];
+  handleFaves: Function;
+}

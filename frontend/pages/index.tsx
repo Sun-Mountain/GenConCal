@@ -11,6 +11,7 @@ import EventCard from '@/components/UI/EventCard';
 import PopoverButton from '@/components/UI/PopOverButton';
 import ToggleComponent from '@/components/UI/Toggle';
 import { HomePageProps } from '@/assets/interfaces';
+import Favorites from '@/components/Favorites';
 
 const ageReqMasterList = filteredEvents.ageRequirement;
 const xpReqMasterList = filteredEvents.experienceType;
@@ -153,16 +154,7 @@ export default function Home ({ faves, setFaves }: HomePageProps) {
           durationFilter={durationFilter}
           setDurationFilter={setDurationFilter}
         />
-        <div>
-          <PopoverButton
-            numOfFaves={numOfFaves}
-          >
-            {faves.map((fave, index) => {
-              var faveEvent = findEvent(fave);
-              return <EventCard key={index} event={faveEvent} handleFaves={handleFaves} />;
-            })}
-          </PopoverButton>
-        </div>
+        <Favorites faves={faves} handleFaves={handleFaves} />
       </div>
       <DailyTabs
         durationFilter={durationFilter}
