@@ -13,6 +13,7 @@ export default function AutocompleteMultiComponent({
     <div className='autocomplete-container'>
       <Autocomplete
         multiple
+        disableCloseOnSelect
         id={`${groupLabel} search list`}
         sx={{ width: 300 }}
         options={labels}

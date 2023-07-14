@@ -3,12 +3,9 @@ import { useState } from 'react';
 import { filteredEvents } from './_app';
 import filterOutHelper from '@/helpers/filterOut';
 import filterForHelper from '@/helpers/filterFor';
-import findEvent from '@/helpers/findEvent';
 
 import DailyTabs from '@/components/DailyTabs';
 import DrawerFilters from '@/components/DrawerFilters';
-import EventCard from '@/components/UI/EventCard';
-import PopoverButton from '@/components/UI/PopOverButton';
 import ToggleComponent from '@/components/UI/Toggle';
 import { HomePageProps } from '@/assets/interfaces';
 import Favorites from '@/components/Favorites';
@@ -41,9 +38,6 @@ export default function Home ({ faves, setFaves }: HomePageProps) {
   const [earliestStartTime, setEarliestStartTime] = useState<string>('00:00');
   const [latestStartTime, setLatestStartTime] = useState<string>('23:45');
   const [durationFilter, setDurationFilter] = useState([0.5, 10]);
-
-  // Favorites
-  const [numOfFaves, setNumOfFaves] = useState(faves.length);
   
   const handleFilter = async ({
     groupLabel,
@@ -114,7 +108,7 @@ export default function Home ({ faves, setFaves }: HomePageProps) {
   }
 
   const includesFave = (eventIndex: number) => {
-    return faves.includes(eventIndex) ? true : false;
+    return faves.includes(eventIndex);
   }
 
   const handleFaves = async (eventIndex: number) => {
@@ -125,8 +119,7 @@ export default function Home ({ faves, setFaves }: HomePageProps) {
     } else {
       newFaves.push(eventIndex);
     }
-    setFaves(newFaves)
-    await setNumOfFaves(newFaves.length);
+    setFaves(newFaves);
   }
 
   return (
@@ -154,7 +147,7 @@ export default function Home ({ faves, setFaves }: HomePageProps) {
           durationFilter={durationFilter}
           setDurationFilter={setDurationFilter}
         />
-        <Favorites faves={faves} handleFaves={handleFaves} />
+        <Favorites handleFaves={handleFaves} />
       </div>
       <DailyTabs
         durationFilter={durationFilter}

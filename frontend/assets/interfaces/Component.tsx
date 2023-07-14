@@ -119,6 +119,5 @@ export interface DrawerFiltersProps {
 }
 
 export interface FavoritesProps {
-  faves: number[];
   handleFaves: Function;
 }
