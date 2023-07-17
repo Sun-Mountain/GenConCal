@@ -10,6 +10,9 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import ReportGmailErrorredIcon from '@mui/icons-material/ReportGmailerrorred';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
+import DoNotDisturbIcon from '@mui/icons-material/DoNotDisturb';
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import DesignServicesIcon from '@mui/icons-material/DesignServices';
 
 import { NewEvent } from '@/assets/interfaces';
 import findEvent from '@/helpers/findEvent';
@@ -27,20 +30,23 @@ const ExpandMore = styled((props: ExpandMoreProps) => {
 
 export default function FaveCard ({ favoriteEvent }: { favoriteEvent: NewEvent }) {
   const [expanded, setExpanded] = useState(false);
-  const { title,
-          descriptionShort,
-          startDate,
-          startTime,
-          endDate,
-          endTime,
-          conflicts,
-          location,
-          room,
-          tableNum,
-          gameSystem,
-          gameId,
-          tournament
-        } = favoriteEvent;
+  const { 
+    conflicts,
+    descriptionShort,
+    endDate,
+    endTime,
+    gameId,
+    gameSystem,
+    location,
+    materials,
+    room,
+    startDate,
+    startTime,
+    tableNum,
+    ticketsAvailable,
+    title,
+    tournament,
+  } = favoriteEvent;
 
   const handleExpandClick = () => {
     setExpanded(!expanded);
@@ -57,7 +63,7 @@ export default function FaveCard ({ favoriteEvent }: { favoriteEvent: NewEvent }
       <CardContent>
         <Typography className='fave-header'>
           <div>
-            <div>
+            <div className='fave-game-id'>
               {gameId}
             </div>
             <div className='fave-card-title'>
@@ -113,11 +119,26 @@ export default function FaveCard ({ favoriteEvent }: { favoriteEvent: NewEvent }
         <Typography className='fave-description'>
           {descriptionShort}
         </Typography>
-        <Typography>
+        <Typography className='badge-container'>
+          {!ticketsAvailable && (
+            <div className='fave-badge sold-out-badge'>
+              <DoNotDisturbIcon className='badge-icon' fontSize='small' /> Event Sold Out
+            </div>
+          )}
+          {endDate != startDate && (
+            <div className='fave-badge diff-day-badge'>
+              <CalendarMonthIcon className='badge-icon' fontSize='small' /> Ends on a Different Day
+            </div>
+          )}
+          {materials && (
+            <div className='fave-badge materials-badge'>
+              <DesignServicesIcon className='badge-icon' fontSize='small' /> Materials Required
+            </div>
+          )}
           {tournament && (
-            <>
-              <EmojiEventsIcon /> Tournament
-            </>
+            <div className='fave-badge tournament-badge'>
+              <EmojiEventsIcon className='badge-icon' fontSize='small' /> Tournament
+            </div>
           )}
         </Typography>
       </CardContent>

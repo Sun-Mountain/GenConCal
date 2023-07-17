@@ -20,6 +20,11 @@
     margin: 10px;
     width: 100%;
 
+    .badge-container {
+      display: flex;
+      padding: 15px 5px 0 5px;
+    }
+
     .conflicts-btn {
       border-radius: 5px 5px !important;
       color: $conflict-btn-color;
@@ -44,6 +49,10 @@
       justify-content: space-between;
     }
 
+    .fave-game-id {
+      font-size: 16px;
+    }
+
     .fave-card-title {
       font-weight: 700;
       font-size: 17px;
@@ -60,6 +69,40 @@
     .fave-system {
       color: $details-color;
       font-size: 15px;
+    }
+
+    .fave-badge {
+      border-radius: 5px 5px;
+      display: flex;
+      font-size: 14px;
+      padding: 5px 10px 5px 7px;
+    }
+
+    .fave-badge+.fave-badge {
+      margin-left: 25px;
+    }
+
+    .badge-icon {
+      margin-right: 5px;
+    }
+
+    .sold-out-badge {
+      background-color: $sold-out-badge-bg;
+      color: $light-color;
+    }
+
+    .diff-day-badge {
+      background-color: $diff-day-badge-bg;
+      color: $light-color;
+    }
+
+    .materials-badge {
+      background-color: $materials-badge-bg;
+    }
+
+    .tournament-badge {
+      background-color: $tournament-badge-bg;
+      color: $light-color;
     }
   }
 }
