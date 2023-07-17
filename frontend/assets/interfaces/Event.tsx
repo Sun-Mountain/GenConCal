@@ -28,6 +28,7 @@ export interface NewEvent {
   title: string;
   tournament?: boolean
   website?: string;
+  conflicts?: number[];
 }
 
 export interface RawEvent {
