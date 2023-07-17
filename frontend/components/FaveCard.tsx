@@ -14,6 +14,8 @@ import DoNotDisturbIcon from '@mui/icons-material/DoNotDisturb';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import DesignServicesIcon from '@mui/icons-material/DesignServices';
 
+import EventModal from '@/components/EventModal';
+
 import { NewEvent } from '@/assets/interfaces';
 import findEvent from '@/helpers/findEvent';
 
@@ -37,6 +39,7 @@ export default function FaveCard ({ favoriteEvent }: { favoriteEvent: NewEvent }
     endTime,
     gameId,
     gameSystem,
+    id,
     location,
     materials,
     room,
@@ -119,27 +122,31 @@ export default function FaveCard ({ favoriteEvent }: { favoriteEvent: NewEvent }
         <Typography className='fave-description'>
           {descriptionShort}
         </Typography>
-        <Typography className='badge-container'>
-          {!ticketsAvailable && (
-            <div className='fave-badge sold-out-badge'>
-              <DoNotDisturbIcon className='badge-icon' fontSize='small' /> Event Sold Out
-            </div>
-          )}
-          {endDate != startDate && (
-            <div className='fave-badge diff-day-badge'>
-              <CalendarMonthIcon className='badge-icon' fontSize='small' /> Ends on a Different Day
-            </div>
-          )}
-          {materials && (
-            <div className='fave-badge materials-badge'>
-              <DesignServicesIcon className='badge-icon' fontSize='small' /> Materials Required
-            </div>
-          )}
-          {tournament && (
-            <div className='fave-badge tournament-badge'>
-              <EmojiEventsIcon className='badge-icon' fontSize='small' /> Tournament
-            </div>
-          )}
+        <Typography className='badges-and-details'>
+          <div className='badge-container'>
+            {!ticketsAvailable && (
+              <div className='fave-badge sold-out-badge'>
+                <DoNotDisturbIcon className='badge-icon' fontSize='small' /> Event Sold Out
+              </div>
+            )}
+            {endDate != startDate && (
+              <div className='fave-badge diff-day-badge'>
+                <CalendarMonthIcon className='badge-icon' fontSize='small' /> Ends on a Different Day
+              </div>
+            )}
+            {materials && (
+              <div className='fave-badge materials-badge'>
+                <DesignServicesIcon className='badge-icon' fontSize='small' /> Materials Required
+              </div>
+            )}
+            {tournament && (
+              <div className='fave-badge tournament-badge'>
+                <EmojiEventsIcon className='badge-icon' fontSize='small' /> Tournament
+              </div>
+            )}
+          </div>
+
+          <EventModal eventIndex={id} showLabel={true} />
         </Typography>
       </CardContent>
     </Card>

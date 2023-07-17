@@ -22,6 +22,7 @@
 
     .badge-container {
       display: flex;
+      flex-wrap: wrap;
       padding: 15px 5px 0 5px;
     }
 
@@ -69,6 +70,12 @@
     .fave-system {
       color: $details-color;
       font-size: 15px;
+    }
+
+    .badges-and-details {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
     }
 
     .fave-badge {
