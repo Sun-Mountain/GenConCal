@@ -7,5 +7,45 @@
 }
 
 .schedule-list-time {
-  list-style-type: circle;
+  .time-title {
+    background-color: $time-label-bg;
+    color: $time-label-color;
+    font-weight: 700;
+    padding: 2px 5px;
+  }
+
+  .fave-list {
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  .fave-list-item {
+    margin: 10px;
+  }
+}
+
+.conflicts-btn {
+  border-radius: 5px 5px !important;
+  color: $conflict-btn-color;
+  font-size: 16px;
+}
+
+.fave-title {
+  font-weight: 700;
+  font-size: 18px;
+}
+
+.fave-detail {
+  color: $detail-color;
+  font-size: 14px;
+}
+
+.fave-system {
+  color: $system-color;
+  font-size: 15px;
+}
+
+.fave-description {
+  font-size: 15px;
+  margin-top: 5px;
 }

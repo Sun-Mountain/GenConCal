@@ -1,6 +1,13 @@
+import Accordion from '@mui/material/Accordion';
+import AccordionSummary from '@mui/material/AccordionSummary';
+import AccordionDetails from '@mui/material/AccordionDetails';
+import Typography from '@mui/material/Typography';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+
 import { filteredEvents } from "@/pages/_app";
 import findEvent from "@/helpers/findEvent";
 import { NewEvent } from "@/assets/interfaces";
+import FaveCard from '@/components/FaveCard';
 
 const eventsListByDay = filteredEvents.startDates;
 const eventsListByStartTime = filteredEvents.startTimes;
@@ -98,12 +105,16 @@ export default function ExportPage () {
 
           if (favesPerDay.length) {
             return (
-              <ul className='schedule-list-day' key={index}>
-                <li>
-                  <strong>
-                    {day}
-                  </strong>
-                  <div className='schedule-container'>
+              <Accordion defaultExpanded={true} key={index}>
+                <AccordionSummary
+                  expandIcon={<ExpandMoreIcon />}
+                  aria-controls="panel1a-content"
+                  id="panel1a-header"
+                >
+                  <Typography>{day} - {favesPerDay.length} Events</Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                  <Typography>
                     {timeLabels.map((time, index) => {
                       const favesPerTime = favesPerDay.filter(val => eventsListByStartTime[time].includes(val));
 
@@ -112,40 +123,23 @@ export default function ExportPage () {
                       if (favesPerTime.length) {
                         return (
                           <ul className='schedule-list-time' key={index}>
-                            <li>
+                            <li className='time-title'>
                               {time}
                             </li>
-                            <ul>
+                            <div className='fave-list'>
                               {faveEventsList.map((fave, index) => {
-                                return (
-                                  <li key={index}>
-                                    <strong>{fave.title}</strong>
-                                    <div>
-                                      <ul>
-                                        {fave.conflicts?.map((conflict, index) => {
-                                          var conflictName = findEvent(conflict);
-                                          return (
-                                            <li key={index}>
-                                              {conflict} - {conflictName.title}
-                                            </li>
-                                          )
-                                        })}
-                                      </ul>
-                                    </div>
-                                  </li>
-                                )
+                                return <FaveCard key={index} favoriteEvent={fave}  />
                               })}
-                            </ul>
+                            </div>
                           </ul>
                         )
                       }
                     })}
-                  </div>
-                </li>
-              </ul>
+                  </Typography>
+                </AccordionDetails>
+              </Accordion>
             )
           }
-
         })}
       </div>
     </>
