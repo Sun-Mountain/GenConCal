@@ -1,20 +1,15 @@
 import { useState } from 'react';
 import { styled } from '@mui/material/styles';
 import Card from '@mui/material/Card';
-import CardHeader from '@mui/material/CardHeader';
-import CardMedia from '@mui/material/CardMedia';
 import CardContent from '@mui/material/CardContent';
-import CardActions from '@mui/material/CardActions';
 import Collapse from '@mui/material/Collapse';
-import Avatar from '@mui/material/Avatar';
 import IconButton, { IconButtonProps } from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
-import { red } from '@mui/material/colors';
-import FavoriteIcon from '@mui/icons-material/Favorite';
-import ShareIcon from '@mui/icons-material/Share';
+
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
+import ReportGmailErrorredIcon from '@mui/icons-material/ReportGmailerrorred';
+import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 
 import { NewEvent } from '@/assets/interfaces';
 import findEvent from '@/helpers/findEvent';
@@ -28,9 +23,6 @@ const ExpandMore = styled((props: ExpandMoreProps) => {
   return <IconButton {...other} />;
 })(({ theme, expand }) => ({
   marginLeft: 'auto',
-  transition: theme.transitions.create('transform', {
-    duration: theme.transitions.duration.shortest,
-  }),
 }));
 
 export default function FaveCard ({ favoriteEvent }: { favoriteEvent: NewEvent }) {
@@ -45,7 +37,9 @@ export default function FaveCard ({ favoriteEvent }: { favoriteEvent: NewEvent }
           location,
           room,
           tableNum,
-          gameSystem
+          gameSystem,
+          gameId,
+          tournament
         } = favoriteEvent;
 
   const handleExpandClick = () => {
@@ -56,22 +50,61 @@ export default function FaveCard ({ favoriteEvent }: { favoriteEvent: NewEvent }
 
   return (
     <Card
-      sx={{ maxWidth: 345 }}
+      // sx={{ maxWidth: 355 }}
       variant='outlined'
       className='fave-list-item'
     >
       <CardContent>
-        <Typography className='fave-title'>
-          {title}
+        <Typography className='fave-header'>
+          <div>
+            <div>
+              {gameId}
+            </div>
+            <div className='fave-card-title'>
+              {title}
+            </div>
+          </div>
+
+          {conflicts && conflicts.length > 0 ? (
+            <div className='conflicts-list conflicts-text'>
+                <ExpandMore
+                  expand={expanded}
+                  onClick={handleExpandClick}
+                  aria-expanded={expanded}
+                  aria-label="show more"
+                  className='conflicts-btn'
+                >
+                  <ReportGmailErrorredIcon /> Conflicts with {conflicts.length} Events {expanded ? <ExpandLessIcon /> : <ExpandMoreIcon /> }
+                </ExpandMore>
+              <Collapse in={expanded} timeout="auto">
+                <CardContent className=''>
+                  {conflicts.map((conflict, index) => {
+                    var conflictEvent = findEvent(conflict)
+                    return (
+                      <div key={index}>
+                        {conflictEvent.title} - {conflictEvent.gameId}
+                      </div>
+                    )
+                  })}
+                </CardContent>
+              </Collapse>
+            </div>
+          ) : (
+            <div className='conflicts-text'>
+              No conflicting events
+            </div>
+          )}
         </Typography>
-        <Typography className='faveStartAndEnd fave-detail'>
-          {dateSubTitle}
+        <Typography className='fave-details'>
+          <span className='fave-date-times'>
+            {dateSubTitle}
+          </span>
+          {location && (
+            <span className='fave-location'>
+              {location} {room && ` : ${room}`} {tableNum && tableNum > 0 ? ` : ${tableNum}` : ''}
+            </span>
+          )}
         </Typography>
-        {location && (
-          <Typography className='fave-location fave-detail'>
-            {location} {room && ` : ${room}`} {tableNum && tableNum > 0 ? ` : ${tableNum}` : ''}
-          </Typography>
-        )}
         {gameSystem && (
           <Typography className='fave-system'>
             <strong>System</strong>: {gameSystem}
@@ -80,34 +113,14 @@ export default function FaveCard ({ favoriteEvent }: { favoriteEvent: NewEvent }
         <Typography className='fave-description'>
           {descriptionShort}
         </Typography>
+        <Typography>
+          {tournament && (
+            <>
+              <EmojiEventsIcon /> Tournament
+            </>
+          )}
+        </Typography>
       </CardContent>
-      {conflicts && conflicts.length > 0 && (
-        <>
-          <CardActions disableSpacing>
-            <ExpandMore
-              expand={expanded}
-              onClick={handleExpandClick}
-              aria-expanded={expanded}
-              aria-label="show more"
-              className='conflicts-btn'
-            >
-              Conflicts with {conflicts.length} Events {expanded ? <ExpandLessIcon /> : <ExpandMoreIcon /> }
-            </ExpandMore>
-          </CardActions>
-          <Collapse in={expanded} timeout="auto" unmountOnExit>
-            <CardContent>
-              {conflicts.map((conflict, index) => {
-                var conflictEvent = findEvent(conflict)
-                return (
-                  <div key={index}>
-                    {conflictEvent.title}
-                  </div>
-                )
-              })}
-            </CardContent>
-          </Collapse>
-        </>
-      )}
     </Card>
   );
 }

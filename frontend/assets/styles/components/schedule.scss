@@ -2,10 +2,6 @@
   padding: 10px 25px;
 }
 
-.schedule-list-day {
-  list-style-type: disc;
-}
-
 .schedule-list-time {
   .time-title {
     background-color: $time-label-bg;
@@ -20,32 +16,50 @@
   }
 
   .fave-list-item {
+    color: $fave-item-color;
     margin: 10px;
+    width: 100%;
+
+    .conflicts-btn {
+      border-radius: 5px 5px !important;
+      color: $conflict-btn-color;
+      font-size: 14px;
+      float: right;
+    }
+
+    .conflicts-list {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .conflicts-text {
+      font-size: 14px;
+      color: $french;
+      text-align: right;
+    }
+
+    .fave-header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+    }
+
+    .fave-card-title {
+      font-weight: 700;
+      font-size: 17px;
+    }
+
+    .fave-details {
+      color: $details-color;
+      display: flex;
+      flex-wrap: wrap;
+      font-size: 15px;
+      justify-content: space-between;
+    }
+
+    .fave-system {
+      color: $details-color;
+      font-size: 15px;
+    }
   }
-}
-
-.conflicts-btn {
-  border-radius: 5px 5px !important;
-  color: $conflict-btn-color;
-  font-size: 16px;
-}
-
-.fave-title {
-  font-weight: 700;
-  font-size: 18px;
-}
-
-.fave-detail {
-  color: $detail-color;
-  font-size: 14px;
-}
-
-.fave-system {
-  color: $system-color;
-  font-size: 15px;
-}
-
-.fave-description {
-  font-size: 15px;
-  margin-top: 5px;
 }

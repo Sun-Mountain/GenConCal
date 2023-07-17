@@ -11,8 +11,6 @@ import FaveCard from '@/components/FaveCard';
 
 const eventsListByDay = filteredEvents.startDates;
 const eventsListByStartTime = filteredEvents.startTimes;
-const eventsListByEndDate = filteredEvents.endDates;
-const eventsListByEndTime = filteredEvents.endTimes;
 const dayLabels = Object.keys(eventsListByDay).sort();
 const timeLabels = Object.keys(eventsListByStartTime).sort();
 
@@ -23,56 +21,52 @@ const findConflicts = (favesList: number[], favesMasterList: number[]) => {
     var faveEvent = findEvent(fave),
         conflictingEvents: number[] = [];
 
-    // Find events that start at same time;
-    favesMasterList.filter(val => {
-      if (eventsListByStartTime[faveEvent.startTime].includes(val)
-          && eventsListByDay[faveEvent.startDate].includes(val)
-          && val != faveEvent.id
-          && !conflictingEvents.includes(val)) {
-        conflictingEvents.push(val);
-      }
-    })
+    favesMasterList.map(val => {
+      var valueEvent: NewEvent = findEvent(val);
 
-    // Find events that end at same time;
-    favesMasterList.filter(val => {
-      if (eventsListByEndTime[faveEvent.endTime].includes(val)
-          && eventsListByDay[faveEvent.endDate].includes(val)
-          && val != faveEvent.id
-          && !conflictingEvents.includes(val)) {
-        conflictingEvents.push(val);
-      }
-    })
+      if (val != faveEvent.id) {
+        // if val starts or ends at same time as fave
+        if ((valueEvent.startTime === faveEvent.startTime
+              && valueEvent.startDate === faveEvent.startDate) ||
+            (valueEvent.endTime === faveEvent.endTime
+              && valueEvent.endDate === faveEvent.endDate)) {
+          conflictingEvents.push(val)
+        }
 
-    // Find events that starts during the duration
-    favesMasterList.filter(val => {
-      var valueEvent = findEvent(val)
-      if ((eventsListByDay[faveEvent.startDate].includes(val) || eventsListByDay[faveEvent.endDate].includes(val))
-          && (valueEvent.startTime > faveEvent.startTime && valueEvent.startTime < faveEvent.endTime)
-          && !conflictingEvents.includes(val)) {
-        conflictingEvents.push(val);
-      }
-    })
+        // if val starts during fave
+        if (valueEvent.startDate === faveEvent.startDate &&
+            (valueEvent.startTime >= faveEvent.startTime
+              && valueEvent.startTime < faveEvent.endTime) &&
+            !conflictingEvents.includes(val)) {
+          conflictingEvents.push(val)
+        }
 
-    // Find events that ends during the duration
-    favesMasterList.filter(val => {
-      var valueEvent = findEvent(val)
-      if ((eventsListByDay[faveEvent.startDate].includes(val)
-            || eventsListByDay[faveEvent.endDate].includes(val))
-          && (valueEvent.endTime > faveEvent.startTime
-              && valueEvent.endTime < faveEvent.endTime)
-          && !conflictingEvents.includes(val)) {
-        conflictingEvents.push(val);
-      }
-    })
+        // if val ends during fave
+        if (valueEvent.endDate === faveEvent.endDate &&
+            (valueEvent.endTime < faveEvent.endTime
+              && valueEvent.endTime >= faveEvent.startTime) &&
+            !conflictingEvents.includes(val)) {
+          conflictingEvents.push(val)
+        }
 
-    // Find events that are too long
-    favesMasterList.filter(val => {
-      var valueEvent = findEvent(val)
-      if ((eventsListByDay[faveEvent.startDate].includes(val)
-            && eventsListByDay[faveEvent.endDate].includes(val))
-          && (valueEvent.startTime < faveEvent.startTime && valueEvent.endTime > faveEvent.endTime)
-          && !conflictingEvents.includes(val)) {
-        conflictingEvents.push(val);
+        // if value starts before fave and ends after
+        if (valueEvent.startTime <  faveEvent.startTime &&
+            valueEvent.endTime > faveEvent.endTime &&
+            valueEvent.startDate < faveEvent.startDate &&
+            valueEvent.endDate >= faveEvent.endDate &&
+            !conflictingEvents.includes(val)) {
+          conflictingEvents.push(val)
+        }
+
+        // if fave ends on next day
+        if (faveEvent.startDate != faveEvent.endDate) {
+          // if val ends after fave start but before midnight
+            if (valueEvent.startDate === faveEvent.startDate &&
+                valueEvent.endTime >= faveEvent.startTime &&
+                !conflictingEvents.includes(val)) {
+            conflictingEvents.push(val)
+          }
+        }
       }
     })
 
@@ -105,7 +99,9 @@ export default function ExportPage () {
 
           if (favesPerDay.length) {
             return (
-              <Accordion defaultExpanded={true} key={index}>
+              <Accordion
+                className=''
+                defaultExpanded={true} key={index}>
                 <AccordionSummary
                   expandIcon={<ExpandMoreIcon />}
                   aria-controls="panel1a-content"
