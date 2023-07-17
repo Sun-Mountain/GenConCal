@@ -33,7 +33,8 @@ export default function MyApp({ Component, pageProps }: AppPropsWithLayout) {
 
   useEffect(() => {
     setHasMounted(true)
-  }, [])
+    setFaves(JSON.parse(localStorage.getItem('faves') || JSON.stringify(faves)))
+  }, [faves])
 
   return (
     <>
