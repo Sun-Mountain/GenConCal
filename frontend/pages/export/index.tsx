@@ -4,7 +4,7 @@ import AccordionDetails from '@mui/material/AccordionDetails';
 import Typography from '@mui/material/Typography';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
-import { filteredEvents } from "@/pages/_app";
+import { filteredEvents } from '@/pages/_app';
 import findConflicts from '@/helpers/findConflicts';
 import FaveCard from '@/components/FaveCard';
 
@@ -27,7 +27,9 @@ export default function ExportPage () {
 
   return (
     <>
-      Export
+      <h1 className='schedule-page-title'>
+        Schedule - {faves.length} Events
+      </h1>
       <div className='schedule-container'>
         {dayLabels.map((day, index) => {
           var favesPerDay = getFaves(day);
