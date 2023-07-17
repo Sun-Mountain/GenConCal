@@ -6,7 +6,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import ZoomInIcon from '@mui/icons-material/ZoomIn';
 import EventDetails from '@/components/EventDetails';
 
-export default function EventModal ({ eventIndex, showLabel }: { eventIndex: number, showLabel?: boolean }) {
+export default function EventModal ({ eventIndex, showLabel, size }: { eventIndex: number, showLabel?: boolean, size?: 'small' | 'medium' | 'large' }) {
   const [open, setOpen] = useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
@@ -24,7 +24,7 @@ export default function EventModal ({ eventIndex, showLabel }: { eventIndex: num
             aria-label="zoom in icon"
             className='modal-button'
             color="secondary"
-            size='small'
+            size={size ? size : 'small'}
             variant='outlined'
             onClick={handleOpen}
           >

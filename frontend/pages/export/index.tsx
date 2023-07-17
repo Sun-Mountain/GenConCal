@@ -25,6 +25,17 @@ export default function ExportPage () {
     return favesForDay;
   }
 
+  const handleFaves = async (eventIndex: number) => {
+    var newFaves = faves;
+    if (newFaves.includes(eventIndex)) {
+      var index = newFaves.indexOf(eventIndex);
+      newFaves.splice(index, 1);
+    } else {
+      newFaves.push(eventIndex);
+    }
+    localStorage.setItem('faves', JSON.stringify(newFaves))
+  }
+
   return (
     <>
       <h1 className='schedule-page-title'>
@@ -61,7 +72,7 @@ export default function ExportPage () {
                             </li>
                             <div className='fave-list'>
                               {faveEventsList.map((fave, index) => {
-                                return <FaveCard key={index} favoriteEvent={fave}  />
+                                return <FaveCard key={index} favoriteEvent={fave} handleFaves={handleFaves}  />
                               })}
                             </div>
                           </ul>

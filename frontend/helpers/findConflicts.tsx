@@ -31,7 +31,7 @@ export default function findConflicts (favesList: number[], favesMasterList: num
         // if val ends during fave
         if (valueEvent.endDate === faveEvent.endDate &&
             (valueEvent.endTime < faveEvent.endTime
-              && valueEvent.endTime >= faveEvent.startTime) &&
+              && valueEvent.endTime > faveEvent.startTime) &&
             !conflictingEvents.includes(val)) {
           conflictingEvents.push(val)
         }
@@ -49,7 +49,7 @@ export default function findConflicts (favesList: number[], favesMasterList: num
         if (faveEvent.startDate != faveEvent.endDate) {
           // if val ends after fave start but before midnight
             if (valueEvent.startDate === faveEvent.startDate &&
-                valueEvent.endTime >= faveEvent.startTime &&
+                valueEvent.endTime > faveEvent.startTime &&
                 !conflictingEvents.includes(val)) {
             conflictingEvents.push(val)
           }
