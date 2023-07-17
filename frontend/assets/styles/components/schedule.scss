@@ -120,6 +120,7 @@
 
 .action-buttons {
   display: flex;
+  flex-wrap: wrap;
 
   .button-container {
     margin: 0 5px;
