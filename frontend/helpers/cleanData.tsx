@@ -66,6 +66,7 @@ export const cleanData = ({ keyList, eventList }: {
     var newEvent: NewEvent = {
       id: 0,
       ageRequirement: '',
+      conflicts: [],
       contact: '',
       cost: 0,
       descriptionShort: '',
