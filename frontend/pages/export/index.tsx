@@ -37,6 +37,7 @@ export default function ExportPage ({ setFaves }: { setFaves: Dispatch<SetStateA
     } else {
       newFaves.push(eventIndex);
     }
+    setFaves(newFaves)
     localStorage.setItem('faves', JSON.stringify(newFaves))
   }
 

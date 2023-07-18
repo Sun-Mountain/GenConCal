@@ -71,6 +71,7 @@ export interface ToggleType {
 }
 
 export interface DailyTabsTypes {
+  addMultiFaves: Function;
   durationFilter: number[];
   earliestStartTime: string;
   latestStartTime: string;

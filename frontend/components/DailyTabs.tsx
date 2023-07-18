@@ -22,6 +22,7 @@ const dayLabels = Object.keys(eventsListByDay).sort();
 const timeLabels = Object.keys(eventsListByStartTime).sort();
 
 export default function DailyTabs({
+  addMultiFaves,
   durationFilter,
   earliestStartTime,
   latestStartTime,
@@ -115,6 +116,10 @@ export default function DailyTabs({
             eventCount = eventsForDay.length,
             totalPossibleCount = eventsListByDay[day].length;
 
+        const handleMultiFaves = () => {
+          addMultiFaves(eventsForDay)
+        }
+
         if (eventsForDay.length === 0) {
           return (
             <TabPanel key={index} value={tab} index={index}>
@@ -132,6 +137,7 @@ export default function DailyTabs({
                 <Button
                   startIcon={<AddCircleIcon />}
                   variant='contained'
+                  onClick={handleMultiFaves}
                 >
                   Add All Events to Favorites
                 </Button>

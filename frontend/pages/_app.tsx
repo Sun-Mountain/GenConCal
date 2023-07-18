@@ -1,6 +1,6 @@
 'use client'
 
-import { ReactElement, ReactNode, useEffect, useState } from 'react'
+import { Dispatch, ReactElement, ReactNode, SetStateAction, useEffect, useState } from 'react'
 import type { NextPage } from 'next'
 import type { AppProps } from 'next/app'
 import Head from 'next/head'
@@ -13,6 +13,7 @@ export const { eventData, filteredEvents } = parseData()
 import '@/assets/styles/application.scss'
 
 import Navigation from '@/components/UI/Navigation'
+import { useRef } from 'react'
 
 export const metadata = {
   title: 'GenCon Cal',
@@ -33,8 +34,8 @@ export default function MyApp({ Component, pageProps }: AppPropsWithLayout) {
 
   useEffect(() => {
     setHasMounted(true)
-    setFaves(JSON.parse(localStorage.getItem('faves') || JSON.stringify(faves)))
-  }, [faves])
+    JSON.parse(localStorage.getItem('faves') || '[]')
+  }, [])
 
   return (
     <>

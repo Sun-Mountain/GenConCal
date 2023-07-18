@@ -105,13 +105,18 @@ export default function Home ({ faves, setFaves }: HomePageProps) {
         }
         break;
       default:
-        console.log('ERROR');
         break;
     }
   }
 
   const includesFave = (eventIndex: number) => {
     return faves.includes(eventIndex) ? true : false;
+  }
+
+  const addMultiFaves = (multiFaves: number[]) => {
+    var newFaves = [...faves, ...multiFaves];
+    setFaves(newFaves)
+    localStorage.setItem('faves', JSON.stringify(newFaves))
   }
 
   const handleFaves = async (eventIndex: number) => {
@@ -155,6 +160,7 @@ export default function Home ({ faves, setFaves }: HomePageProps) {
         <Favorites faves={faves} handleFaves={handleFaves} setFaves={setFaves} />
       </div>
       <DailyTabs
+        addMultiFaves={addMultiFaves}
         durationFilter={durationFilter}
         earliestStartTime={earliestStartTime}
         latestStartTime={latestStartTime}
