@@ -1,3 +1,4 @@
+import { Dispatch, SetStateAction } from 'react';
 import dynamic from 'next/dynamic';
 import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
@@ -8,6 +9,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { filteredEvents } from '@/pages/_app';
 import findConflicts from '@/helpers/findConflicts';
 
+import ClearFavoritesBtn from '@/components/ClearFavoritesBtn';
 const FaveCard = dynamic(() => import("@/components/FaveCard"));
 
 const eventsListByDay = filteredEvents.startDates;
@@ -15,7 +17,7 @@ const eventsListByStartTime = filteredEvents.startTimes;
 const dayLabels = Object.keys(eventsListByDay).sort();
 const timeLabels = Object.keys(eventsListByStartTime).sort();
 
-export default function ExportPage () {
+export default function ExportPage ({ setFaves }: { setFaves: Dispatch<SetStateAction<number[]>> }) {
   const faves = JSON.parse(localStorage.getItem('faves') || '[]');
 
   const getFaves = (day: string) => {
@@ -40,9 +42,14 @@ export default function ExportPage () {
 
   return (
     <>
-      <h1 className='schedule-page-title'>
-        Schedule - {faves.length} Events
-      </h1>
+      <div className='favorites-header'>
+        <h1 className='schedule-page-title'>
+          Schedule - {faves.length} Events
+        </h1>
+        <div className='btn-container'>
+          <ClearFavoritesBtn setFaves={setFaves} />
+        </div>
+      </div>
       <div className='schedule-container'>
         {dayLabels.map((day, index) => {
           var favesPerDay = getFaves(day);
