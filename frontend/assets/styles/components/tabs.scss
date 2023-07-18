@@ -1,0 +1,9 @@
+.tab-btn-container {
+  display: flex;
+  justify-content: flex-end;
+  padding: 15px 15px 5px 5px;
+
+  button {
+    text-transform: capitalize;
+  }
+}

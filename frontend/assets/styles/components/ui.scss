@@ -1,12 +1,12 @@
 #daily-tabs-container {
-  button {
+  .tab {
     border: 1px solid $border-color;
     border-bottom: 0;
     border-top-left-radius: 15px 15px;
     border-top-right-radius: 15px 15px;
   }
 
-  button+button {
+  .tab+.tab {
     border-left: 0;
   }
 

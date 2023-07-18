@@ -1,7 +1,9 @@
-import { Suspense, SyntheticEvent, useEffect, useState } from 'react';
+import { SyntheticEvent, useState } from 'react';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import AddCircleIcon from '@mui/icons-material/AddCircle';
 
 import TabPanel from '@/components/UI/TabPanel';
 import a11yProps from '@/helpers/a11yProps';
@@ -39,7 +41,7 @@ export default function DailyTabs({
   };
 
   const getEvents = (day: string) => {
-    const dayEvents = eventsListByDay[day]
+    const dayEvents = eventsListByDay[day];
     var eventsForDay = dayEvents;
 
     if (Number(durationKeys[0]) != lowestDuration || Number(durationKeys[durationKeys.length - 1]) != highestDuration) {
@@ -103,13 +105,15 @@ export default function DailyTabs({
                   <div className='tab-count'>{eventNum} events</div>
                 </div>)
             return (
-              <Tab key={day} label={dateLabel} {...a11yProps(index)} />
+              <Tab key={day} className='tab' label={dateLabel} {...a11yProps(index)} />
             )
           })}
         </Tabs>
       </Box>
       {dayLabels.map((day, index) => {
-        var eventsForDay = getEvents(day)
+        var eventsForDay = getEvents(day),
+            eventCount = eventsForDay.length,
+            totalPossibleCount = eventsListByDay[day].length;
 
         if (eventsForDay.length === 0) {
           return (
@@ -123,6 +127,16 @@ export default function DailyTabs({
 
         return (
           <TabPanel key={index} value={tab} index={index}>
+            {eventCount < totalPossibleCount && (
+              <div className='tab-btn-container'>
+                <Button
+                  startIcon={<AddCircleIcon />}
+                  variant='contained'
+                >
+                  Add All Events to Favorites
+                </Button>
+              </div>
+            )}
             {timeLabels.map(time => {
               const events = eventsForDay.filter(val => eventsListByStartTime[time].includes(val))
 
