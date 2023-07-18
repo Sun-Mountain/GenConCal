@@ -1,7 +1,7 @@
 {
   "git": {
     "deploymentEnabled": {
-      "update-docs": false
+      "46-feature-select-all-in-group-button": false
     }
   }
 }
