@@ -91,7 +91,7 @@ export default function FaveCard ({ favoriteEvent, handleFaves }: { favoriteEven
                 >
                   <ReportGmailErrorredIcon /> Conflicts with {conflicts.length} Events {expanded ? <ExpandLessIcon /> : <ExpandMoreIcon /> }
                 </ExpandMore>
-              <Collapse in={expanded} timeout="auto">
+              <Collapse in={expanded} timeout="auto" unmountOnExit>
                 <CardContent className=''>
                   {conflicts.map((conflict, index) => {
                     var conflictEvent = findEvent(conflict)

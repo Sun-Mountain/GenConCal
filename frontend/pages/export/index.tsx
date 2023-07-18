@@ -1,3 +1,4 @@
+import dynamic from 'next/dynamic';
 import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
@@ -6,7 +7,8 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 import { filteredEvents } from '@/pages/_app';
 import findConflicts from '@/helpers/findConflicts';
-import FaveCard from '@/components/FaveCard';
+
+const FaveCard = dynamic(() => import("@/components/FaveCard"));
 
 const eventsListByDay = filteredEvents.startDates;
 const eventsListByStartTime = filteredEvents.startTimes;
