@@ -3,7 +3,6 @@ on:
   push:
     branches:
       - main
-      - 46-feature-select-all-in-group-button
 jobs:
   Patch:
     runs-on: ubuntu-latest
