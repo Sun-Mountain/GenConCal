@@ -44,7 +44,7 @@ export default function ExportPage ({ setFaves }: { setFaves: Dispatch<SetStateA
     <>
       <div className='favorites-header'>
         <h1 className='schedule-page-title'>
-          Schedule - {faves.length} Events
+          {faves.length} Events
         </h1>
         <div className='btn-container'>
           <ClearFavoritesBtn setFaves={setFaves} />

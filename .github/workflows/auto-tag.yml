@@ -30,7 +30,6 @@ jobs:
         echo "The version increment was: ${{ steps.taggerDryRun.outputs.part }}"
     # DO MY BUILD HERE
     # IN CASE OF FAILURE, THE STEP BELOW WILL NOT RUN.
-    
 
     - name: Minor version for each merge
       id: taggerFinal
