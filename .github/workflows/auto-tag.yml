@@ -28,14 +28,17 @@ jobs:
     - name: echo part
       run: |
         echo "The version increment was: ${{ steps.taggerDryRun.outputs.part }}"
-    # DO MY BUILD HERE
-    # IN CASE OF FAILURE, THE STEP BELOW WILL NOT RUN.
-
     - name: Minor version for each merge
       id: taggerFinal
       uses: anothrNick/github-tag-action@1.36.0
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         WITH_V: true
-    - run: npm version patch -m "[RELEASE] %s"
-    - run: git push
+    # auto releases is not working atm and is deleting releases due branch tags
+    - name: automatic-draft-release
+      uses: marvinpinto/action-automatic-releases@v1.2.1
+      with:
+        draft: true
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        title: "${{ steps.tag.outputs.tag }}: [title-edit-me] by:${{ github.actor }}"
+        automatic_release_tag: ${{ steps.tag.outputs.new_tag }}
