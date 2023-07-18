@@ -37,3 +37,5 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         WITH_V: true
+    - run: npm version patch -m "[RELEASE] %s"
+    - run: git push
