@@ -1,6 +1,7 @@
 // Colors
 $bice: #006ba6ff;
 $dodger: #0496ffff;
+$mui: #1976d2;
 $dodger-20: rgba(4, 150, 255, 0.2);
 $xanthous: #ffbc42ff;
 $raspberry: #d81159ff;
@@ -61,6 +62,10 @@ $fave-id-color: $french;
 $subtext-color: $french;
 
 // Schedule:
+$export-btn-bg: $mui;
+$export-btn-color: $seasalt;
+$export-btn-bg-hover: $seasalt;
+$export-btn-color-hover: $mui;
 $time-label-bg: $lightOrange-50;
 $time-label-color: $bittersweet;
 $conflict-btn-color: $raspberry;

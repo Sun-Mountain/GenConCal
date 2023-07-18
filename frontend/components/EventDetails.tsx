@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Button } from "@mui/material";
 import ConfirmationNumberIcon from '@mui/icons-material/ConfirmationNumber';
 import findEvent from "@/helpers/findEvent"
 import TableRow from "@/components/UI/TableRow"
@@ -24,13 +25,14 @@ export default function EventDetails ({ eventIndex }: { eventIndex: number }) {
           </td>
           <td className="table-value-container">
             {event.title}<br />
-            <Link
+            <Button
               className='ticket-link'
+              startIcon={<ConfirmationNumberIcon />}
               href={`https://www.gencon.com/events/${eventLinkId}`}
-              target="_blank"
+              target='_blank'
             >
-              <ConfirmationNumberIcon /> Wishlist / Purchase Option
-            </Link>
+              Wishlist / Purchase Option
+            </Button>
           </td>
         </tr>
         {/* <TableRow category={'Title'} detail={event.title} /> */}

@@ -1,3 +1,7 @@
+.schedule-page-title {
+  margin-left: 25px;
+}
+
 .schedule-container {
   padding: 10px 25px;
 }
@@ -13,6 +17,7 @@
   .fave-list {
     display: flex;
     flex-wrap: wrap;
+    justify-content: space-around;
   }
 
   .fave-list-item {
@@ -23,7 +28,7 @@
     .badge-container {
       display: flex;
       flex-wrap: wrap;
-      padding: 15px 5px 0 5px;
+      max-width: 510px;
     }
 
     .conflicts-btn {
@@ -65,6 +70,7 @@
       flex-wrap: wrap;
       font-size: 15px;
       justify-content: space-between;
+      padding: 0 25px 0 0;
     }
 
     .fave-system {
@@ -76,17 +82,16 @@
       display: flex;
       flex-wrap: wrap;
       justify-content: space-between;
+      text-align: center;
+      padding: 15px 5px 0 5px;
     }
 
     .fave-badge {
       border-radius: 5px 5px;
       display: flex;
       font-size: 14px;
+      margin: auto 5px;
       padding: 5px 10px 5px 7px;
-    }
-
-    .fave-badge+.fave-badge {
-      margin-left: 25px;
     }
 
     .badge-icon {
@@ -110,6 +115,19 @@
     .tournament-badge {
       background-color: $tournament-badge-bg;
       color: $light-color;
+    }
+  }
+}
+
+.action-buttons {
+  display: flex;
+  flex-wrap: wrap;
+
+  .button-container {
+    margin: 0 5px;
+
+    button {
+      text-transform: capitalize;
     }
   }
 }

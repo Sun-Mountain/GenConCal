@@ -1,84 +1,23 @@
+import { Dispatch, SetStateAction } from 'react';
+import dynamic from 'next/dynamic';
 import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import Typography from '@mui/material/Typography';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
-import { filteredEvents } from "@/pages/_app";
-import findEvent from "@/helpers/findEvent";
-import { NewEvent } from "@/assets/interfaces";
-import FaveCard from '@/components/FaveCard';
+import { filteredEvents } from '@/pages/_app';
+import findConflicts from '@/helpers/findConflicts';
+
+import ClearFavoritesBtn from '@/components/ClearFavoritesBtn';
+const FaveCard = dynamic(() => import("@/components/FaveCard"));
 
 const eventsListByDay = filteredEvents.startDates;
 const eventsListByStartTime = filteredEvents.startTimes;
 const dayLabels = Object.keys(eventsListByDay).sort();
 const timeLabels = Object.keys(eventsListByStartTime).sort();
 
-const findConflicts = (favesList: number[], favesMasterList: number[]) => {
-  var faveDetails: NewEvent[] = [];
-
-  favesList.map((fave, index) => {
-    var faveEvent = findEvent(fave),
-        conflictingEvents: number[] = [];
-
-    favesMasterList.map(val => {
-      var valueEvent: NewEvent = findEvent(val);
-
-      if (val != faveEvent.id) {
-        // if val starts or ends at same time as fave
-        if ((valueEvent.startTime === faveEvent.startTime
-              && valueEvent.startDate === faveEvent.startDate) ||
-            (valueEvent.endTime === faveEvent.endTime
-              && valueEvent.endDate === faveEvent.endDate)) {
-          conflictingEvents.push(val)
-        }
-
-        // if val starts during fave
-        if (valueEvent.startDate === faveEvent.startDate &&
-            (valueEvent.startTime >= faveEvent.startTime
-              && valueEvent.startTime < faveEvent.endTime) &&
-            !conflictingEvents.includes(val)) {
-          conflictingEvents.push(val)
-        }
-
-        // if val ends during fave
-        if (valueEvent.endDate === faveEvent.endDate &&
-            (valueEvent.endTime < faveEvent.endTime
-              && valueEvent.endTime >= faveEvent.startTime) &&
-            !conflictingEvents.includes(val)) {
-          conflictingEvents.push(val)
-        }
-
-        // if value starts before fave and ends after
-        if (valueEvent.startTime <  faveEvent.startTime &&
-            valueEvent.endTime > faveEvent.endTime &&
-            valueEvent.startDate < faveEvent.startDate &&
-            valueEvent.endDate >= faveEvent.endDate &&
-            !conflictingEvents.includes(val)) {
-          conflictingEvents.push(val)
-        }
-
-        // if fave ends on next day
-        if (faveEvent.startDate != faveEvent.endDate) {
-          // if val ends after fave start but before midnight
-            if (valueEvent.startDate === faveEvent.startDate &&
-                valueEvent.endTime >= faveEvent.startTime &&
-                !conflictingEvents.includes(val)) {
-            conflictingEvents.push(val)
-          }
-        }
-      }
-    })
-
-    faveEvent.conflicts = conflictingEvents;
-
-    faveDetails.push(faveEvent)
-  })
-
-  return faveDetails;
-}
-
-export default function ExportPage () {
+export default function ExportPage ({ setFaves }: { setFaves: Dispatch<SetStateAction<number[]>> }) {
   const faves = JSON.parse(localStorage.getItem('faves') || '[]');
 
   const getFaves = (day: string) => {
@@ -90,9 +29,27 @@ export default function ExportPage () {
     return favesForDay;
   }
 
+  const handleFaves = async (eventIndex: number) => {
+    var newFaves = faves;
+    if (newFaves.includes(eventIndex)) {
+      var index = newFaves.indexOf(eventIndex);
+      newFaves.splice(index, 1);
+    } else {
+      newFaves.push(eventIndex);
+    }
+    localStorage.setItem('faves', JSON.stringify(newFaves))
+  }
+
   return (
     <>
-      Export
+      <div className='favorites-header'>
+        <h1 className='schedule-page-title'>
+          Schedule - {faves.length} Events
+        </h1>
+        <div className='btn-container'>
+          <ClearFavoritesBtn setFaves={setFaves} />
+        </div>
+      </div>
       <div className='schedule-container'>
         {dayLabels.map((day, index) => {
           var favesPerDay = getFaves(day);
@@ -124,7 +81,7 @@ export default function ExportPage () {
                             </li>
                             <div className='fave-list'>
                               {faveEventsList.map((fave, index) => {
-                                return <FaveCard key={index} favoriteEvent={fave}  />
+                                return <FaveCard key={index} favoriteEvent={fave} handleFaves={handleFaves}  />
                               })}
                             </div>
                           </ul>

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { styled } from '@mui/material/styles';
+import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Collapse from '@mui/material/Collapse';
@@ -13,6 +14,7 @@ import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import DoNotDisturbIcon from '@mui/icons-material/DoNotDisturb';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import DesignServicesIcon from '@mui/icons-material/DesignServices';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 import EventModal from '@/components/EventModal';
 
@@ -30,7 +32,7 @@ const ExpandMore = styled((props: ExpandMoreProps) => {
   marginLeft: 'auto',
 }));
 
-export default function FaveCard ({ favoriteEvent }: { favoriteEvent: NewEvent }) {
+export default function FaveCard ({ favoriteEvent, handleFaves }: { favoriteEvent: NewEvent, handleFaves: Function }) {
   const [expanded, setExpanded] = useState(false);
   const { 
     conflicts,
@@ -54,6 +56,10 @@ export default function FaveCard ({ favoriteEvent }: { favoriteEvent: NewEvent }
   const handleExpandClick = () => {
     setExpanded(!expanded);
   };
+
+  const handleDeleteFave = () => {
+    handleFaves(id)
+  }
 
   const dateSubTitle = startDate === endDate ? `${startTime} - ${endTime}` : `${startDate} ${startTime} - ${endDate} ${endTime}`
 
@@ -85,7 +91,7 @@ export default function FaveCard ({ favoriteEvent }: { favoriteEvent: NewEvent }
                 >
                   <ReportGmailErrorredIcon /> Conflicts with {conflicts.length} Events {expanded ? <ExpandLessIcon /> : <ExpandMoreIcon /> }
                 </ExpandMore>
-              <Collapse in={expanded} timeout="auto">
+              <Collapse in={expanded} timeout="auto" unmountOnExit>
                 <CardContent className=''>
                   {conflicts.map((conflict, index) => {
                     var conflictEvent = findEvent(conflict)
@@ -146,7 +152,16 @@ export default function FaveCard ({ favoriteEvent }: { favoriteEvent: NewEvent }
             )}
           </div>
 
-          <EventModal eventIndex={id} showLabel={true} />
+          <div className='action-buttons'>
+            <div className='button-container'>
+              <EventModal eventIndex={id} showLabel={true} size='medium' />
+            </div>
+            <div className='button-container'>
+              <Button variant="contained" startIcon={<DeleteIcon />} onClick={handleDeleteFave}>
+                Delete
+              </Button>
+            </div>
+          </div>
         </Typography>
       </CardContent>
     </Card>

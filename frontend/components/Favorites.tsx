@@ -1,11 +1,13 @@
-import Button from '@mui/material/Button';
+import Link from 'next/link';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { FavoritesProps } from "@/assets/interfaces";
+import ClearFavoritesBtn from '@/components/ClearFavoritesBtn';
 import EventCard from "@/components/UI/EventCard";
 import PopoverButton from '@/components/UI/PopOverButton';
 import findEvent from "@/helpers/findEvent";
 
-export default function Favorites ({ faves, handleFaves }: FavoritesProps) {
+
+export default function Favorites ({ faves, handleFaves, setFaves }: FavoritesProps) {
   const numOfFaves = faves.length;
 
   return (
@@ -13,16 +15,16 @@ export default function Favorites ({ faves, handleFaves }: FavoritesProps) {
       <PopoverButton
         numOfFaves={numOfFaves}
       >
-        <Button
-          className='export-btn'
-          href="/export"
-          size='small'
-          startIcon={<OpenInNewIcon />}
-          target="_blank"
-          variant='outlined'
-        >
-          Export Favorites
-        </Button>
+        <div className='favorites-btns-container'>
+          <Link
+            className='export-btn'
+            href="/export"
+            target="_blank"
+          >
+            <OpenInNewIcon className='link-icon' /> Export Favorites
+          </Link>
+          <ClearFavoritesBtn setFaves={setFaves} />
+        </div>
         {faves.map((fave: number, index: number) => {
           var faveEvent = findEvent(fave);
           return <EventCard key={index} event={faveEvent} handleFaves={handleFaves} />;

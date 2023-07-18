@@ -121,4 +121,9 @@ export interface DrawerFiltersProps {
 export interface FavoritesProps {
   faves: number[];
   handleFaves: Function;
+  setFaves: Dispatch<SetStateAction<number[]>>;
+}
+
+export interface ClearFavesProps {
+  setFaves: Dispatch<SetStateAction<number[]>>;
 }

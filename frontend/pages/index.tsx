@@ -152,7 +152,7 @@ export default function Home ({ faves, setFaves }: HomePageProps) {
           durationFilter={durationFilter}
           setDurationFilter={setDurationFilter}
         />
-        <Favorites faves={faves} handleFaves={handleFaves} />
+        <Favorites faves={faves} handleFaves={handleFaves} setFaves={setFaves} />
       </div>
       <DailyTabs
         durationFilter={durationFilter}
