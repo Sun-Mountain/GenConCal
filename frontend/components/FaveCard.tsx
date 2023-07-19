@@ -70,7 +70,7 @@ export default function FaveCard ({ favoriteEvent, handleFaves }: { favoriteEven
       className='fave-list-item'
     >
       <CardContent>
-        <Typography className='fave-header'>
+        <div className='fave-header'>
           <div>
             <div className='fave-game-id'>
               {gameId}
@@ -109,8 +109,8 @@ export default function FaveCard ({ favoriteEvent, handleFaves }: { favoriteEven
               No conflicting events
             </div>
           )}
-        </Typography>
-        <Typography className='fave-details'>
+        </div>
+        <div className='fave-details'>
           <span className='fave-date-times'>
             {dateSubTitle}
           </span>
@@ -119,16 +119,16 @@ export default function FaveCard ({ favoriteEvent, handleFaves }: { favoriteEven
               {location} {room && ` : ${room}`} {tableNum && tableNum > 0 ? ` : ${tableNum}` : ''}
             </span>
           )}
-        </Typography>
+        </div>
         {gameSystem && (
-          <Typography className='fave-system'>
+          <div className='fave-system'>
             <strong>System</strong>: {gameSystem}
-          </Typography>
+          </div>
         )}
-        <Typography className='fave-description'>
+        <div className='fave-description'>
           {descriptionShort}
-        </Typography>
-        <Typography className='badges-and-details'>
+        </div>
+        <div className='badges-and-details'>
           <div className='badge-container'>
             {!ticketsAvailable && (
               <div className='fave-badge sold-out-badge'>
@@ -162,7 +162,7 @@ export default function FaveCard ({ favoriteEvent, handleFaves }: { favoriteEven
               </Button>
             </div>
           </div>
-        </Typography>
+        </div>
       </CardContent>
     </Card>
   );

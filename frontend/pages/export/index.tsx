@@ -37,6 +37,7 @@ export default function ExportPage ({ setFaves }: { setFaves: Dispatch<SetStateA
     } else {
       newFaves.push(eventIndex);
     }
+    setFaves(newFaves)
     localStorage.setItem('faves', JSON.stringify(newFaves))
   }
 
@@ -64,10 +65,10 @@ export default function ExportPage ({ setFaves }: { setFaves: Dispatch<SetStateA
                   aria-controls="panel1a-content"
                   id="panel1a-header"
                 >
-                  <Typography>{day} - {favesPerDay.length} Events</Typography>
+                  <>{day} - {favesPerDay.length} Events</>
                 </AccordionSummary>
                 <AccordionDetails>
-                  <Typography>
+                  <>
                     {timeLabels.map((time, index) => {
                       const favesPerTime = favesPerDay.filter(val => eventsListByStartTime[time].includes(val));
 
@@ -88,7 +89,7 @@ export default function ExportPage ({ setFaves }: { setFaves: Dispatch<SetStateA
                         )
                       }
                     })}
-                  </Typography>
+                  </>
                 </AccordionDetails>
               </Accordion>
             )
