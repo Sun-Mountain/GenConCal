@@ -1,7 +1,7 @@
 import { Dispatch, SetStateAction, useState } from 'react';
 import { Autocomplete, TextField } from '@mui/material';
 
-export default function AutocompleteTimeComponent ({
+export function AutoCompleteTime ({
   label,
   options,
   defaultValue,

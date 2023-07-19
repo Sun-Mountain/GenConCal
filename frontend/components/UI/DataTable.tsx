@@ -1,6 +1,5 @@
 import dynamic from 'next/dynamic';
-import ZoomInIcon from '@mui/icons-material/ZoomIn';
-import FavoriteIcon from '@mui/icons-material/Favorite';
+import { ZoomIn, Favorite } from '@mui/icons-material';
 import { DataTableProps } from '@/assets/interfaces';
 
 const EventListing = dynamic(() => import("@/components/UI/EventListing"));
@@ -15,10 +14,10 @@ export default function DataTable ({ events, handleFaves, includesFave }: DataTa
             Event Title
           </th>
           <th className='icon-column'>
-            <FavoriteIcon />
+            <Favorite />
           </th>
           <th className='icon-column'>
-            <ZoomInIcon />
+            <ZoomIn />
           </th>
           <th className='tickets-column extra-column'>
             Tickets

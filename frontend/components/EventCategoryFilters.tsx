@@ -1,7 +1,6 @@
 import { FilterDrawerProps } from "@/assets/interfaces";
 import { filteredEvents } from "@/pages/_app";
-import ButtonGroup from "@/components/UI/ButtonGroup";
-import AutocompleteMultiComponent from "@/components/UI/AutoCompleteMultiple";
+import { AutoCompleteMultiple, ButtonGroup } from '@/components'
 import RadioButtonsGroup from "@/components/UI/RadioGroup";
 
 const ageLabels = [ 'kids only (12 and under)',
@@ -47,25 +46,25 @@ export default function EventCategoryFilters ({
       </div>
       <div className="content-group">
         <strong>Filter By:</strong>
-        <AutocompleteMultiComponent
+        <AutoCompleteMultiple
           groupLabel='Event Types'
           hiddenList={eventTypeList}
           handleFilter={handleFilter}
           labels={eventTypeLabels}
         />
-        <AutocompleteMultiComponent
+        <AutoCompleteMultiple
           groupLabel='Game Systems'
           hiddenList={gameSystemList}
           handleFilter={handleFilter}
           labels={gameSystemLabels}
         />
-        <AutocompleteMultiComponent
+        <AutoCompleteMultiple
           groupLabel='Company / Group'
           hiddenList={groupsList}
           handleFilter={handleFilter}
           labels={groupLabels}
         />
-        <AutocompleteMultiComponent
+        <AutoCompleteMultiple
           groupLabel='Locations'
           hiddenList={locationList}
           handleFilter={handleFilter}

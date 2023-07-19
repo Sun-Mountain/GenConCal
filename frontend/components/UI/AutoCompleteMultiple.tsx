@@ -1,7 +1,7 @@
 import { Autocomplete, TextField } from '@mui/material';
 import { AutocompleteProps } from '@/assets/interfaces';
 
-export default function AutocompleteMultiComponent({
+export function AutoCompleteMultiple({
   groupLabel,
   hiddenList,
   handleFilter,

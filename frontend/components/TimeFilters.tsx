@@ -1,4 +1,4 @@
-import AutocompleteTimeComponent from "@/components/UI/AutoCompleteTime";
+import { AutoCompleteTime } from "@/components";
 import getQuarterHours from "@/helpers/getQuarterHours";
 
 import { TimeFilterProps } from "@/assets/interfaces";
@@ -19,7 +19,7 @@ export default function TimeFilters ({
       <div className="content-group">
         <strong>Filter By Event Start Time</strong><br /><br />
         <div className='time-range'>
-          <AutocompleteTimeComponent
+          <AutoCompleteTime
             label='Earliest Start Time'
             options={times}
             defaultValue={times[0]}
@@ -27,7 +27,7 @@ export default function TimeFilters ({
             setValue={setEarliestStartTime}
           />
           -
-          <AutocompleteTimeComponent
+          <AutoCompleteTime
             label='Latest Start Time'
             options={times}
             defaultValue={times[times.length - 1]}
