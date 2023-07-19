@@ -1,7 +1,7 @@
 import { FilterDrawerProps } from "@/assets/interfaces";
 import { filteredEvents } from "@/pages/_app";
 import { AutoCompleteMultiple, ButtonGroup } from '@/components'
-import RadioButtonsGroup from "@/components/UI/RadioGroup";
+import { RadioButtonsGroup } from "@/components";
 
 const ageLabels = [ 'kids only (12 and under)',
                     'Everyone (6+)',

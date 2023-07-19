@@ -8,7 +8,7 @@ function valuetext(value: number) {
   return `${value}`;
 }
 
-export default function DoubleSliderComponent({
+export function DoubleSliderComponent({
   label,
   filterValues,
   setFilter,
