@@ -12,7 +12,7 @@ export const { eventData, filteredEvents } = parseData()
 
 import '@/assets/styles/application.scss'
 
-import Navigation from '@/components/UI/Navigation'
+import { Navigation } from '@/components'
 
 export const metadata = {
   title: 'GenCon Cal',

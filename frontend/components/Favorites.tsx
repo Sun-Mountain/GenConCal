@@ -1,9 +1,8 @@
-// import Link from 'next/link';
 import { Button } from '@mui/material';
 import { FavoritesProps } from "@/assets/interfaces";
+import { PopoverButton } from '@/components';
 import ClearFavoritesBtn from '@/components/ClearFavoritesBtn';
 import EventCard from "@/components/EventCard";
-import PopoverButton from '@/components/UI/PopOverButton';
 import findEvent from "@/helpers/findEvent";
 
 
