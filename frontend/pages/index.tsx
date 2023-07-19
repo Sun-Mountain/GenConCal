@@ -111,11 +111,12 @@ export default function Home ({ faves, setFaves }: HomePageProps) {
   }
 
   const includesFave = (eventIndex: number) => {
-    return faves.includes(eventIndex) ? true : false;
+    var favesState = JSON.parse(localStorage.getItem('faves') || JSON.stringify(faves));
+    return favesState.includes(eventIndex);
   }
 
   const handleFaves = async (eventIndex: number) => {
-    var newFaves = faves;
+    var newFaves = JSON.parse(localStorage.getItem('faves') || JSON.stringify(faves));
     if (includesFave(eventIndex)) {
       var index = newFaves.indexOf(eventIndex);
       newFaves.splice(index, 1);
@@ -152,7 +153,7 @@ export default function Home ({ faves, setFaves }: HomePageProps) {
           durationFilter={durationFilter}
           setDurationFilter={setDurationFilter}
         />
-        <Favorites faves={faves} handleFaves={handleFaves} setFaves={setFaves} />
+        <Favorites faves={JSON.parse(localStorage.getItem('faves') || JSON.stringify(faves))} handleFaves={handleFaves} setFaves={setFaves} />
       </div>
       <DailyTabs
         durationFilter={durationFilter}

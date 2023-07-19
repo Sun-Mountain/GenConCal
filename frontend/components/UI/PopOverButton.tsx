@@ -46,7 +46,7 @@ export default function PopoverButton({
           horizontal: 'left',
         }}
       >
-        <Typography sx={{ p: 2 }}>
+        <div className='fave-cards-container'>
           {numOfFaves ? (
             <>
               {children}
@@ -56,7 +56,7 @@ export default function PopoverButton({
               You do not have any favorite events.
             </>
           )}
-        </Typography>
+        </div>
       </Popover>
     </div>
   );
