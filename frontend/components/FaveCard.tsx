@@ -1,20 +1,24 @@
 import { useState } from 'react';
-import { styled } from '@mui/material/styles';
-import Button from '@mui/material/Button';
-import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
-import Collapse from '@mui/material/Collapse';
-import IconButton, { IconButtonProps } from '@mui/material/IconButton';
-import Typography from '@mui/material/Typography';
+import {
+  Button,
+  Card,
+  CardContent,
+  Collapse,
+  IconButton,
+  IconButtonProps,
+  styled
+} from '@mui/material';
 
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import ExpandLessIcon from '@mui/icons-material/ExpandLess';
-import ReportGmailErrorredIcon from '@mui/icons-material/ReportGmailerrorred';
-import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
-import DoNotDisturbIcon from '@mui/icons-material/DoNotDisturb';
-import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
-import DesignServicesIcon from '@mui/icons-material/DesignServices';
-import DeleteIcon from '@mui/icons-material/Delete';
+import {
+  CalendarMonth,
+  Delete,
+  DesignServices,
+  DoNotDisturb,
+  EmojiEvents,
+  ExpandLess,
+  ExpandMore,
+  ReportGmailerrorred,
+} from '@mui/icons-material/';
 
 import EventModal from '@/components/EventModal';
 
@@ -25,10 +29,10 @@ interface ExpandMoreProps extends IconButtonProps {
   expand: boolean;
 }
 
-const ExpandMore = styled((props: ExpandMoreProps) => {
+const ExpandMoreComponent = styled((props: ExpandMoreProps) => {
   const { expand, ...other } = props;
   return <IconButton {...other} />;
-})(({ theme, expand }) => ({
+})(() => ({
   marginLeft: 'auto',
 }));
 
@@ -82,15 +86,15 @@ export default function FaveCard ({ favoriteEvent, handleFaves }: { favoriteEven
 
           {conflicts && conflicts.length > 0 ? (
             <div className='conflicts-list conflicts-text'>
-                <ExpandMore
+                <ExpandMoreComponent
                   expand={expanded}
                   onClick={handleExpandClick}
                   aria-expanded={expanded}
                   aria-label="show more"
                   className='conflicts-btn'
                 >
-                  <ReportGmailErrorredIcon /> Conflicts with {conflicts.length} Events {expanded ? <ExpandLessIcon /> : <ExpandMoreIcon /> }
-                </ExpandMore>
+                  <ReportGmailerrorred /> Conflicts with {conflicts.length} Events {expanded ? <ExpandLess /> : <ExpandMore /> }
+                </ExpandMoreComponent>
               <Collapse in={expanded} timeout="auto" unmountOnExit>
                 <CardContent className=''>
                   {conflicts.map((conflict, index) => {
@@ -132,22 +136,22 @@ export default function FaveCard ({ favoriteEvent, handleFaves }: { favoriteEven
           <div className='badge-container'>
             {!ticketsAvailable && (
               <div className='fave-badge sold-out-badge'>
-                <DoNotDisturbIcon className='badge-icon' fontSize='small' /> Event Sold Out
+                <DoNotDisturb className='badge-icon' fontSize='small' /> Event Sold Out
               </div>
             )}
             {endDate != startDate && (
               <div className='fave-badge diff-day-badge'>
-                <CalendarMonthIcon className='badge-icon' fontSize='small' /> Ends on a Different Day
+                <CalendarMonth className='badge-icon' fontSize='small' /> Ends on a Different Day
               </div>
             )}
             {materials && (
               <div className='fave-badge materials-badge'>
-                <DesignServicesIcon className='badge-icon' fontSize='small' /> Materials Required
+                <DesignServices className='badge-icon' fontSize='small' /> Materials Required
               </div>
             )}
             {tournament && (
               <div className='fave-badge tournament-badge'>
-                <EmojiEventsIcon className='badge-icon' fontSize='small' /> Tournament
+                <EmojiEvents className='badge-icon' fontSize='small' /> Tournament
               </div>
             )}
           </div>
@@ -157,7 +161,7 @@ export default function FaveCard ({ favoriteEvent, handleFaves }: { favoriteEven
               <EventModal eventIndex={id} showLabel={true} size='medium' />
             </div>
             <div className='button-container'>
-              <Button variant="contained" startIcon={<DeleteIcon />} onClick={handleDeleteFave}>
+              <Button variant="contained" startIcon={<Delete />} onClick={handleDeleteFave}>
                 Delete
               </Button>
             </div>

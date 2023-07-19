@@ -64,27 +64,9 @@
 .favorites-btns-container {
   display: flex;
   justify-content: space-between;
+  padding: 0 0 15px 0;
 }
 
 .export-btn, .export-btn:visited {
-  background-color: $export-btn-bg;
-  border: 1px solid $export-btn-color;
-  border-radius: 2px;
   color: $export-btn-color;
-  display: flex;
-  justify-content: center;
-  padding: 3px 2px;
-  margin-bottom: 12px;
-  width: 160px;
-
-  .link-icon {
-    margin-right: 7px;
-  }
-}
-
-.export-btn:hover {
-  background-color: $export-btn-bg-hover;
-  border: 1px solid $export-btn-color-hover;
-  color: $export-btn-color-hover;
-  cursor: pointer;
 }

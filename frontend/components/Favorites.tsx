@@ -1,4 +1,5 @@
-import Link from 'next/link';
+// import Link from 'next/link';
+import { Button } from '@mui/material';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { FavoritesProps } from "@/assets/interfaces";
 import ClearFavoritesBtn from '@/components/ClearFavoritesBtn';
@@ -16,14 +17,16 @@ export default function Favorites ({ faves, handleFaves, setFaves }: FavoritesPr
         numOfFaves={numOfFaves}
       >
         <div className='favorites-btns-container'>
-          <Link
-            className='export-btn'
+          <div className='btn'>
+            <ClearFavoritesBtn setFaves={setFaves} />
+          </div>
+          <Button
+            variant='contained'
+            className='export-btn btn'
             href="/export"
-            target="_blank"
           >
-            <OpenInNewIcon className='link-icon' /> Export Favorites
-          </Link>
-          <ClearFavoritesBtn setFaves={setFaves} />
+            Export Favorites
+          </Button>
         </div>
         {faves.map((fave: number, index: number) => {
           var faveEvent = findEvent(fave);
