@@ -4,7 +4,7 @@ import { DataTableProps } from '@/assets/interfaces';
 
 const EventListing = dynamic(() => import("@/components/UI/EventListing"));
 
-export default function DataTable ({ events, handleFaves, includesFave }: DataTableProps) {
+export function DataTable ({ events, handleFaves, includesFave }: DataTableProps) {
 
   return (
     <table className='event-data-table'>

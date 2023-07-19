@@ -1,14 +1,12 @@
-import { Suspense, SyntheticEvent, useEffect, useState } from 'react';
-import Tabs from '@mui/material/Tabs';
-import Tab from '@mui/material/Tab';
-import Box from '@mui/material/Box';
-
-import TabPanel from '@/components/UI/TabPanel';
-import a11yProps from '@/helpers/a11yProps';
+import { SyntheticEvent, useState } from 'react';
+import { Box, Tab, Tabs } from '@mui/material';
 
 import { filteredEvents } from '@/pages/_app';
+
+import { DataTable } from '@/components';
+import TabPanel from '@/components/UI/TabPanel';
+import a11yProps from '@/helpers/a11yProps';
 import { DailyTabsTypes } from '@/assets/interfaces';
-import DataTable from './UI/DataTable';
 
 const eventsListByDay = filteredEvents.startDates;
 const eventsListByStartTime = filteredEvents.startTimes;
