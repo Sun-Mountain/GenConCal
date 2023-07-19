@@ -1,12 +1,11 @@
-import Card from '@mui/material/Card';
-import { CardActions, CardContent, IconButton } from '@mui/material';
+import { Card, CardActions, CardContent, IconButton } from '@mui/material';
 import { CalendarMonth, Delete, DoNotDisturb, EmojiEvents, ListAlt } from '@mui/icons-material/';
 
 import { NewEvent } from "@/assets/interfaces";
 
 import EventModal from '@/components/EventModal';
 
-export default function EventCard({ event, handleFaves }: { event: NewEvent; handleFaves: Function; }) {
+export function EventCard ({ event, handleFaves }: { event: NewEvent; handleFaves: Function; }) {
   const {
     title,
     startDate,

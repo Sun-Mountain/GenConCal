@@ -1,7 +1,6 @@
 import { Button } from '@mui/material';
 import { FavoritesProps } from "@/assets/interfaces";
-import { ClearFavoritesBtn, PopoverButton } from '@/components';
-import EventCard from "@/components/EventCard";
+import { ClearFavoritesBtn, EventCard, PopoverButton } from '@/components';
 import findEvent from "@/helpers/findEvent";
 
 
