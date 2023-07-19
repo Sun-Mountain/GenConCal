@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { Button, IconButton} from '@mui/material';
 import { Close, ZoomIn } from '@mui/icons-material';
-import { ModalComponent } from '@/components';
-import EventDetails from '@/components/EventDetails';
+import { EventDetails, ModalComponent } from '@/components';
 
 export default function EventModal ({ eventIndex, showLabel, size }: { eventIndex: number, showLabel?: boolean, size?: 'small' | 'medium' | 'large' }) {
   const [open, setOpen] = useState(false);
