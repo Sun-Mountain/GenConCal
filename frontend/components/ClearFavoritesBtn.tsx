@@ -1,8 +1,7 @@
-import Button from '@mui/material/Button';
+import { Button } from '@mui/material';
 import { ClearFavesProps } from "@/assets/interfaces";
 
-export default function ClearFavoritesBtn ({ setFaves }: ClearFavesProps) {
-
+export function ClearFavoritesBtn ({ setFaves }: ClearFavesProps) {
   const clearFavorites = () => {
     localStorage.setItem('faves', JSON.stringify([]))
     setFaves([])

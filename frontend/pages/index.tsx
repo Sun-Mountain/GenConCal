@@ -1,21 +1,23 @@
 import { useState } from 'react';
 
 import { filteredEvents } from './_app';
+import { HomePageProps } from '@/assets/interfaces';
+import { ToggleComponent } from '@/components';
 import filterOutHelper from '@/helpers/filterOut';
 import filterForHelper from '@/helpers/filterFor';
 
 import DailyTabs from '@/components/DailyTabs';
 import DrawerFilters from '@/components/DrawerFilters';
-import ToggleComponent from '@/components/UI/Toggle';
-import { HomePageProps } from '@/assets/interfaces';
 import Favorites from '@/components/Favorites';
 
-export const ageReqMasterList = filteredEvents.ageRequirement;
-export const xpReqMasterList = filteredEvents.experienceType;
-export const eventTypeMasterList = filteredEvents.eventTypes;
-export const gameSystemMasterList = filteredEvents.gameSystems;
-export const groupsMasterList = filteredEvents.groups;
-export const locationMasterList = filteredEvents.locations;
+const {
+  ageRequirement: ageReqMasterList,
+  eventTypes: eventTypeMasterList,
+  experienceType: xpReqMasterList,
+  gameSystems: gameSystemMasterList,
+  groups: groupsMasterList,
+  locations: locationMasterList
+} = filteredEvents;
 
 export default function Home ({ faves, setFaves }: HomePageProps) {
   // Lists

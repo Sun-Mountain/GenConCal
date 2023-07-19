@@ -1,18 +1,18 @@
 import { Dispatch, SetStateAction } from 'react';
 import dynamic from 'next/dynamic';
-import Accordion from '@mui/material/Accordion';
-import AccordionSummary from '@mui/material/AccordionSummary';
-import AccordionDetails from '@mui/material/AccordionDetails';
+import { Accordion, AccordionDetails, AccordionSummary } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 import { filteredEvents } from '@/pages/_app';
+import { ClearFavoritesBtn } from '@/components';
 import findConflicts from '@/helpers/findConflicts';
 
-import ClearFavoritesBtn from '@/components/ClearFavoritesBtn';
 const FaveCard = dynamic(() => import("@/components/FaveCard"));
 
-const eventsListByDay = filteredEvents.startDates;
-const eventsListByStartTime = filteredEvents.startTimes;
+const {
+  startDates: eventsListByDay,
+  startTimes: eventsListByStartTime
+} = filteredEvents;
 const dayLabels = Object.keys(eventsListByDay).sort();
 const timeLabels = Object.keys(eventsListByStartTime).sort();
 
