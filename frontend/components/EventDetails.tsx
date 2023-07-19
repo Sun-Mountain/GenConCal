@@ -1,8 +1,7 @@
-import Link from "next/link";
 import { Button } from "@mui/material";
 import ConfirmationNumberIcon from '@mui/icons-material/ConfirmationNumber';
+import { TableRow } from "@/components"
 import findEvent from "@/helpers/findEvent"
-import TableRow from "@/components/UI/TableRow"
 
 export default function EventDetails ({ eventIndex }: { eventIndex: number }) {
   const event = findEvent(eventIndex);
@@ -35,7 +34,6 @@ export default function EventDetails ({ eventIndex }: { eventIndex: number }) {
             </Button>
           </td>
         </tr>
-        {/* <TableRow category={'Title'} detail={event.title} /> */}
         <TableRow category={'Game Id'} detail={gameId} />
         <TableRow category={'Event Type'} detail={event.eventType} />
         {event.gameSystem && (

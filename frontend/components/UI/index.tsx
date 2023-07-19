@@ -7,3 +7,5 @@ export * from '@/components/UI/Modal';
 export * from '@/components/UI/PopOverButton';
 export * from '@/components/UI/RadioGroup';
 export * from '@/components/UI/SliderDouble';
+export * from '@/components/UI/TableRow';
+export * from '@/components/UI/TabPanel';

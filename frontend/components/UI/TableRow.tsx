@@ -1,4 +1,4 @@
-export default function TableRow ({
+export function TableRow ({
   category,
   detail,
 }: {

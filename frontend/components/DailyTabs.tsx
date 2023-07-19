@@ -3,16 +3,17 @@ import { Box, Tab, Tabs } from '@mui/material';
 
 import { filteredEvents } from '@/pages/_app';
 
-import { DataTable } from '@/components';
-import TabPanel from '@/components/UI/TabPanel';
-import a11yProps from '@/helpers/a11yProps';
 import { DailyTabsTypes } from '@/assets/interfaces';
+import { DataTable, TabPanel } from '@/components';
+import a11yProps from '@/helpers/a11yProps';
 
-const eventsListByDay = filteredEvents.startDates;
-const eventsListByStartTime = filteredEvents.startTimes;
-const soldOutEvents = filteredEvents.noTickets;
-const tournamentEvents = filteredEvents.tournaments;
-const durationList = filteredEvents.duration;
+const {
+  duration: durationList,
+  noTickets: soldOutEvents,
+  startDates: eventsListByDay,
+  startTimes: eventsListByStartTime,
+  tournaments: tournamentEvents
+} = filteredEvents;
 const durationKeys = Object.keys(durationList).sort();
 const dayLabels = Object.keys(eventsListByDay).sort();
 const timeLabels = Object.keys(eventsListByStartTime).sort();
