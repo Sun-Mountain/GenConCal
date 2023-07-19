@@ -1,7 +1,5 @@
 import { Dispatch, SetStateAction, useState } from 'react';
-import TextField from '@mui/material/TextField';
-import Autocomplete from '@mui/material/Autocomplete';
-import getQuarterHours from '@/helpers/getQuarterHours';
+import { Autocomplete, TextField } from '@mui/material';
 
 export default function AutocompleteTimeComponent ({
   label,
