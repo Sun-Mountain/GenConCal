@@ -1,7 +1,6 @@
-import { FilterDrawerProps } from "@/assets/interfaces";
 import { filteredEvents } from "@/pages/_app";
-import { AutoCompleteMultiple, ButtonGroup } from '@/components'
-import { RadioButtonsGroup } from "@/components";
+import { FilterDrawerProps } from "@/assets/interfaces";
+import { AutoCompleteMultiple, ButtonGroup, RadioButtonsGroup } from '@/components';
 
 const ageLabels = [ 'kids only (12 and under)',
                     'Everyone (6+)',
@@ -16,7 +15,7 @@ const locationLabels = Object.keys(filteredEvents.locations).sort()
 const tournamentOptions = [ { value: 'hide', choiceLabel: 'Hide Tournaments' },
                             { value: 'show', choiceLabel: 'Only Show Tournaments' } ]
 
-export default function EventCategoryFilters ({
+export function EventCategoryFilters ({
   handleFilter,
   ageReqList,
   xpReqList,

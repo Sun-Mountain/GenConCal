@@ -2,7 +2,7 @@ import dynamic from 'next/dynamic';
 import { ZoomIn, Favorite } from '@mui/icons-material';
 import { DataTableProps } from '@/assets/interfaces';
 
-const EventListing = dynamic(() => import('@/components/UI/EventListing'));
+const EventListing = dynamic(() => import('@/components/EventListing'));
 
 export function DataTable ({ events, handleFaves, includesFave }: DataTableProps) {
 
