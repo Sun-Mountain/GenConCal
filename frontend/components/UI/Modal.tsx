@@ -1,6 +1,5 @@
-import { Dispatch, ReactNode, SetStateAction, useState } from 'react';
-import Box from '@mui/material/Box';
-import Modal from '@mui/material/Modal';
+import { Dispatch, ReactNode, SetStateAction } from 'react';
+import { Box, Modal } from '@mui/material';
 
 const style = {
   width: {
@@ -22,7 +21,7 @@ const style = {
   overflow: 'scroll',
 };
 
-export default function ModalComponent({
+export function ModalComponent({
   open,
   setOpen,
   children

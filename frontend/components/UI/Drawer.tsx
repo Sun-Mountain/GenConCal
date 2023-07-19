@@ -1,8 +1,5 @@
 import { KeyboardEvent, MouseEvent, ReactNode, useState } from 'react';
-import Drawer from '@mui/material/Drawer';
-import Button from '@mui/material/Button';
-import FilterAltIcon from '@mui/icons-material/FilterAlt';
-import IconButton from '@mui/material/IconButton';
+import { Button, Drawer, IconButton } from '@mui/material';
 import KeyboardDoubleArrowUpIcon from '@mui/icons-material/KeyboardDoubleArrowUp';
 
 export default function DrawerComponent({
