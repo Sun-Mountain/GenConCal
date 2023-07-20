@@ -1,7 +1,7 @@
 import EventData from '@/assets/events/events.json';
 import { cleanData, getFirstKey } from '@/helpers';
 
-export const parseData = () => {
+export default function parseData () {
   const rawData = EventData as any;
 
   // Values of first Key

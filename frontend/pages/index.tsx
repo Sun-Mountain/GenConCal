@@ -8,16 +8,16 @@ import { filterForHelper, filterOutHelper } from '@/helpers';
 import DailyTabs from '@/components/DailyTabs';
 import DrawerFilters from '@/components/DrawerFilters';
 
-const {
-  ageRequirement: ageReqMasterList,
-  eventTypes: eventTypeMasterList,
-  experienceType: xpReqMasterList,
-  gameSystems: gameSystemMasterList,
-  groups: groupsMasterList,
-  locations: locationMasterList
-} = filteredEvents;
-
 export default function Home ({ faves, setFaves }: HomePageProps) {
+  const {
+    ageRequirement: ageReqMasterList,
+    eventTypes: eventTypeMasterList,
+    experienceType: xpReqMasterList,
+    gameSystems: gameSystemMasterList,
+    groups: groupsMasterList,
+    locations: locationMasterList
+  } = filteredEvents;
+
   // Lists
   const [ageReqList, setAgeReqList] = useState<string[]>([]);
   const [xpReqList, setXPReqList] = useState<string[]>([]);

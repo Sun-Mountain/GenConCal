@@ -6,17 +6,6 @@ import { DailyTabsTypes } from '@/assets/interfaces';
 import { DataTable, TabPanel } from '@/components';
 import { a11yProps } from '@/helpers';
 
-const {
-  duration: durationList,
-  noTickets: soldOutEvents,
-  startDates: eventsListByDay,
-  startTimes: eventsListByStartTime,
-  tournaments: tournamentEvents
-} = filteredEvents;
-const durationKeys = Object.keys(durationList).sort();
-const dayLabels = Object.keys(eventsListByDay).sort();
-const timeLabels = Object.keys(eventsListByStartTime).sort();
-
 export default function DailyTabs({
   durationFilter,
   earliestStartTime,
@@ -28,6 +17,16 @@ export default function DailyTabs({
   hideSoldOut,
   tournamentFilter
 }: DailyTabsTypes) {
+  const {
+    duration: durationList,
+    noTickets: soldOutEvents,
+    startDates: eventsListByDay,
+    startTimes: eventsListByStartTime,
+    tournaments: tournamentEvents
+  } = filteredEvents;
+  const durationKeys = Object.keys(durationList).sort();
+  const dayLabels = Object.keys(eventsListByDay).sort();
+  const timeLabels = Object.keys(eventsListByStartTime).sort();
   const [tab, setTab] = useState(0);
   const lowestDuration = durationFilter[0];
   const highestDuration = durationFilter[1];

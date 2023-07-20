@@ -5,12 +5,12 @@ import type { NextPage } from 'next';
 import type { AppProps } from 'next/app';
 import Head from 'next/head';
 import { Analytics } from '@vercel/analytics/react';
+import parseData from '@/helpers/parsingHelpers';
+
+export const { eventData, filteredEvents } = parseData();
 
 import '@/assets/styles/application.scss';
 import { Navigation } from '@/components';
-import { parseData } from "@/helpers";
-
-export const { eventData, filteredEvents } = parseData();
 
 export const metadata = {
   title: 'GenCon Cal',

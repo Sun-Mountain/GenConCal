@@ -6,14 +6,13 @@ import { filteredEvents } from '@/pages/_app';
 import { ClearFavoritesBtn, FaveCard } from '@/components';
 import { findConflicts } from '@/helpers';
 
-const {
-  startDates: eventsListByDay,
-  startTimes: eventsListByStartTime
-} = filteredEvents;
-const dayLabels = Object.keys(eventsListByDay).sort();
-const timeLabels = Object.keys(eventsListByStartTime).sort();
-
 export default function ExportPage ({ setFaves }: { setFaves: Dispatch<SetStateAction<number[]>> }) {
+  const {
+    startDates: eventsListByDay,
+    startTimes: eventsListByStartTime
+  } = filteredEvents;
+  const dayLabels = Object.keys(eventsListByDay).sort();
+  const timeLabels = Object.keys(eventsListByStartTime).sort();
   const faves = JSON.parse(localStorage.getItem('faves') || '[]');
 
   const getFaves = (day: string) => {

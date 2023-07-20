@@ -2,19 +2,6 @@ import { filteredEvents } from "@/pages/_app";
 import { FilterDrawerProps } from "@/assets/interfaces";
 import { AutoCompleteMultiple, ButtonGroup, RadioButtonsGroup } from '@/components';
 
-const ageLabels = [ 'kids only (12 and under)',
-                    'Everyone (6+)',
-                    'Teen (13+)',
-                    'Mature (18+)',
-                    '21+' ]
-const xpLabels = Object.keys(filteredEvents.experienceType)
-const eventTypeLabels = Object.keys(filteredEvents.eventTypes).sort()
-const gameSystemLabels = Object.keys(filteredEvents.gameSystems).sort()
-const groupLabels = Object.keys(filteredEvents.groups).sort()
-const locationLabels = Object.keys(filteredEvents.locations).sort()
-const tournamentOptions = [ { value: 'hide', choiceLabel: 'Hide Tournaments' },
-                            { value: 'show', choiceLabel: 'Only Show Tournaments' } ]
-
 export function EventCategoryFilters ({
   handleFilter,
   ageReqList,
@@ -26,6 +13,18 @@ export function EventCategoryFilters ({
   tournamentFilter,
   setTournamentFilter
 }: FilterDrawerProps) {
+  const ageLabels = [ 'kids only (12 and under)',
+                      'Everyone (6+)',
+                      'Teen (13+)',
+                      'Mature (18+)',
+                      '21+' ]
+  const xpLabels = Object.keys(filteredEvents.experienceType)
+  const eventTypeLabels = Object.keys(filteredEvents.eventTypes).sort()
+  const gameSystemLabels = Object.keys(filteredEvents.gameSystems).sort()
+  const groupLabels = Object.keys(filteredEvents.groups).sort()
+  const locationLabels = Object.keys(filteredEvents.locations).sort()
+  const tournamentOptions = [ { value: 'hide', choiceLabel: 'Hide Tournaments' },
+                              { value: 'show', choiceLabel: 'Only Show Tournaments' } ]
 
   return (
     <div className="filter-content">
