@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { AttachMoney, GitHub } from '@mui/icons-material';
 import lastUpdated from '@/assets/events/lastUpdate.json';
-import { parseDate } from '@/helpers/parseDate';
+import { parseDate } from '@/helpers';
 
 export default function About() {
   const dateString = parseDate(lastUpdated.date)

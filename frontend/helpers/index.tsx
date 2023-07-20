@@ -1,4 +1,4 @@
-export * from '@/helpers/a11yProps';
+export * from '@/helpers/a11yHelpers';
 export * from '@/helpers/filterHelpers';
 export * from '@/helpers/finderHelpers';
 export * from '@/helpers/getHelpers';
