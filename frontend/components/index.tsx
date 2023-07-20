@@ -5,4 +5,6 @@ export * from '@/components/EventCategoryFilters';
 export * from '@/components/EventDetails';
 export * from '@/components/EventModal';
 export * from '@/components/FaveCard';
+export * from '@/components/Favorites';
 export * from '@/components/Navigation';
+export * from '@/components/TimeFilters';

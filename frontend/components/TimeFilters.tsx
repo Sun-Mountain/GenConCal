@@ -5,7 +5,7 @@ import { TimeFilterProps } from "@/assets/interfaces";
 
 const times = getQuarterHours();
 
-export default function TimeFilters ({
+export function TimeFilters ({
   earliestStartTime,
   setEarliestStartTime,
   latestStartTime,

@@ -1,7 +1,6 @@
 import { AccessTimeFilled, FilterAlt } from '@mui/icons-material';
 import { DrawerFiltersProps } from '@/assets/interfaces';
-import { DrawerComponent, EventCategoryFilters } from '@/components';
-import TimeFilters from '@/components/TimeFilters';
+import { DrawerComponent, EventCategoryFilters, TimeFilters } from '@/components';
 
 export default function DrawerFilters ({
   handleFilter,

@@ -4,7 +4,7 @@ import { ClearFavoritesBtn, EventCard, PopoverButton } from '@/components';
 import findEvent from "@/helpers/findEvent";
 
 
-export default function Favorites ({ faves, handleFaves, setFaves }: FavoritesProps) {
+export function Favorites ({ faves, handleFaves, setFaves }: FavoritesProps) {
   const numOfFaves = faves.length;
 
   return (

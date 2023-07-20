@@ -2,13 +2,12 @@ import { useState } from 'react';
 
 import { filteredEvents } from './_app';
 import { HomePageProps } from '@/assets/interfaces';
-import { ToggleComponent } from '@/components';
+import { Favorites, ToggleComponent } from '@/components';
 import filterOutHelper from '@/helpers/filterOut';
 import filterForHelper from '@/helpers/filterFor';
 
 import DailyTabs from '@/components/DailyTabs';
 import DrawerFilters from '@/components/DrawerFilters';
-import Favorites from '@/components/Favorites';
 
 const {
   ageRequirement: ageReqMasterList,
