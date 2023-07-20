@@ -1,11 +1,10 @@
 import { SyntheticEvent, useState } from 'react';
 import { Box, Tab, Tabs } from '@mui/material';
-
 import { filteredEvents } from '@/pages/_app';
 
 import { DailyTabsTypes } from '@/assets/interfaces';
 import { DataTable, TabPanel } from '@/components';
-import a11yProps from '@/helpers/a11yProps';
+import { a11yProps } from '@/helpers';
 
 const {
   duration: durationList,

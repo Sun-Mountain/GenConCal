@@ -3,8 +3,8 @@ import { useState } from 'react';
 import { filteredEvents } from './_app';
 import { HomePageProps } from '@/assets/interfaces';
 import { Favorites, ToggleComponent } from '@/components';
+import { filterForHelper } from '@/helpers';
 import filterOutHelper from '@/helpers/filterOut';
-import filterForHelper from '@/helpers/filterFor';
 
 import DailyTabs from '@/components/DailyTabs';
 import DrawerFilters from '@/components/DrawerFilters';

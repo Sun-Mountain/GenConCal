@@ -1,7 +1,7 @@
 import { UniqueFilter } from "@/assets/interfaces";
 import { Dispatch, SetStateAction } from "react";
 
-const filterForHelper = (
+export const filterForHelper = (
   eventList: UniqueFilter,
   setFilter: Dispatch<SetStateAction<number[]>>,
   labelList: string[],
@@ -15,5 +15,3 @@ const filterForHelper = (
   })
   setFilter(newFilters)
 }
-
-export default filterForHelper;
