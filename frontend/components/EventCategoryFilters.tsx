@@ -1,23 +1,8 @@
-import { FilterDrawerProps } from "@/assets/interfaces";
 import { filteredEvents } from "@/pages/_app";
-import ButtonGroup from "@/components/UI/ButtonGroup";
-import AutocompleteMultiComponent from "@/components/UI/AutoCompleteMultiple";
-import RadioButtonsGroup from "@/components/UI/RadioGroup";
+import { FilterDrawerProps } from "@/assets/interfaces";
+import { AutoCompleteMultiple, ButtonGroup, RadioButtonsGroup } from '@/components';
 
-const ageLabels = [ 'kids only (12 and under)',
-                    'Everyone (6+)',
-                    'Teen (13+)',
-                    'Mature (18+)',
-                    '21+' ]
-const xpLabels = Object.keys(filteredEvents.experienceType)
-const eventTypeLabels = Object.keys(filteredEvents.eventTypes).sort()
-const gameSystemLabels = Object.keys(filteredEvents.gameSystems).sort()
-const groupLabels = Object.keys(filteredEvents.groups).sort()
-const locationLabels = Object.keys(filteredEvents.locations).sort()
-const tournamentOptions = [ { value: 'hide', choiceLabel: 'Hide Tournaments' },
-                            { value: 'show', choiceLabel: 'Only Show Tournaments' } ]
-
-export default function EventCategoryFilters ({
+export function EventCategoryFilters ({
   handleFilter,
   ageReqList,
   xpReqList,
@@ -28,6 +13,18 @@ export default function EventCategoryFilters ({
   tournamentFilter,
   setTournamentFilter
 }: FilterDrawerProps) {
+  const ageLabels = [ 'kids only (12 and under)',
+                      'Everyone (6+)',
+                      'Teen (13+)',
+                      'Mature (18+)',
+                      '21+' ]
+  const xpLabels = Object.keys(filteredEvents.experienceType)
+  const eventTypeLabels = Object.keys(filteredEvents.eventTypes).sort()
+  const gameSystemLabels = Object.keys(filteredEvents.gameSystems).sort()
+  const groupLabels = Object.keys(filteredEvents.groups).sort()
+  const locationLabels = Object.keys(filteredEvents.locations).sort()
+  const tournamentOptions = [ { value: 'hide', choiceLabel: 'Hide Tournaments' },
+                              { value: 'show', choiceLabel: 'Only Show Tournaments' } ]
 
   return (
     <div className="filter-content">
@@ -47,25 +44,25 @@ export default function EventCategoryFilters ({
       </div>
       <div className="content-group">
         <strong>Filter By:</strong>
-        <AutocompleteMultiComponent
+        <AutoCompleteMultiple
           groupLabel='Event Types'
           hiddenList={eventTypeList}
           handleFilter={handleFilter}
           labels={eventTypeLabels}
         />
-        <AutocompleteMultiComponent
+        <AutoCompleteMultiple
           groupLabel='Game Systems'
           hiddenList={gameSystemList}
           handleFilter={handleFilter}
           labels={gameSystemLabels}
         />
-        <AutocompleteMultiComponent
+        <AutoCompleteMultiple
           groupLabel='Company / Group'
           hiddenList={groupsList}
           handleFilter={handleFilter}
           labels={groupLabels}
         />
-        <AutocompleteMultiComponent
+        <AutoCompleteMultiple
           groupLabel='Locations'
           hiddenList={locationList}
           handleFilter={handleFilter}

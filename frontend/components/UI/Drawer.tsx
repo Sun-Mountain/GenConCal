@@ -1,11 +1,8 @@
 import { KeyboardEvent, MouseEvent, ReactNode, useState } from 'react';
-import Drawer from '@mui/material/Drawer';
-import Button from '@mui/material/Button';
-import FilterAltIcon from '@mui/icons-material/FilterAlt';
-import IconButton from '@mui/material/IconButton';
-import KeyboardDoubleArrowUpIcon from '@mui/icons-material/KeyboardDoubleArrowUp';
+import { Button, Drawer, IconButton } from '@mui/material';
+import { KeyboardDoubleArrowUp } from '@mui/icons-material';
 
-export default function DrawerComponent({
+export function DrawerComponent({
   icon,
   buttonText,
   children
@@ -40,7 +37,7 @@ export default function DrawerComponent({
       >
         {children}
         <IconButton onClick={toggleDrawer(false)} aria-label="close drawer" size="large">
-          <KeyboardDoubleArrowUpIcon fontSize="inherit" />
+          <KeyboardDoubleArrowUp fontSize="inherit" />
         </IconButton>
       </Drawer>
     </>

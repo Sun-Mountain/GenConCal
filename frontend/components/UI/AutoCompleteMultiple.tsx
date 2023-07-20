@@ -1,9 +1,7 @@
-import * as React from 'react';
-import Autocomplete from '@mui/material/Autocomplete';
-import TextField from '@mui/material/TextField';
+import { Autocomplete, TextField } from '@mui/material';
 import { AutocompleteProps } from '@/assets/interfaces';
 
-export default function AutocompleteMultiComponent({
+export function AutoCompleteMultiple({
   groupLabel,
   hiddenList,
   handleFilter,

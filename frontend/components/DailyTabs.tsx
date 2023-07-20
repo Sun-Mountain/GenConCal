@@ -1,23 +1,10 @@
-import { Suspense, SyntheticEvent, useEffect, useState } from 'react';
-import Tabs from '@mui/material/Tabs';
-import Tab from '@mui/material/Tab';
-import Box from '@mui/material/Box';
-
-import TabPanel from '@/components/UI/TabPanel';
-import a11yProps from '@/helpers/a11yProps';
-
+import { SyntheticEvent, useState } from 'react';
+import { Box, Tab, Tabs } from '@mui/material';
 import { filteredEvents } from '@/pages/_app';
-import { DailyTabsTypes } from '@/assets/interfaces';
-import DataTable from './UI/DataTable';
 
-const eventsListByDay = filteredEvents.startDates;
-const eventsListByStartTime = filteredEvents.startTimes;
-const soldOutEvents = filteredEvents.noTickets;
-const tournamentEvents = filteredEvents.tournaments;
-const durationList = filteredEvents.duration;
-const durationKeys = Object.keys(durationList).sort();
-const dayLabels = Object.keys(eventsListByDay).sort();
-const timeLabels = Object.keys(eventsListByStartTime).sort();
+import { DailyTabsTypes } from '@/assets/interfaces';
+import { DataTable, TabPanel } from '@/components';
+import { a11yProps } from '@/helpers';
 
 export default function DailyTabs({
   durationFilter,
@@ -30,6 +17,16 @@ export default function DailyTabs({
   hideSoldOut,
   tournamentFilter
 }: DailyTabsTypes) {
+  const {
+    duration: durationList,
+    noTickets: soldOutEvents,
+    startDates: eventsListByDay,
+    startTimes: eventsListByStartTime,
+    tournaments: tournamentEvents
+  } = filteredEvents;
+  const durationKeys = Object.keys(durationList).sort();
+  const dayLabels = Object.keys(eventsListByDay).sort();
+  const timeLabels = Object.keys(eventsListByStartTime).sort();
   const [tab, setTab] = useState(0);
   const lowestDuration = durationFilter[0];
   const highestDuration = durationFilter[1];

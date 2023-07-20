@@ -1,7 +1,11 @@
+import { eventData } from "@/pages/_app";
 import { NewEvent } from "@/assets/interfaces";
-import findEvent from "./findEvent";
 
-export default function findConflicts (favesList: number[], favesMasterList: number[]) {
+export const findEvent = (index: number) => {
+  return eventData[index]
+}
+
+export const findConflicts = (favesList: number[], favesMasterList: number[]) => {
   var faveDetails: NewEvent[] = [];
 
   favesList.map((fave, index) => {

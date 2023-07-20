@@ -1,12 +1,9 @@
 import { useState } from 'react';
-import ModalComponent from '@/components/UI/Modal';
-import IconButton from '@mui/material/IconButton';
-import Button from '@mui/material/Button';
-import CloseIcon from '@mui/icons-material/Close';
-import ZoomInIcon from '@mui/icons-material/ZoomIn';
-import EventDetails from '@/components/EventDetails';
+import { Button, IconButton} from '@mui/material';
+import { Close, ZoomIn } from '@mui/icons-material';
+import { EventDetails, ModalComponent } from '@/components';
 
-export default function EventModal ({ eventIndex, showLabel, size }: { eventIndex: number, showLabel?: boolean, size?: 'small' | 'medium' | 'large' }) {
+export function EventModal ({ eventIndex, showLabel, size }: { eventIndex: number, showLabel?: boolean, size?: 'small' | 'medium' | 'large' }) {
   const [open, setOpen] = useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
@@ -14,7 +11,7 @@ export default function EventModal ({ eventIndex, showLabel, size }: { eventInde
     <>
       <ModalComponent open={open} setOpen={setOpen}>
         <div className='modal-close-btn-container'>
-          <Button startIcon={<CloseIcon /> } onClick={handleClose}>Close Modal</Button>
+          <Button startIcon={<Close /> } onClick={handleClose}>Close Modal</Button>
         </div>
         <EventDetails eventIndex={eventIndex} />
       </ModalComponent>
@@ -28,7 +25,7 @@ export default function EventModal ({ eventIndex, showLabel, size }: { eventInde
             variant='outlined'
             onClick={handleOpen}
           >
-            <ZoomInIcon />
+            <ZoomIn />
             Event Details
           </Button>
         </>
@@ -40,7 +37,7 @@ export default function EventModal ({ eventIndex, showLabel, size }: { eventInde
             color="secondary"
             onClick={handleOpen}
           >
-            <ZoomInIcon />
+            <ZoomIn />
           </IconButton>
         </>
       )}

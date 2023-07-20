@@ -1,20 +1,37 @@
-import Link from "next/link";
 import { Button } from "@mui/material";
-import ConfirmationNumberIcon from '@mui/icons-material/ConfirmationNumber';
-import findEvent from "@/helpers/findEvent"
-import TableRow from "@/components/UI/TableRow"
+import { ConfirmationNumber } from '@mui/icons-material';
+import { TableRow } from "@/components";
+import { findEvent } from "@/helpers";
 
-export default function EventDetails ({ eventIndex }: { eventIndex: number }) {
-  const event = findEvent(eventIndex);
-  var gameId = event.gameId,
-      eventLinkId = gameId.substring(7);
-
-  const startDateTime = `${event.startDate}, ${event.startTime}`
-  const endDateTime = `${event.endDate}, ${event.endTime}`
-  const durationSuffix = event.duration > 1 ? 'hrs' : 'hr'
-  const cost = `$${event.cost}`
-  const isTournament = event.tournament ? 'Yes' : 'No';
-  const ticketRatio = `${event.ticketsAvailable} / ${event.playersMax}`
+export function EventDetails ({ eventIndex }: { eventIndex: number }) {
+  const {
+    ageRequirement,
+    cost,
+    descriptionLong,
+    descriptionShort,
+    duration,
+    endDate,
+    endTime,
+    eventType,
+    experienceType,
+    gameId,
+    gameSystem,
+    group,
+    materials,
+    playersMax,
+    startDate,
+    startTime,
+    ticketsAvailable,
+    title,
+    tournament
+  } = findEvent(eventIndex);
+  const eventLinkId = gameId.substring(7);
+  const startDateTime = `${startDate}, ${startTime}`
+  const endDateTime = `${endDate}, ${endTime}`
+  const durationSuffix = duration > 1 ? 'hrs' : 'hr'
+  const eventCost = `$${cost}`
+  const isTournament = tournament ? 'Yes' : 'No';
+  const ticketRatio = `${ticketsAvailable} / ${playersMax}`
 
   return (
     <table>
@@ -24,10 +41,10 @@ export default function EventDetails ({ eventIndex }: { eventIndex: number }) {
             Title
           </td>
           <td className="table-value-container">
-            {event.title}<br />
+            {title}<br />
             <Button
               className='ticket-link'
-              startIcon={<ConfirmationNumberIcon />}
+              startIcon={<ConfirmationNumber />}
               href={`https://www.gencon.com/events/${eventLinkId}`}
               target='_blank'
             >
@@ -35,34 +52,33 @@ export default function EventDetails ({ eventIndex }: { eventIndex: number }) {
             </Button>
           </td>
         </tr>
-        {/* <TableRow category={'Title'} detail={event.title} /> */}
         <TableRow category={'Game Id'} detail={gameId} />
-        <TableRow category={'Event Type'} detail={event.eventType} />
-        {event.gameSystem && (
-          <TableRow category={'Game System'} detail={event.gameSystem} />
+        <TableRow category={'Event Type'} detail={eventType} />
+        {gameSystem && (
+          <TableRow category={'Game System'} detail={gameSystem} />
         )}
         <TableRow category={'Start Date and Time'} detail={startDateTime} />
         <TableRow category={'End Date and Time'} detail={endDateTime} />
-        <TableRow category={'Duration'} detail={`${event.duration} ${durationSuffix}`} />
-        {event.descriptionShort && (
-          <TableRow category={'Short Description'} detail={event.descriptionShort} />
+        <TableRow category={'Duration'} detail={`${duration} ${durationSuffix}`} />
+        {descriptionShort && (
+          <TableRow category={'Short Description'} detail={descriptionShort} />
         )}
-        {event.descriptionLong && (
-          <TableRow category={'Long Description'} detail={event.descriptionLong} />
+        {descriptionLong && (
+          <TableRow category={'Long Description'} detail={descriptionLong} />
         )}
-        <TableRow category={'Cost'} detail={cost} />
-        <TableRow category={'Age Requirement'} detail={event.ageRequirement} />
-        <TableRow category={'Experience Requirement'} detail={event.experienceType} />
-        {event.materials ? (
-          <TableRow category={'Materials Required'} detail={event.materials} />
+        <TableRow category={'Cost'} detail={eventCost} />
+        <TableRow category={'Age Requirement'} detail={ageRequirement} />
+        <TableRow category={'Experience Requirement'} detail={experienceType} />
+        {materials ? (
+          <TableRow category={'Materials Required'} detail={materials} />
         ) : (
           <TableRow category={'Materials Required'} detail={'None'} />
         )}
-        {event.group && (
-          <TableRow category={'Group'} detail={event.group} />
+        {group && (
+          <TableRow category={'Group'} detail={group} />
         )}
-        {event.location && (
-          <TableRow category={'Location'} detail={event.location} />
+        {location && (
+          <TableRow category={'Location'} detail={`${location}`} />
         )}
         <TableRow category={'Tournament'} detail={isTournament} />
         <TableRow category={'Tickets Available'} detail={ticketRatio} />

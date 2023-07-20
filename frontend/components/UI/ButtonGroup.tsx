@@ -1,11 +1,8 @@
-
-import { useState } from 'react';
-import Button from '@mui/material/Button';
-import CheckIcon from '@mui/icons-material/Check';
-import CloseIcon from '@mui/icons-material/Close';
+import { Button } from '@mui/material';
+import { Check, Close } from '@mui/icons-material';
 import { ButtonGroupProps } from '@/assets/interfaces';
 
-export default function ButtonGroup({
+export function ButtonGroup({
   groupLabel,
   hiddenList,
   handleFilter,
@@ -24,7 +21,7 @@ export default function ButtonGroup({
               <Button
                 onClick={() => handleFilter({groupLabel, label})}
                 className={`${visible ? 'visible' : 'hidden'} toggle-btn`}
-                startIcon={visible ? <CheckIcon /> : <CloseIcon />}
+                startIcon={visible ? <Check /> : <Close />}
               >
                 {label}
               </Button>

@@ -1,11 +1,6 @@
-import FilterAltIcon from '@mui/icons-material/FilterAlt';
-import AccessTimeFilledIcon from '@mui/icons-material/AccessTimeFilled';
-
-import DrawerComponent from '@/components/UI/Drawer';
-import EventCategoryFilters from '@/components/EventCategoryFilters';
-import TimeFilters from '@/components/TimeFilters';
-
+import { AccessTimeFilled, FilterAlt } from '@mui/icons-material';
 import { DrawerFiltersProps } from '@/assets/interfaces';
+import { DrawerComponent, EventCategoryFilters, TimeFilters } from '@/components';
 
 export default function DrawerFilters ({
   handleFilter,
@@ -27,7 +22,7 @@ export default function DrawerFilters ({
   return (
     <>
       <div className='drawer-container'>
-        <DrawerComponent icon={<FilterAltIcon />} buttonText='Filter By Event Category'>
+        <DrawerComponent icon={<FilterAlt />} buttonText='Filter By Event Category'>
           <div id='filter-drawer-content-wrapper'>
             <EventCategoryFilters
               handleFilter={handleFilter}
@@ -44,7 +39,7 @@ export default function DrawerFilters ({
         </DrawerComponent>
       </div>
       <div className='drawer-container'>
-      <DrawerComponent icon={<AccessTimeFilledIcon />} buttonText='Filter By Time'>
+      <DrawerComponent icon={<AccessTimeFilled />} buttonText='Filter By Time'>
         <div id='filter-drawer-content-wrapper'>
           <TimeFilters
             earliestStartTime={earliestStartTime}

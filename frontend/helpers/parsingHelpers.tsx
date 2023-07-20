@@ -1,11 +1,5 @@
 import EventData from '@/assets/events/events.json';
-import { cleanData } from './cleanData';
-
-const getFirstKey = (object: any) => {
-  const keyList = Object.keys(object)
-
-  return keyList[0]
-}
+import { cleanData, getFirstKey } from '@/helpers';
 
 export default function parseData () {
   const rawData = EventData as any;
@@ -30,3 +24,14 @@ export default function parseData () {
 
   return cleanedData
 };
+
+export const parseDate = (dateString: string) => {
+  const year = dateString.substring(0,4);
+  const month = dateString.substring(4, 6);
+  const day = dateString.substring(6, 8);
+  const hour = dateString.substring(8, 10);
+  const minute = dateString.substring(10, 12);
+  const second = dateString.substring(12, 14);
+
+  return `${month}/${day}/${year} ${hour}:${minute}:${second}`
+}

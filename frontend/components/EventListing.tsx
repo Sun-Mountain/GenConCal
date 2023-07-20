@@ -1,12 +1,9 @@
 import { Suspense, useState } from 'react';
-
-import IconButton from '@mui/material/IconButton'
-import FavoriteIcon from '@mui/icons-material/Favorite';
-import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
-
-import EventModal from '@/components/EventModal';
+import { IconButton } from '@mui/material';
+import { Favorite, FavoriteBorder } from '@mui/icons-material';
 import { eventData } from '@/pages/_app';
 import { EventListingProps } from '@/assets/interfaces';
+import { EventModal } from '@/components';
 
 export default function EventListing ({ eventIndex, includesFave, handleFaves }: EventListingProps) {
   const {
@@ -22,7 +19,7 @@ export default function EventListing ({ eventIndex, includesFave, handleFaves }:
 
   const noTickets = ticketsAvailable === 0;
 
-  const aFave = includesFave(eventIndex) ? <FavoriteIcon style={{ color: '#d81159ff'}} /> : <FavoriteBorderIcon />;
+  const aFave = includesFave(eventIndex) ? <Favorite style={{ color: '#d81159ff'}} /> : <FavoriteBorder />;
 
   const toggleFave = () => {
     setButtonLoading(!buttonLoading)

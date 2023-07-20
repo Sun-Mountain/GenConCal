@@ -1,23 +1,23 @@
 import { useState } from 'react';
 
 import { filteredEvents } from './_app';
-import filterOutHelper from '@/helpers/filterOut';
-import filterForHelper from '@/helpers/filterFor';
+import { HomePageProps } from '@/assets/interfaces';
+import { Favorites, ToggleComponent } from '@/components';
+import { filterForHelper, filterOutHelper } from '@/helpers';
 
 import DailyTabs from '@/components/DailyTabs';
 import DrawerFilters from '@/components/DrawerFilters';
-import ToggleComponent from '@/components/UI/Toggle';
-import { HomePageProps } from '@/assets/interfaces';
-import Favorites from '@/components/Favorites';
-
-export const ageReqMasterList = filteredEvents.ageRequirement;
-export const xpReqMasterList = filteredEvents.experienceType;
-export const eventTypeMasterList = filteredEvents.eventTypes;
-export const gameSystemMasterList = filteredEvents.gameSystems;
-export const groupsMasterList = filteredEvents.groups;
-export const locationMasterList = filteredEvents.locations;
 
 export default function Home ({ faves, setFaves }: HomePageProps) {
+  const {
+    ageRequirement: ageReqMasterList,
+    eventTypes: eventTypeMasterList,
+    experienceType: xpReqMasterList,
+    gameSystems: gameSystemMasterList,
+    groups: groupsMasterList,
+    locations: locationMasterList
+  } = filteredEvents;
+
   // Lists
   const [ageReqList, setAgeReqList] = useState<string[]>([]);
   const [xpReqList, setXPReqList] = useState<string[]>([]);
@@ -111,11 +111,12 @@ export default function Home ({ faves, setFaves }: HomePageProps) {
   }
 
   const includesFave = (eventIndex: number) => {
-    return faves.includes(eventIndex) ? true : false;
+    var favesState = JSON.parse(localStorage.getItem('faves') || JSON.stringify(faves));
+    return favesState.includes(eventIndex);
   }
 
   const handleFaves = async (eventIndex: number) => {
-    var newFaves = faves;
+    var newFaves = JSON.parse(localStorage.getItem('faves') || JSON.stringify(faves));
     if (includesFave(eventIndex)) {
       var index = newFaves.indexOf(eventIndex);
       newFaves.splice(index, 1);
@@ -152,7 +153,11 @@ export default function Home ({ faves, setFaves }: HomePageProps) {
           durationFilter={durationFilter}
           setDurationFilter={setDurationFilter}
         />
-        <Favorites faves={faves} handleFaves={handleFaves} setFaves={setFaves} />
+        <Favorites
+          faves={JSON.parse(localStorage.getItem('faves') || JSON.stringify(faves))}
+          handleFaves={handleFaves}
+          setFaves={setFaves}
+        />
       </div>
       <DailyTabs
         durationFilter={durationFilter}

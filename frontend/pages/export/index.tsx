@@ -1,23 +1,18 @@
-import { Dispatch, SetStateAction } from 'react';
-import dynamic from 'next/dynamic';
-import Accordion from '@mui/material/Accordion';
-import AccordionSummary from '@mui/material/AccordionSummary';
-import AccordionDetails from '@mui/material/AccordionDetails';
-import Typography from '@mui/material/Typography';
+import { Dispatch, SetStateAction, Suspense } from 'react';
+import { Accordion, AccordionDetails, AccordionSummary } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 import { filteredEvents } from '@/pages/_app';
-import findConflicts from '@/helpers/findConflicts';
-
-import ClearFavoritesBtn from '@/components/ClearFavoritesBtn';
-const FaveCard = dynamic(() => import("@/components/FaveCard"));
-
-const eventsListByDay = filteredEvents.startDates;
-const eventsListByStartTime = filteredEvents.startTimes;
-const dayLabels = Object.keys(eventsListByDay).sort();
-const timeLabels = Object.keys(eventsListByStartTime).sort();
+import { ClearFavoritesBtn, FaveCard } from '@/components';
+import { findConflicts } from '@/helpers';
 
 export default function ExportPage ({ setFaves }: { setFaves: Dispatch<SetStateAction<number[]>> }) {
+  const {
+    startDates: eventsListByDay,
+    startTimes: eventsListByStartTime
+  } = filteredEvents;
+  const dayLabels = Object.keys(eventsListByDay).sort();
+  const timeLabels = Object.keys(eventsListByStartTime).sort();
   const faves = JSON.parse(localStorage.getItem('faves') || '[]');
 
   const getFaves = (day: string) => {
@@ -37,6 +32,7 @@ export default function ExportPage ({ setFaves }: { setFaves: Dispatch<SetStateA
     } else {
       newFaves.push(eventIndex);
     }
+    setFaves(newFaves)
     localStorage.setItem('faves', JSON.stringify(newFaves))
   }
 
@@ -64,10 +60,10 @@ export default function ExportPage ({ setFaves }: { setFaves: Dispatch<SetStateA
                   aria-controls="panel1a-content"
                   id="panel1a-header"
                 >
-                  <Typography>{day} - {favesPerDay.length} Events</Typography>
+                  <>{day} - {favesPerDay.length} Events</>
                 </AccordionSummary>
                 <AccordionDetails>
-                  <Typography>
+                  <>
                     {timeLabels.map((time, index) => {
                       const favesPerTime = favesPerDay.filter(val => eventsListByStartTime[time].includes(val));
 
@@ -81,14 +77,19 @@ export default function ExportPage ({ setFaves }: { setFaves: Dispatch<SetStateA
                             </li>
                             <div className='fave-list'>
                               {faveEventsList.map((fave, index) => {
-                                return <FaveCard key={index} favoriteEvent={fave} handleFaves={handleFaves}  />
+                                return (
+                                  // eslint-disable-next-line react/jsx-key
+                                  <Suspense>
+                                    <FaveCard key={index} favoriteEvent={fave} handleFaves={handleFaves}  />
+                                  </Suspense>
+                                )
                               })}
                             </div>
                           </ul>
                         )
                       }
                     })}
-                  </Typography>
+                  </>
                 </AccordionDetails>
               </Accordion>
             )

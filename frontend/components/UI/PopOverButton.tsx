@@ -1,11 +1,8 @@
 import { MouseEvent, ReactNode, useState } from 'react';
-import Popover from '@mui/material/Popover';
-import Typography from '@mui/material/Typography';
-import Button from '@mui/material/Button';
-import FavoriteIcon from '@mui/icons-material/Favorite';
-import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
+import { Button, Popover } from '@mui/material';
+import { Favorite, FavoriteBorder } from '@mui/icons-material';
 
-export default function PopoverButton({
+export function PopoverButton({
   numOfFaves,
   children
 }: {
@@ -30,10 +27,10 @@ export default function PopoverButton({
       <Button aria-describedby={id} variant={numOfFaves ? 'contained' : 'outlined'} onClick={handleClick}>
         {numOfFaves ? (
           <>
-            <FavoriteIcon style={{ color: '#d81159ff'}} />&nbsp;({numOfFaves})
+            <Favorite style={{ color: '#d81159ff'}} />&nbsp;({numOfFaves})
           </>
         ) : (
-          <FavoriteBorderIcon style={{ color: '#d81159ff'}} />
+          <FavoriteBorder style={{ color: '#d81159ff'}} />
         )}
       </Button>
       <Popover
@@ -46,7 +43,7 @@ export default function PopoverButton({
           horizontal: 'left',
         }}
       >
-        <Typography sx={{ p: 2 }}>
+        <div className='fave-cards-container'>
           {numOfFaves ? (
             <>
               {children}
@@ -56,7 +53,7 @@ export default function PopoverButton({
               You do not have any favorite events.
             </>
           )}
-        </Typography>
+        </div>
       </Popover>
     </div>
   );
