@@ -1,6 +1,5 @@
 import EventData from '@/assets/events/events.json';
-import { getFirstKey } from '@/helpers';
-import { cleanData } from './cleanData';
+import { cleanData, getFirstKey } from '@/helpers';
 
 export const parseData = () => {
   const rawData = EventData as any;
