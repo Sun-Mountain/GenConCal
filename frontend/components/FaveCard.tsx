@@ -21,7 +21,7 @@ import {
 
 import { NewEvent } from '@/assets/interfaces';
 import { EventModal } from '@/components';
-import findEvent from '@/helpers/findEvent';
+import { findEvent } from '@/helpers';
 
 interface ExpandMoreProps extends IconButtonProps {
   expand: boolean;

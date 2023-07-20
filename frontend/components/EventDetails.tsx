@@ -1,7 +1,7 @@
 import { Button } from "@mui/material";
 import { ConfirmationNumber } from '@mui/icons-material';
-import { TableRow } from "@/components"
-import findEvent from "@/helpers/findEvent"
+import { TableRow } from "@/components";
+import { findEvent } from "@/helpers";
 
 export function EventDetails ({ eventIndex }: { eventIndex: number }) {
   const {

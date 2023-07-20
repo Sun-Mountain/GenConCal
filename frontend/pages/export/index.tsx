@@ -4,7 +4,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 import { filteredEvents } from '@/pages/_app';
 import { ClearFavoritesBtn, FaveCard } from '@/components';
-import findConflicts from '@/helpers/findConflicts';
+import { findConflicts } from '@/helpers';
 
 const {
   startDates: eventsListByDay,

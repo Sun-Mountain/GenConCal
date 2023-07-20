@@ -3,8 +3,7 @@ import { useState } from 'react';
 import { filteredEvents } from './_app';
 import { HomePageProps } from '@/assets/interfaces';
 import { Favorites, ToggleComponent } from '@/components';
-import { filterForHelper } from '@/helpers';
-import filterOutHelper from '@/helpers/filterOut';
+import { filterForHelper, filterOutHelper } from '@/helpers';
 
 import DailyTabs from '@/components/DailyTabs';
 import DrawerFilters from '@/components/DrawerFilters';
@@ -154,7 +153,11 @@ export default function Home ({ faves, setFaves }: HomePageProps) {
           durationFilter={durationFilter}
           setDurationFilter={setDurationFilter}
         />
-        <Favorites faves={JSON.parse(localStorage.getItem('faves') || JSON.stringify(faves))} handleFaves={handleFaves} setFaves={setFaves} />
+        <Favorites
+          faves={JSON.parse(localStorage.getItem('faves') || JSON.stringify(faves))}
+          handleFaves={handleFaves}
+          setFaves={setFaves}
+        />
       </div>
       <DailyTabs
         durationFilter={durationFilter}
