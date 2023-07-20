@@ -2,8 +2,7 @@ import { Card, CardActions, CardContent, IconButton } from '@mui/material';
 import { CalendarMonth, Delete, DoNotDisturb, EmojiEvents, ListAlt } from '@mui/icons-material/';
 
 import { NewEvent } from "@/assets/interfaces";
-
-import EventModal from '@/components/EventModal';
+import { EventModal } from '@/components';
 
 export function EventCard ({ event, handleFaves }: { event: NewEvent; handleFaves: Function; }) {
   const {

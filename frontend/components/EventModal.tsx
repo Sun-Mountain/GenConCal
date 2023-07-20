@@ -3,7 +3,7 @@ import { Button, IconButton} from '@mui/material';
 import { Close, ZoomIn } from '@mui/icons-material';
 import { EventDetails, ModalComponent } from '@/components';
 
-export default function EventModal ({ eventIndex, showLabel, size }: { eventIndex: number, showLabel?: boolean, size?: 'small' | 'medium' | 'large' }) {
+export function EventModal ({ eventIndex, showLabel, size }: { eventIndex: number, showLabel?: boolean, size?: 'small' | 'medium' | 'large' }) {
   const [open, setOpen] = useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);

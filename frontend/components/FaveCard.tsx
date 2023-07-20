@@ -8,7 +8,6 @@ import {
   IconButtonProps,
   styled
 } from '@mui/material';
-
 import {
   CalendarMonth,
   Delete,
@@ -20,9 +19,8 @@ import {
   ReportGmailerrorred,
 } from '@mui/icons-material/';
 
-import EventModal from '@/components/EventModal';
-
 import { NewEvent } from '@/assets/interfaces';
+import { EventModal } from '@/components';
 import findEvent from '@/helpers/findEvent';
 
 interface ExpandMoreProps extends IconButtonProps {

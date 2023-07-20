@@ -1,10 +1,9 @@
 import { Suspense, useState } from 'react';
-import { IconButton } from '@mui/material'
+import { IconButton } from '@mui/material';
 import { Favorite, FavoriteBorder } from '@mui/icons-material';
 import { eventData } from '@/pages/_app';
-
-import EventModal from '@/components/EventModal';
 import { EventListingProps } from '@/assets/interfaces';
+import { EventModal } from '@/components';
 
 export default function EventListing ({ eventIndex, includesFave, handleFaves }: EventListingProps) {
   const {
