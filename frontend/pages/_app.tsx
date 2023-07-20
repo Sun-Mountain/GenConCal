@@ -5,12 +5,6 @@ import type { NextPage } from 'next';
 import type { AppProps } from 'next/app';
 import Head from 'next/head';
 import { Analytics } from '@vercel/analytics/react';
-import parseData from '@/helpers/parsingHelpers';
-
-export const { eventData, filteredEvents } = parseData();
-
-import '@/assets/styles/application.scss';
-import { Navigation } from '@/components';
 
 export const metadata = {
   title: 'GenCon Cal',
@@ -24,6 +18,12 @@ export type NextPageWithLayout<P = {}, IP = P> = NextPage<P, IP> & {
 type AppPropsWithLayout = AppProps & {
   Component: NextPageWithLayout
 }
+
+import '@/assets/styles/application.scss';
+import { Navigation } from '@/components';
+import parseData from '@/helpers/parsingHelpers';
+
+export const { eventData, filteredEvents } = parseData();
 
 export default function MyApp({ Component, pageProps }: AppPropsWithLayout) {
   const [hasMounted, setHasMounted] = useState<boolean>(false);
