@@ -1,7 +1,6 @@
-import { AutoCompleteTime, DoubleSliderComponent } from "@/components";
-import getQuarterHours from "@/helpers/getQuarterHours";
-
 import { TimeFilterProps } from "@/assets/interfaces";
+import { AutoCompleteTime, DoubleSliderComponent } from "@/components";
+import { getQuarterHours } from "@/helpers";
 
 const times = getQuarterHours();
 

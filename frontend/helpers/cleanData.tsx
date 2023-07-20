@@ -1,11 +1,5 @@
 import { DataProps, EventDataProps, KeyProps, NewEvent } from '@/assets/interfaces';
-import getTime from './getTime';
-import trueOrFalse from "./trueOrFalse";
-
-const getKeyByValue = (object: any, value: string) => {
-  const foundKey = Object.keys(object).find((key) => object[key] === value);
-  return foundKey;
-}
+import { getKeyByValue, getTime, trueOrFalse } from '@/helpers';
 
 export const cleanData = ({ keyList, eventList }: {
   keyList: KeyProps;
