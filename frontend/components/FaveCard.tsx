@@ -34,7 +34,7 @@ const ExpandMoreComponent = styled((props: ExpandMoreProps) => {
   marginLeft: 'auto',
 }));
 
-export default function FaveCard ({ favoriteEvent, handleFaves }: { favoriteEvent: NewEvent, handleFaves: Function }) {
+export function FaveCard ({ favoriteEvent, handleFaves }: { favoriteEvent: NewEvent, handleFaves: Function }) {
   const [expanded, setExpanded] = useState(false);
   const { 
     conflicts,

@@ -1,13 +1,10 @@
-import { Dispatch, SetStateAction } from 'react';
-import dynamic from 'next/dynamic';
+import { Dispatch, SetStateAction, Suspense } from 'react';
 import { Accordion, AccordionDetails, AccordionSummary } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 import { filteredEvents } from '@/pages/_app';
-import { ClearFavoritesBtn } from '@/components';
+import { ClearFavoritesBtn, FaveCard } from '@/components';
 import findConflicts from '@/helpers/findConflicts';
-
-const FaveCard = dynamic(() => import("@/components/FaveCard"));
 
 const {
   startDates: eventsListByDay,
@@ -81,7 +78,12 @@ export default function ExportPage ({ setFaves }: { setFaves: Dispatch<SetStateA
                             </li>
                             <div className='fave-list'>
                               {faveEventsList.map((fave, index) => {
-                                return <FaveCard key={index} favoriteEvent={fave} handleFaves={handleFaves}  />
+                                return (
+                                  // eslint-disable-next-line react/jsx-key
+                                  <Suspense>
+                                    <FaveCard key={index} favoriteEvent={fave} handleFaves={handleFaves}  />
+                                  </Suspense>
+                                )
                               })}
                             </div>
                           </ul>
