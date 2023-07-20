@@ -8,11 +8,30 @@ The Gencon Calendar Application is a web application built with Next.js framewor
 This documentation will guide you through the installation process, explain the paplications features and functionalities, and provide an overview of the code structure for further development or customization.
 
 ## Table of Contents
-1. Installation
+1. Features
+2. Installation
    * Prerequisites
    * Installation Steps
+3. Contribute to the Project
 
-## 1. Installation
+## 1. Features
+* Easy to Use Filters
+* Export Events into a Schedule that shows event conflicts
+* Filter by
+   * Age Requirement
+   * Event Duration
+   * Event Type
+   * Experience Requirement
+   * Game Systems
+   * Group / Company Host
+   * Location
+   * Time
+* Filter Out or Only Tournaments
+* Favorite Events
+
+Have an idea? [Look into Contributing to the Project](#3-contribute-to-the-project)
+
+## 2. Installation
 
 ### Prerequisites
 Before installing the GenCon Calendar App, ensure you have the following installed on your machine:
@@ -32,7 +51,7 @@ yarn install
 pnpm install
 ```
 
-4. Once the installation is complete, start the development server:
+4. Once the installation is complete, navigate to the `frontend` directory and start the development server:
 ```
 npm run dev
 // or
@@ -42,3 +61,7 @@ pnpm dev
 ```
 
 5. Open your web browser and navigate to `http://localhost:3000` to access the GenCon Calendar App.
+
+## 3. Contribute to the Project
+
+I am happy to announce that this project is open source!
