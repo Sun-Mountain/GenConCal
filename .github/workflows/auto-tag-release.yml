@@ -2,7 +2,7 @@ name: Auto Tag Release Draft
 on:
   push:
     branches:
-      - stop-workflow
+      - main
 jobs:
   Patch:
     runs-on: ubuntu-latest
