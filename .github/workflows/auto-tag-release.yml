@@ -3,7 +3,6 @@ on:
   push:
     branches:
       - main
-      - 59-bug-fix-auto-update-gencon-list
 jobs:
   Patch:
     runs-on: ubuntu-latest
