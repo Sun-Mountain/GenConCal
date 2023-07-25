@@ -442,7 +442,7 @@ const parseData = () => {
 
   const cleanedData = cleanData({ keyList: labelKey, eventList: rawEventsList });
 
-  return cleanedData
+  return JSON.stringify(cleanedData)
 };
 
 export default console.log(parseData());
