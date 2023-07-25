@@ -64,8 +64,8 @@ jobs:
       with:
         remove: 'events.zip'
     - name: Run ParseData.js
-      run: node ./frontend/modules/parseData.js > ./frontend/assets/events/eventList.json
+      run: node ./frontend/modules/parseData.js > ./frontend/assets/events/finalEventList.json
     - name: Add new file
       uses: EndBug/add-and-commit@v9
       with:
-        add: './frontend/assets/events/eventList.json'
+        add: './frontend/assets/events/finalEventList.json'

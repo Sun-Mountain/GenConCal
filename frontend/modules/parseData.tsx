@@ -154,34 +154,34 @@ const cleanData = ({ keyList, eventList }: {
   }
 
   // Event Times
-  const startDateTimeKey = getKeyByValue(keyList, "Start Date & Time");
-  const endDateTimeKey = getKeyByValue(keyList, "End Date & Time");
+  const startDateTimeKey = `${getKeyByValue(keyList, "Start Date & Time")}`;
+  const endDateTimeKey = `${getKeyByValue(keyList, "End Date & Time")}`;
 
   // Event Info
-  const ageRequirementKey = getKeyByValue(keyList, "Age Required");
-  const contactKey = getKeyByValue(keyList, "Email");
-  const costKey = getKeyByValue(keyList, "Cost $");
-  const durationKey = getKeyByValue(keyList, "Duration");
-  const descriptionShortKey = getKeyByValue(keyList, "Short Description");
-  const descriptionLongKey = getKeyByValue(keyList, "Long Description");
-  const eventTypeKey = getKeyByValue(keyList, "Event Type");
-  const expKey = getKeyByValue(keyList, "Experience Required");
-  const gameIdKey = getKeyByValue(keyList, "Game ID");
-  const gameSystemKey = getKeyByValue(keyList, "Game System");
-  const gmNamesKey = getKeyByValue(keyList, "GM Names");
-  const groupKey = getKeyByValue(keyList, "Group");
-  const locationKey = getKeyByValue(keyList, "Location");
-  const materialsKey = getKeyByValue(keyList, "Materials Required Details");
-  const playersMinKey = getKeyByValue(keyList, "Minimum Players");
-  const playersMaxKey = getKeyByValue(keyList, "Maximum Players");
-  const tableNumKey = getKeyByValue(keyList, "Table Number");
-  const ticketCountKey = getKeyByValue(keyList, "Tickets Available");
-  const titleKey = getKeyByValue(keyList, "Title");
-  const tournamentKey = getKeyByValue(keyList, "Tournament?");
-  const roomKey = getKeyByValue(keyList, "Room Name");
-  const roundKey = getKeyByValue(keyList, "Round Number");
-  const roundTotalKey = getKeyByValue(keyList, "Total Rounds");
-  const websiteKey = getKeyByValue(keyList, "Website");
+  const ageRequirementKey = `${getKeyByValue(keyList, "Age Required")}`;
+  const contactKey = `${getKeyByValue(keyList, "Email")}`;
+  const costKey = `${getKeyByValue(keyList, "Cost $")}`;
+  const durationKey = `${getKeyByValue(keyList, "Duration")}`;
+  const descriptionShortKey = `${getKeyByValue(keyList, "Short Description")}`;
+  const descriptionLongKey = `${getKeyByValue(keyList, "Long Description")}`;
+  const eventTypeKey = `${getKeyByValue(keyList, "Event Type")}`;
+  const expKey = `${getKeyByValue(keyList, "Experience Required")}`;
+  const gameIdKey = `${getKeyByValue(keyList, "Game ID")}`;
+  const gameSystemKey = `${getKeyByValue(keyList, "Game System")}`;
+  const gmNamesKey = `${getKeyByValue(keyList, "GM Names")}`;
+  const groupKey = `${getKeyByValue(keyList, "Group")}`;
+  const locationKey = `${getKeyByValue(keyList, "Location")}`;
+  const materialsKey = `${getKeyByValue(keyList, "Materials Required Details")}`;
+  const playersMinKey = `${getKeyByValue(keyList, "Minimum Players")}`;
+  const playersMaxKey = `${getKeyByValue(keyList, "Maximum Players")}`;
+  const tableNumKey = `${getKeyByValue(keyList, "Table Number")}`;
+  const ticketCountKey = `${getKeyByValue(keyList, "Tickets Available")}`;
+  const titleKey = `${getKeyByValue(keyList, "Title")}`;
+  const tournamentKey = `${getKeyByValue(keyList, "Tournament?")}`;
+  const roomKey = `${getKeyByValue(keyList, "Room Name")}`;
+  const roundKey = `${getKeyByValue(keyList, "Round Number")}`;
+  const roundTotalKey = `${getKeyByValue(keyList, "Total Rounds")}`;
+  const websiteKey = `${getKeyByValue(keyList, "Website")}`;
 
   eventList.map((event: any, index) => {
     var newEvent: NewEvent = {
@@ -441,7 +441,7 @@ const parseData = () => {
 
   const cleanedData = cleanData({ keyList: labelKey, eventList: rawEventsList });
 
-  return JSON.stringify(cleanedData);
+  return cleanedData;
 };
 
 export default console.log(parseData());
