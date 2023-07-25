@@ -49,33 +49,33 @@ var cleanData = function (_a) {
         }
     };
     // Event Times
-    var startDateTimeKey = getKeyByValue(keyList, "Start Date & Time");
-    var endDateTimeKey = getKeyByValue(keyList, "End Date & Time");
+    var startDateTimeKey = "".concat(getKeyByValue(keyList, "Start Date & Time"));
+    var endDateTimeKey = "".concat(getKeyByValue(keyList, "End Date & Time"));
     // Event Info
-    var ageRequirementKey = getKeyByValue(keyList, "Age Required");
-    var contactKey = getKeyByValue(keyList, "Email");
-    var costKey = getKeyByValue(keyList, "Cost $");
-    var durationKey = getKeyByValue(keyList, "Duration");
-    var descriptionShortKey = getKeyByValue(keyList, "Short Description");
-    var descriptionLongKey = getKeyByValue(keyList, "Long Description");
-    var eventTypeKey = getKeyByValue(keyList, "Event Type");
-    var expKey = getKeyByValue(keyList, "Experience Required");
-    var gameIdKey = getKeyByValue(keyList, "Game ID");
-    var gameSystemKey = getKeyByValue(keyList, "Game System");
-    var gmNamesKey = getKeyByValue(keyList, "GM Names");
-    var groupKey = getKeyByValue(keyList, "Group");
-    var locationKey = getKeyByValue(keyList, "Location");
-    var materialsKey = getKeyByValue(keyList, "Materials Required Details");
-    var playersMinKey = getKeyByValue(keyList, "Minimum Players");
-    var playersMaxKey = getKeyByValue(keyList, "Maximum Players");
-    var tableNumKey = getKeyByValue(keyList, "Table Number");
-    var ticketCountKey = getKeyByValue(keyList, "Tickets Available");
-    var titleKey = getKeyByValue(keyList, "Title");
-    var tournamentKey = getKeyByValue(keyList, "Tournament?");
-    var roomKey = getKeyByValue(keyList, "Room Name");
-    var roundKey = getKeyByValue(keyList, "Round Number");
-    var roundTotalKey = getKeyByValue(keyList, "Total Rounds");
-    var websiteKey = getKeyByValue(keyList, "Website");
+    var ageRequirementKey = "".concat(getKeyByValue(keyList, "Age Required"));
+    var contactKey = "".concat(getKeyByValue(keyList, "Email"));
+    var costKey = "".concat(getKeyByValue(keyList, "Cost $"));
+    var durationKey = "".concat(getKeyByValue(keyList, "Duration"));
+    var descriptionShortKey = "".concat(getKeyByValue(keyList, "Short Description"));
+    var descriptionLongKey = "".concat(getKeyByValue(keyList, "Long Description"));
+    var eventTypeKey = "".concat(getKeyByValue(keyList, "Event Type"));
+    var expKey = "".concat(getKeyByValue(keyList, "Experience Required"));
+    var gameIdKey = "".concat(getKeyByValue(keyList, "Game ID"));
+    var gameSystemKey = "".concat(getKeyByValue(keyList, "Game System"));
+    var gmNamesKey = "".concat(getKeyByValue(keyList, "GM Names"));
+    var groupKey = "".concat(getKeyByValue(keyList, "Group"));
+    var locationKey = "".concat(getKeyByValue(keyList, "Location"));
+    var materialsKey = "".concat(getKeyByValue(keyList, "Materials Required Details"));
+    var playersMinKey = "".concat(getKeyByValue(keyList, "Minimum Players"));
+    var playersMaxKey = "".concat(getKeyByValue(keyList, "Maximum Players"));
+    var tableNumKey = "".concat(getKeyByValue(keyList, "Table Number"));
+    var ticketCountKey = "".concat(getKeyByValue(keyList, "Tickets Available"));
+    var titleKey = "".concat(getKeyByValue(keyList, "Title"));
+    var tournamentKey = "".concat(getKeyByValue(keyList, "Tournament?"));
+    var roomKey = "".concat(getKeyByValue(keyList, "Room Name"));
+    var roundKey = "".concat(getKeyByValue(keyList, "Round Number"));
+    var roundTotalKey = "".concat(getKeyByValue(keyList, "Total Rounds"));
+    var websiteKey = "".concat(getKeyByValue(keyList, "Website"));
     eventList.map(function (event, index) {
         var newEvent = {
             id: 0,
@@ -268,6 +268,6 @@ var parseData = function () {
     // Events list
     var rawEventsList = rawJsonValues;
     var cleanedData = cleanData({ keyList: labelKey, eventList: rawEventsList });
-    return cleanedData;
+    return JSON.stringify(cleanedData);
 };
 exports.default = console.log(parseData());
