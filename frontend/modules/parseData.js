@@ -269,6 +269,6 @@ var parseData = function () {
     // Events list
     var rawEventsList = rawJsonValues;
     var cleanedData = cleanData({ keyList: labelKey, eventList: rawEventsList });
-    return cleanedData;
+    return JSON.stringify(cleanedData);
 };
 exports.default = console.log(parseData());
