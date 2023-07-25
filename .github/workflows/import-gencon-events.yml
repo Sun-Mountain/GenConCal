@@ -64,4 +64,4 @@ jobs:
       with:
         remove: 'events.zip'
     - name: Run ParseData.js
-      run: node ./modules/parseData.js > ./frontend/assets/events/primeEvents.json
+      run: node ./frontend/modules/parseData.js > ./frontend/assets/events/primeEvents.json
