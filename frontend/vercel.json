@@ -1,7 +1,6 @@
 {
   "git": {
     "deploymentEnabled": {
-      "59-bug-fix-auto-update-gencon-list": true
     }
   }
 }
