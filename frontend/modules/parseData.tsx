@@ -426,8 +426,7 @@ const parseData = () => {
 
   // Values of first Key
   const firstKey = getFirstKey(rawData)
-  const jsonString = JSON.stringify(rawData[firstKey]);
-  const rawJsonValues = JSON.parse(jsonString);
+  const rawJsonValues = rawData[firstKey];
 
   // Get labels
   const keyRow = getFirstKey(rawJsonValues)

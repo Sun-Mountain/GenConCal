@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var EventData = require('../assets/events/events.json');
+var EventData = require('../assets/events/rawEvents.json');
 var getFirstKey = function (object) {
     var keyList = Object.keys(object);
     return keyList[0];
@@ -109,7 +109,7 @@ var cleanData = function (_a) {
             roundTotal: 0,
             website: ''
         };
-        var rawStart = new Date(event[startDateTimeKey]), rawEnd = new Date(event[endDateTimeKey]), eventStartDate = rawStart.toLocaleDateString(), eventStartTime = getTime(rawStart), eventEndDate = rawEnd.toLocaleDateString(), eventEndTime = getTime(rawEnd), ageReq = event[ageRequirementKey], contact = event[contactKey], cost = Number(event[costKey]), duration = Number(event[durationKey]), descriptionShort = event[descriptionShortKey], descriptionLong = event[descriptionLongKey], eventType = event[eventTypeKey], experienceReq = event[expKey], gameId = event[gameIdKey], gameSystem = event[gameSystemKey], gmNames = event[gmNamesKey], group = event[groupKey], location = event[locationKey], materials = event[materialsKey], playersMin = Number(event[playersMinKey]), playersMax = Number(event[playersMaxKey]), tableNum = Number(event[tableNumKey]), ticketsAvailable = Number(event[ticketCountKey]), title = event[titleKey], tournament = trueOrFalse(event[tournamentKey]), room = event[roomKey], round = Number(event[roundKey]), roundTotal = Number(event[roundTotalKey]), website = event[websiteKey];
+        var rawStart = new Date(event[startDateTimeKey]), rawEnd = new Date(event[endDateTimeKey]), eventStartDate = rawStart.toLocaleDateString(), eventStartTime = getTime(rawStart), eventEndDate = rawEnd.toLocaleDateString(), eventEndTime = getTime(rawEnd), ageReq = event[ageRequirementKey], contact = event[contactKey], cost = Number(event[costKey]), duration = Number(event[durationKey]), descriptionShort = event[descriptionShortKey], descriptionLong = "".concat(event[descriptionLongKey]), eventType = event[eventTypeKey], experienceReq = event[expKey], gameId = event[gameIdKey], gameSystem = event[gameSystemKey], gmNames = event[gmNamesKey], group = event[groupKey], location = event[locationKey], materials = event[materialsKey], playersMin = Number(event[playersMinKey]), playersMax = Number(event[playersMaxKey]), tableNum = Number(event[tableNumKey]), ticketsAvailable = Number(event[ticketCountKey]), title = event[titleKey], tournament = trueOrFalse(event[tournamentKey]), room = event[roomKey], round = Number(event[roundKey]), roundTotal = Number(event[roundTotalKey]), website = event[websiteKey];
         var newId = index - 1;
         newEvent.id = newId;
         // Event start and end dates and times
@@ -258,8 +258,7 @@ var parseData = function () {
     var rawData = EventData;
     // Values of first Key
     var firstKey = getFirstKey(rawData);
-    var jsonString = JSON.stringify(rawData[firstKey]);
-    var rawJsonValues = JSON.parse(jsonString);
+    var rawJsonValues = rawData[firstKey];
     // Get labels
     var keyRow = getFirstKey(rawJsonValues);
     var labelKey = rawJsonValues[keyRow];
@@ -269,6 +268,6 @@ var parseData = function () {
     // Events list
     var rawEventsList = rawJsonValues;
     var cleanedData = cleanData({ keyList: labelKey, eventList: rawEventsList });
-    return JSON.stringify(cleanedData);
+    return cleanedData;
 };
 exports.default = console.log(parseData());
