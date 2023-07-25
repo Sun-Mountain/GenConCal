@@ -21,7 +21,7 @@ type AppPropsWithLayout = AppProps & {
 
 import '@/assets/styles/application.scss';
 import { Navigation } from '@/components';
-import EventData from '@/assets/events/finalEventList.json';
+import EventData from '@/assets/events/events.json';
 import { DataProps } from '@/assets/interfaces';
 
 export const { eventData, filteredEvents } = EventData as DataProps;
