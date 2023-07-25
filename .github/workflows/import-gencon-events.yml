@@ -32,7 +32,6 @@ jobs:
       uses: EndBug/add-and-commit@v9
       with:
         remove: './frontend/assets/events/rawEvents.json'
-    - name: Remove zip file
     - name: Download zip file
       run: curl https://www.gencon.com/downloads/events.zip -L -o events.zip
     - name: Unzip file
@@ -42,7 +41,7 @@ jobs:
     - name: Add new file
       uses: EndBug/add-and-commit@v9
       with:
-        add: './frontend/assets/events/rawEvents.json'
+        add: './frontend/assets/events/events.json'
     - name: Remove xlsx file
       uses: EndBug/add-and-commit@v9
       with:
