@@ -1,9 +1,8 @@
 name: Import GenCon Events
 
 on:
-  push:
-    branches:
-      - 59-bug-fix-auto-update-gencon-list
+  schedule:
+    - cron: 0 0 * * *
   workflow_dispatch:
     inputs:
       environment:
