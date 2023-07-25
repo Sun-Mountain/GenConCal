@@ -21,9 +21,10 @@ type AppPropsWithLayout = AppProps & {
 
 import '@/assets/styles/application.scss';
 import { Navigation } from '@/components';
-import parseData from '@/helpers/parsingHelpers';
+// import parseData from '@/helpers/parsingHelpers'
+import EventData from '@/assets/events/primeEvents.json'
 
-export const { eventData, filteredEvents } = parseData();
+export const { eventData, filteredEvents } = EventData;
 
 export default function MyApp({ Component, pageProps }: AppPropsWithLayout) {
   const [hasMounted, setHasMounted] = useState<boolean>(false);
