@@ -1,4 +1,4 @@
-const EventData = require('../assets/events/events.json');
+const EventData = require('../assets/events/rawEvents.json');
 
 interface UniqueFilter {
   [index: string]: number[];
