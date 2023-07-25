@@ -25,6 +25,10 @@ jobs:
         node-version: 18
     - name: Install convert-excel-to-json
       run: npm install -g convert-excel-to-json
+    - name: Remove events2.json
+      uses: EndBug/add-and-commit@v9
+      with:
+        remove: './frontend/assets/events/events2.json'
     - name: Rename event.json
       run: mv -i ./frontend/assets/events/events.json ./frontend/assets/events/events2.json
     - name: Remove raw data file
