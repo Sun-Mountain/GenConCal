@@ -23,8 +23,9 @@ import '@/assets/styles/application.scss';
 import { Navigation } from '@/components';
 // import parseData from '@/helpers/parsingHelpers'
 import EventData from '@/assets/events/finalEventList.json'
+import { FilteredEvents, NewEvent } from '@/assets/interfaces';
 
-export const { eventData, filteredEvents } = EventData;
+export const { eventData, filteredEvents } = EventData as { eventData: NewEvent[], filteredEvents: FilteredEvents};
 
 export default function MyApp({ Component, pageProps }: AppPropsWithLayout) {
   const [hasMounted, setHasMounted] = useState<boolean>(false);
