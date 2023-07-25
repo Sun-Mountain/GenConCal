@@ -2,7 +2,8 @@ import { useState } from 'react';
 
 import { filteredEvents } from './_app';
 import { HomePageProps } from '@/assets/interfaces';
-import { Favorites, ToggleComponent } from '@/components';
+import ToggleComponent from '@/components/UI/Toggle';
+import { Favorites } from '@/components';
 import { filterForHelper, filterOutHelper } from '@/helpers';
 
 import DailyTabs from '@/components/DailyTabs';

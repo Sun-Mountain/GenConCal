@@ -2,7 +2,7 @@ import { Button } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { ToggleType } from '@/assets/interfaces';
 
-export function ToggleComponent ({ switchLabel, hide, setHide }: ToggleType) {
+export default function ToggleComponent ({ switchLabel, hide, setHide }: ToggleType) {
   const aria = { inputprops: { 'aria-label': `${switchLabel} Switch` } };
   const label = hide ? `Show ${switchLabel}` : `Hide ${switchLabel}`;
 
