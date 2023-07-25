@@ -17,6 +17,7 @@ export function EventDetails ({ eventIndex }: { eventIndex: number }) {
     gameId,
     gameSystem,
     group,
+    location,
     materials,
     playersMax,
     startDate,
