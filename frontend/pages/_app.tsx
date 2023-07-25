@@ -22,7 +22,7 @@ type AppPropsWithLayout = AppProps & {
 import '@/assets/styles/application.scss';
 import { Navigation } from '@/components';
 // import parseData from '@/helpers/parsingHelpers'
-import EventData from '@/assets/events/primeEvents.json'
+import EventData from '@/assets/events/eventList.json'
 
 export const { eventData, filteredEvents } = EventData;
 
