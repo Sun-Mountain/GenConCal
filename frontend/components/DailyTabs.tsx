@@ -36,7 +36,7 @@ export default function DailyTabs({
   };
 
   const getEvents = (day: string) => {
-    const dayEvents = eventsListByDay[day]
+    const dayEvents = eventsListByDay[day];
     var eventsForDay = dayEvents;
 
     if (Number(durationKeys[0]) != lowestDuration || Number(durationKeys[durationKeys.length - 1]) != highestDuration) {

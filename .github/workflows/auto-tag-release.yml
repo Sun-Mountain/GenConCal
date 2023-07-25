@@ -10,13 +10,14 @@ jobs:
     - uses: actions/checkout@v2
       with:
         fetch-depth: '0'
-    - name: Minor version for each merge
+    - name: Dry Run
       id: taggerDryRun
       uses: anothrNick/github-tag-action@1.36.0
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         WITH_V: true
         DRY_RUN: true
+        DEFAULT_BUMP: patch
 
     - name: echo new tag
       run: |
@@ -27,7 +28,7 @@ jobs:
     - name: echo part
       run: |
         echo "The version increment was: ${{ steps.taggerDryRun.outputs.part }}"
-    - name: Minor version for each merge
+    - name: Tag Real
       id: taggerFinal
       uses: anothrNick/github-tag-action@1.36.0
       env:

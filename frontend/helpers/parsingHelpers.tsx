@@ -1,30 +1,3 @@
-import EventData from '@/assets/events/events.json';
-import { cleanData, getFirstKey } from '@/helpers';
-
-export default function parseData () {
-  const rawData = EventData as any;
-
-  // Values of first Key
-  const firstKey = getFirstKey(rawData)
-  const jsonString = JSON.stringify(rawData[firstKey]);
-  const rawJsonValues = JSON.parse(jsonString);
-
-  // Get labels
-  const keyRow = getFirstKey(rawJsonValues)
-  const labelKey = rawJsonValues[keyRow]
-  labelKey.freeze
-
-  // Remove label level
-  delete rawJsonValues[keyRow];
-
-  // Events list
-  const rawEventsList = rawJsonValues;
-
-  const cleanedData = cleanData({ keyList: labelKey, eventList: rawEventsList });
-
-  return cleanedData
-};
-
 export const parseDate = (dateString: string) => {
   const year = dateString.substring(0,4);
   const month = dateString.substring(4, 6);
