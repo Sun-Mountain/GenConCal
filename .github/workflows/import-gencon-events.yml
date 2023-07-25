@@ -63,3 +63,9 @@ jobs:
       uses: EndBug/add-and-commit@v9
       with:
         remove: 'events.zip'
+    - name: Install typescript
+      run: npm install typescript -g
+    - name: Run ParseData module
+      run: tsc ./frontend/modules/parseData.tsx
+    - name: Run ParseData.js
+      run: node ./modules/parseData.js > ./frontend/assets/events/primeEvents.json
