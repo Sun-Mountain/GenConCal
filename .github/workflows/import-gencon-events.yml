@@ -1,8 +1,11 @@
 name: Import GenCon Events
 
 on:
-  schedule:
-    - cron: 0 0 * * *
+  # schedule:
+  #   - cron: 0 0 * * *
+  push:
+    branch:
+      - fix-linting-bug
   workflow_dispatch:
     inputs:
       environment:
