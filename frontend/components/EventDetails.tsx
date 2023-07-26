@@ -7,7 +7,6 @@ export function EventDetails ({ eventIndex }: { eventIndex: number }) {
   const {
     ageRequirement,
     cost,
-    descriptionLong,
     descriptionShort,
     duration,
     endDate,
@@ -62,9 +61,6 @@ export function EventDetails ({ eventIndex }: { eventIndex: number }) {
         <TableRow category={'Duration'} detail={`${duration} ${durationSuffix}`} />
         {descriptionShort && (
           <TableRow category={'Short Description'} detail={descriptionShort} />
-        )}
-        {descriptionLong && (
-          <TableRow category={'Long Description'} detail={descriptionLong} />
         )}
         <TableRow category={'Cost'} detail={eventCost} />
         <TableRow category={'Age Requirement'} detail={ageRequirement} />

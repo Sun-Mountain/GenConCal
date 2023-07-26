@@ -9,7 +9,6 @@ export interface NewEvent {
   eventType: string;
   experienceType: string;
   descriptionShort?: string;
-  descriptionLong?: string;
   gameId: string;
   gameSystem?: string;
   gmNames?: string;
