@@ -67,7 +67,7 @@ export interface TimeFilterProps {
 export interface ToggleType {
   switchLabel: string;
   hide: boolean;
-  setHide: Dispatch<SetStateAction<boolean>>;
+  onChange: Function;
 }
 
 export interface DailyTabsTypes {

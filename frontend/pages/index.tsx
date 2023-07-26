@@ -129,13 +129,17 @@ export default function Home ({ faves, setFaves }: HomePageProps) {
     await setNumOfFaves(newFaves.length);
   }
 
+  const handleSoldOut = (e) => {
+    setHideSoldOut(!hideSoldOut)
+  }
+
   return (
     <>
       <div id='filters-container'>
         <ToggleComponent
           switchLabel='Sold Out Events'
           hide={hideSoldOut}
-          setHide={setHideSoldOut}
+          onChange={setHideSoldOut}
         />
         <DrawerFilters
           handleFilter={handleFilter}
