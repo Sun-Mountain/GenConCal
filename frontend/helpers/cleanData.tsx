@@ -36,7 +36,6 @@ export const cleanData = ({ keyList, eventList }: {
   const costKey = getKeyByValue(keyList, "Cost $");
   const durationKey = getKeyByValue(keyList, "Duration");
   const descriptionShortKey = getKeyByValue(keyList, "Short Description");
-  const descriptionLongKey = getKeyByValue(keyList, "Long Description");
   const eventTypeKey = getKeyByValue(keyList, "Event Type");
   const expKey = getKeyByValue(keyList, "Experience Required");
   const gameIdKey = getKeyByValue(keyList, "Game ID");
@@ -64,7 +63,6 @@ export const cleanData = ({ keyList, eventList }: {
       contact: '',
       cost: 0,
       descriptionShort: '',
-      descriptionLong: '',
       duration: 0,
       endDate: '',
       endTime: '',
@@ -101,7 +99,6 @@ export const cleanData = ({ keyList, eventList }: {
         cost = Number(event[costKey!]),
         duration = Number(event[durationKey!]),
         descriptionShort = event[descriptionShortKey!],
-        descriptionLong = event[descriptionLongKey!],
         eventType = event[eventTypeKey!],
         experienceReq = event[expKey!],
         gameId = event[gameIdKey!],
@@ -183,7 +180,6 @@ export const cleanData = ({ keyList, eventList }: {
 
     // Descriptions
     newEvent.descriptionShort = descriptionShort
-    newEvent.descriptionLong = descriptionLong
 
     // Event Type
     if (!data.filteredEvents.eventTypes[eventType]) {
