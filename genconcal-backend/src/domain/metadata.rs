@@ -1,25 +1,25 @@
 
 pub struct GameSystem {
-    id: i32,
-    system_name: String,
+    pub id: i32,
+    pub system_name: String,
 }
 
 pub struct Contact {
-    id: i32,
-    email: String,
+    pub id: i32,
+    pub email: String,
 }
 
 pub struct Group {
-    id: i32,
-    name: String,
+    pub id: i32,
+    pub name: String,
 }
 
 pub struct Website {
-    id: i32,
-    url: String,
+    pub id: i32,
+    pub url: String,
 }
 
 pub struct Materials {
-    id: i32,
-    summary: String,
+    pub id: i32,
+    pub summary: String,
 }

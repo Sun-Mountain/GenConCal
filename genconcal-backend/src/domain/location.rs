@@ -1,17 +1,34 @@
 
 pub struct Location {
-    id: i32,
-    name: String,
-    room: Option<Room>,
+    pub id: i32,
+    pub name: String,
+    pub room: Option<Room>,
 }
 
 pub struct Room {
-    id: i32,
-    name: String,
-    section: Option<Section>,
+    pub id: i32,
+    pub name: String,
+    pub section: Option<Section>,
 }
 
 pub struct Section {
-    id: i32,
-    name: String,
+    pub id: i32,
+    pub name: String,
+}
+
+pub enum LocationIngest {
+    Location {
+        name: String,
+    },
+    
+    Room {
+        location_name: String,
+        room_name: String,
+    },
+    
+    Section {
+        location_name: String,
+        room_name: String,
+        section_name: String,
+    }
 }

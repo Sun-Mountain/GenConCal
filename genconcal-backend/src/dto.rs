@@ -1,19 +1,17 @@
-use chrono::{NaiveDate, NaiveTime};
-use crate::domain;
-use derive_more::Display;
+use chrono::{NaiveDate, NaiveDateTime, NaiveTime, TimeZone};
+use chrono_tz::Tz;
 use serde::{Deserialize, Serialize};
-use serde_json::Number;
-use utoipa::openapi::{RefOr, Schema};
 use utoipa::{openapi, OpenApi, ToSchema};
-use validator::{Validate, ValidationErrors};
+use utoipa::openapi::{RefOr, Schema};
+use validator::{ValidationErrors};
+
+use crate::domain;
+use crate::domain::event::{AgeRequirement, ExperienceLevel};
+use crate::dto::IngestEventConvertErr::{UnrecognizedAgeRequirement, UnrecognizedExperience};
 
 #[derive(OpenApi)]
 #[openapi(components(
-    schemas(
-        BasicError,
-        ExtraInfo,
-        ValidationErrorSchema,
-    ),
+    schemas(BasicError, ExtraInfo, ValidationErrorSchema,),
     responses(
         err_resps::BasicError400Validation,
         err_resps::BasicError404,
@@ -34,7 +32,7 @@ pub struct EventImportRequest {
 pub struct ImportedEvent {
     age_requirement: String,
     contact: String,
-    cost: u8,
+    cost: u16,
     description_short: String,
     end_date: NaiveDate,
     end_time: NaiveTime,
@@ -46,8 +44,8 @@ pub struct ImportedEvent {
     group: String,
     location: String,
     materials: String,
-    players_min: i16,
-    players_max: i16,
+    players_min: u16,
+    players_max: u16,
     start_date: NaiveDate,
     start_time: NaiveTime,
     table_num: u16,
@@ -58,6 +56,130 @@ pub struct ImportedEvent {
     round: u8,
     round_total: u8,
     website: String,
+}
+
+pub enum IngestEventConvertErr {
+    BadStartTime,
+    BadEndTime,
+    UnrecognizedAgeRequirement(String),
+    UnrecognizedExperience(String),
+}
+
+fn to_option_with_default<T: Eq + Default>(value: T) -> Option<T> {
+    if value == T::default() {
+        None
+    } else {
+        Some(value)
+    }
+}
+
+impl TryFrom<ImportedEvent> for domain::event::IngestEvent {
+    type Error = IngestEventConvertErr;
+
+    fn try_from(value: ImportedEvent) -> Result<Self, Self::Error> {
+        let start = Tz::America__Indiana__Indianapolis
+            .from_local_datetime(&NaiveDateTime::new(value.start_date, value.start_time))
+            .earliest()
+            .ok_or(IngestEventConvertErr::BadStartTime)?;
+        let end = Tz::America__Indiana__Indianapolis
+            .from_local_datetime(&NaiveDateTime::new(value.end_date, value.end_time))
+            .earliest()
+            .ok_or(IngestEventConvertErr::BadEndTime)?;
+        let age_requirement = match value.age_requirement.as_str() {
+            "Everyone (6+)" => AgeRequirement::Everyone,
+            "Kids Only (12 and under)" => AgeRequirement::KidsOnly,
+            "Teen (13+)" => AgeRequirement::Teen,
+            "Mature (18+)" => AgeRequirement::Mature,
+            "21+" => AgeRequirement::Adult,
+
+            _ => return Err(UnrecognizedAgeRequirement(value.age_requirement)),
+        };
+        let experience_requirement = match value.experience_type.as_str() {
+            "None (You've never played before - rules will be taught)" => ExperienceLevel::None,
+            "Some (You've played it a bit and understand the basics)" => ExperienceLevel::Some,
+            "Expert (You play it regularly and know all the rules)" => ExperienceLevel::Expert,
+
+            _ => return Err(UnrecognizedExperience(value.experience_type)),
+        };
+        let (room, section) = match value.room {
+            NumberOrString::Number(room_num) => (Some(format!("Room {}", room_num)), None),
+            NumberOrString::String(room_section_name) => {
+                if room_section_name.is_empty() {
+                    (None, None)
+                } else {
+                    let room_maybe_section: Vec<&str> =
+                        room_section_name.as_str().split(" : ").collect();
+                    if room_maybe_section.len() == 2 {
+                        (
+                            Some(room_maybe_section[0].to_owned()),
+                            Some(room_maybe_section[1].to_owned()),
+                        )
+                    } else {
+                        (Some(room_section_name), None)
+                    }
+                }
+            }
+        };
+        let location = if value.location.is_empty() {
+            None
+        } else {
+            let ingest = match (room, section) {
+                (None, None) => domain::location::LocationIngest::Location {
+                    name: value.location,
+                },
+                (Some(existing_room), None) => domain::location::LocationIngest::Room {
+                    location_name: value.location,
+                    room_name: existing_room,
+                },
+                (Some(existing_room), Some(existing_section)) => {
+                    domain::location::LocationIngest::Section {
+                        location_name: value.location,
+                        room_name: existing_room,
+                        section_name: existing_section,
+                    }
+                }
+
+                (None, Some(_)) => unreachable!(),
+            };
+
+            Some(ingest)
+        };
+
+        Ok(Self {
+            game_id: value.game_id,
+            game_system: value.game_system,
+            event_type: value.event_type,
+            title: value.title,
+            description: value.description_short,
+            start,
+            end,
+            cost: to_option_with_default(value.cost),
+            tickets_available: if value.tickets_available < 0 {
+                0
+            } else {
+                value.tickets_available as u16
+            },
+            min_players: value.players_min,
+            max_players: value.players_max,
+            age_requirement,
+            experience_requirement,
+            location,
+            table_number: to_option_with_default(value.table_num),
+            materials: to_option_with_default(value.materials),
+            contact: to_option_with_default(value.contact),
+            website: to_option_with_default(value.website),
+            group: to_option_with_default(value.group),
+            tournament: if value.tournament {
+                Some(domain::tournament::RoundInfoIngest {
+                    round: value.round,
+                    total_rounds: value.round_total,
+                })
+            } else {
+                None
+            },
+            game_masters: value.gm_names.as_str().split(", ").map(ToOwned::to_owned).collect(),
+        })
+    }
 }
 
 #[derive(Deserialize)]
@@ -85,8 +207,9 @@ pub struct BasicError {
 /// Contains a set of generic OpenAPI error responses based on [BasicError] that can
 /// be easily reused in other requests
 pub mod err_resps {
-    use crate::dto::BasicError;
     use utoipa::ToResponse;
+
+    use crate::dto::BasicError;
 
     #[derive(ToResponse)]
     #[response(
