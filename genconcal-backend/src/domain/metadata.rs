@@ -1,4 +1,3 @@
-
 pub struct GameSystem {
     pub id: i32,
     pub system_name: String,

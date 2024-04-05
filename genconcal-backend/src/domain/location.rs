@@ -1,3 +1,4 @@
+use serde::Serialize;
 
 pub struct Location {
     pub id: i32,
@@ -17,19 +18,20 @@ pub struct Section {
 }
 
 #[derive(Debug)]
+#[cfg_attr(test, derive(Serialize))]
 pub enum LocationIngest {
     Location {
         name: String,
     },
-    
+
     Room {
         location_name: String,
         room_name: String,
     },
-    
+
     Section {
         location_name: String,
         room_name: String,
         section_name: String,
-    }
+    },
 }

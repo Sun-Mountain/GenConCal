@@ -1,7 +1,8 @@
-use std::collections::HashMap;
-use env_logger::init;
 use crate::domain::event;
 use crate::domain::event::FullEvent;
+use env_logger::init;
+use serde::Serialize;
+use std::collections::HashMap;
 
 pub struct Tournament {
     pub id: i32,
@@ -15,12 +16,14 @@ pub struct TournamentSegment {
 }
 
 #[derive(Debug)]
+#[cfg_attr(test, derive(Serialize))]
 pub struct RoundInfoIngest {
     pub round: u8,
     pub total_rounds: u8,
 }
 
 #[derive(Debug)]
+#[cfg_attr(test, derive(Serialize))]
 pub struct TournamentIngest<'evt> {
     pub total_rounds: u8,
     pub name: &'evt str,
@@ -28,33 +31,43 @@ pub struct TournamentIngest<'evt> {
 }
 
 #[derive(Debug)]
+#[cfg_attr(test, derive(Serialize))]
 pub struct TournamentSegmentIngest<'evt> {
     pub round: u8,
     pub round_members: Vec<&'evt event::IngestEvent>,
 }
 
+/// Looks through the set of events in an event ingest and attempts to assemble tournaments
+/// based on similarly named events
 pub fn detect_tournaments<'evt>(events: &'evt [event::IngestEvent]) -> Vec<TournamentIngest<'evt>> {
     // Get the set of events that are actually part of a tournament
-    let (single_event_tourney, multi_event_tourney): (Vec<&event::IngestEvent>, Vec<&event::IngestEvent>) =
-        events
-            .iter()
-            .filter(|evt| {
-                matches!(evt, event::IngestEvent { tournament: Some(_), ..})
-            }).partition(|evt| evt.tournament.as_ref().unwrap().total_rounds == 1);
+    let (single_event_tourney, multi_event_tourney): (
+        Vec<&event::IngestEvent>,
+        Vec<&event::IngestEvent>,
+    ) = events
+        .iter()
+        .filter(|evt| {
+            matches!(
+                evt,
+                event::IngestEvent {
+                    tournament: Some(_),
+                    ..
+                }
+            )
+        })
+        .partition(|evt| evt.tournament.as_ref().unwrap().total_rounds == 1);
 
-    let mut tournaments: Vec<TournamentIngest<'_>> =  Vec::new();
+    let mut tournaments: Vec<TournamentIngest<'_>> = Vec::new();
 
     // Tournaments with only one round can be converted directly into a standalone tournament
     for event in single_event_tourney.into_iter() {
         tournaments.push(TournamentIngest {
             total_rounds: 1,
             name: event.title.as_str(),
-            segment_events: vec![
-                TournamentSegmentIngest {
-                    round: 1,
-                    round_members: vec![event]
-                }
-            ]
+            segment_events: vec![TournamentSegmentIngest {
+                round: 1,
+                round_members: vec![event],
+            }],
         })
     }
 
@@ -82,34 +95,42 @@ pub fn detect_tournaments<'evt>(events: &'evt [event::IngestEvent]) -> Vec<Tourn
     }
 
     // Next, we sanitize the titles of each event to account for punctuation differences and attempt
-    // to match events together based on common shared prefixes. After doing that, we can sort the events
-    // by time. Any time the round number goes down, we start a new tournament. Otherwise, consecutive events
-    // with a common prefix are considered to be part of the same tournament.
+    // to match events together based on common shared prefixes. After doing that, we can throw events
+    // with the same round number into the same tournament segment for every prefix group
     for (round_total, event_list) in events_by_rounds.iter() {
         // Sanitize event titles and then sort by those sanitized titles
-        let mut events_by_sanitized_title: Vec<SanitizedTitleEvent> = event_list.iter().map(|evt| {
-            let sanitized_title = sanitize_title(&evt.title);
-            SanitizedTitleEvent {
-                sanitized_title: sanitized_title.new_title,
-                removed_indices: sanitized_title.removed_indices,
-                event: *evt,
-            }
-        }).collect();
-        events_by_sanitized_title.sort_by(|title1, title2| title1.sanitized_title.cmp(&title2.sanitized_title));
+        let mut events_by_sanitized_title: Vec<SanitizedTitleEvent> = event_list
+            .iter()
+            .map(|evt| {
+                let sanitized_title = sanitize_title(&evt.title);
+                SanitizedTitleEvent {
+                    sanitized_title: sanitized_title.new_title,
+                    removed_indices: sanitized_title.removed_indices,
+                    event: *evt,
+                }
+            })
+            .collect();
+        events_by_sanitized_title
+            .sort_by(|title1, title2| title1.sanitized_title.cmp(&title2.sanitized_title));
 
         // Group events together by common title prefixes
         let mut tournament_groups: Vec<PrefixGroup<'_, '_>> = vec![PrefixGroup {
             prefix_size: None,
             group_entries: vec![&events_by_sanitized_title[0]],
         }];
-        
+
         for event_window in events_by_sanitized_title.windows(2) {
             let previous_event = &event_window[0];
             let current_event = &event_window[1];
 
-            let current_group = tournament_groups.last_mut().expect("There should always be at least one group");
-            let common_prefix_len = common_prefix_length(&previous_event.sanitized_title, &current_event.sanitized_title);
-            
+            let current_group = tournament_groups
+                .last_mut()
+                .expect("There should always be at least one group");
+            let common_prefix_len = common_prefix_length(
+                &previous_event.sanitized_title,
+                &current_event.sanitized_title,
+            );
+
             // If we know the size of the common prefix in this group...
             if let Some(last_group_prefix_size) = current_group.prefix_size {
                 // ...and the previous and current titles match perfectly...
@@ -136,7 +157,7 @@ pub fn detect_tournaments<'evt>(events: &'evt [event::IngestEvent]) -> Vec<Tourn
                 if previous_event.sanitized_title == current_event.sanitized_title {
                     // ...add it to this group, but the common prefix size is still unknown
                     current_group.group_entries.push(current_event);
-                // ...and they share no characters...    
+                // ...and they share no characters...
                 } else if common_prefix_len == 0 {
                     // ...add it to a new group
                     let new_group = PrefixGroup {
@@ -144,7 +165,7 @@ pub fn detect_tournaments<'evt>(events: &'evt [event::IngestEvent]) -> Vec<Tourn
                         group_entries: vec![current_event],
                     };
                     tournament_groups.push(new_group);
-                // ...and they share a nonzero number of characters...    
+                // ...and they share a nonzero number of characters...
                 } else {
                     // ...add it to the current group and set the common prefix size
                     current_group.prefix_size = Some(common_prefix_len);
@@ -153,12 +174,15 @@ pub fn detect_tournaments<'evt>(events: &'evt [event::IngestEvent]) -> Vec<Tourn
             }
         }
 
-
         for mut pfx_group in tournament_groups.into_iter() {
-            pfx_group.group_entries.sort_by(|evt1, evt2| evt1.event.start.cmp(&evt2.event.start));
-            println!("{:#?}", pfx_group);
+            pfx_group
+                .group_entries
+                .sort_by(|evt1, evt2| evt1.event.start.cmp(&evt2.event.start));
 
-            let initial_entry = *pfx_group.group_entries.first().expect("There must be at least one event in the group");
+            let initial_entry = *pfx_group
+                .group_entries
+                .first()
+                .expect("There must be at least one event in the group");
             let unsanitized_prefix_len = match pfx_group.prefix_size {
                 None => initial_entry.event.title.len(),
 
@@ -199,66 +223,56 @@ pub fn detect_tournaments<'evt>(events: &'evt [event::IngestEvent]) -> Vec<Tourn
                 }
             };
 
-            let tournament_title = &initial_entry.event.title[0..unsanitized_prefix_len];
-
-            let mut tournament = TournamentIngest {
-                total_rounds: *round_total,
-                name: tournament_title,
-                segment_events: vec![TournamentSegmentIngest {
-                    round: 1,
-                    round_members: vec![initial_entry.event],
-                }],
-            };
+            // It turns out semifinals can happen in between qualifier rounds, so we'll just grug-brain
+            // this and put events into segments based on round number
+            let mut tournament_segments: Vec<TournamentSegmentIngest> = (1..=(*round_total))
+                .map(|round_num| TournamentSegmentIngest {
+                    round: round_num,
+                    round_members: Vec::new(),
+                })
+                .collect();
 
             for tournament_event in pfx_group.group_entries.iter() {
-                let current_segment = tournament.segment_events.last_mut().expect("There should always be at least one event in a segment");
-                let event_round = tournament_event.event.tournament.as_ref().expect("This is guaranteed to be a tournament event").round;
+                let event_round = tournament_event
+                    .event
+                    .tournament
+                    .as_ref()
+                    .expect("This is guaranteed to be a tournament event")
+                    .round;
 
-                // If the event is part of the same segment (i.e. multiple qualifiers before a semifinal), add it to the current segment
-                if event_round == current_segment.round {
-                    current_segment.round_members.push(tournament_event.event);
-                // If the event is part of the next segment, wrap it in a new segment and add it onto the current tournament
-                } else if event_round > current_segment.round {
-                    let new_segment = TournamentSegmentIngest {
-                        round: event_round,
-                        round_members: vec![tournament_event.event],
-                    };
-
-                    tournament.segment_events.push(new_segment);
-                // If the event has a lower round, it's part of a new tournament.
-                // Add the current tournament into the list of tournaments, and wrap the event in a new tournament.
-                } else if event_round < current_segment.round {
-                    tournaments.push(tournament);
-                    tournament = TournamentIngest {
-                        total_rounds: *round_total,
-                        name: tournament_title,
-                        segment_events: vec![TournamentSegmentIngest {
-                            round: event_round,
-                            round_members: vec![tournament_event.event],
-                        }]
-                    };
-                }
+                tournament_segments[(event_round - 1) as usize]
+                    .round_members
+                    .push(tournament_event.event);
             }
 
-            tournaments.push(tournament);
+            let tournament_title = &initial_entry.event.title[0..unsanitized_prefix_len];
+            tournaments.push(TournamentIngest {
+                total_rounds: *round_total,
+                name: trim_punc_and_spaces(tournament_title),
+                segment_events: tournament_segments
+                    .into_iter()
+                    .filter(|segment| !segment.round_members.is_empty())
+                    .collect(),
+            });
         }
     }
 
     tournaments
 }
 
+/// Returns the number of characters at the beginning of two strings that match
 fn common_prefix_length(str1: &str, str2: &str) -> usize {
     let mut prefix_length = 0;
     let mut character_iterator = str1.chars().zip(str2.chars());
-    
+
     while let Some((char1, char2)) = character_iterator.next() {
         if char1 != char2 {
-            break
+            break;
         }
-        
+
         prefix_length += 1;
     }
-    
+
     prefix_length
 }
 
@@ -267,6 +281,8 @@ struct SanitizedTitle {
     removed_indices: Vec<usize>,
 }
 
+/// Lowercases and removes punctuation from a string, reporting
+/// the indices of characters removed from the original string
 fn sanitize_title(title: &str) -> SanitizedTitle {
     let mut new_title = String::new();
     let mut removed_indices: Vec<usize> = Vec::new();
@@ -300,20 +316,63 @@ fn sanitize_title(title: &str) -> SanitizedTitle {
     }
 }
 
+/// Trims both whitespace and punctuation from either end
+/// of a string
+fn trim_punc_and_spaces(value: &str) -> &str {
+    if value == "" {
+        return value;
+    }
+
+    let mut slice_begin: usize = 0;
+    let mut slice_end = value.len();
+
+    let mut chars_iterator = value.chars();
+    while let Some(char) = chars_iterator.next() {
+        if let 'a'..='z' | 'A'..='Z' | '0'..='9' = char {
+            break;
+        }
+
+        slice_begin += 1;
+    }
+
+    let mut chars_rev_iterator = value.chars().rev();
+    while let Some(char) = chars_rev_iterator.next() {
+        if let 'a'..='z' | 'A'..='Z' | '0'..='9' = char {
+            break;
+        }
+
+        slice_end -= 1;
+    }
+
+    if slice_begin >= slice_end {
+        &value[0..0]
+    } else {
+        &value[slice_begin..slice_end]
+    }
+}
+
 #[cfg(test)]
 mod tests {
-    use std::fs::File;
-    use std::io::BufReader;
-    use crate::{domain, dto};
     use super::*;
+    use crate::{domain, dto};
+    use std::fs::File;
+    use std::io::{BufReader, BufWriter};
 
     #[test]
     fn try_out_tourney_detection() {
         let sample_json_reader = BufReader::new(File::open("./example_events.json").unwrap());
-        let file_data: dto::EventImportRequest = serde_json::from_reader(sample_json_reader).unwrap();
+        let file_data: dto::EventImportRequest =
+            serde_json::from_reader(sample_json_reader).unwrap();
 
-        let domain_objects: Vec<event::IngestEvent> = file_data.event_data.into_iter().map(|evt| event::IngestEvent::try_from(evt).unwrap()).collect();
+        let domain_objects: Vec<event::IngestEvent> = file_data
+            .event_data
+            .into_iter()
+            .map(|evt| event::IngestEvent::try_from(evt).unwrap())
+            .collect();
 
-        detect_tournaments(&domain_objects);
+        let detected_tournaments = detect_tournaments(&domain_objects);
+        let mut detected_groups_json =
+            BufWriter::new(File::create("./detected_tournaments.json").unwrap());
+        serde_json::to_writer_pretty(&mut detected_groups_json, &detected_tournaments).unwrap();
     }
 }

@@ -1,9 +1,9 @@
 use chrono::{NaiveDate, NaiveDateTime, NaiveTime, ParseError, TimeZone};
 use chrono_tz::Tz;
 use serde::{Deserialize, Serialize};
-use utoipa::{openapi, OpenApi, ToSchema};
 use utoipa::openapi::{RefOr, Schema};
-use validator::{ValidationErrors};
+use utoipa::{openapi, OpenApi, ToSchema};
+use validator::ValidationErrors;
 
 use crate::domain;
 use crate::domain::event::{AgeRequirement, ExperienceLevel};
@@ -78,7 +78,7 @@ impl TryFrom<String> for ImportTime {
     type Error = ParseError;
 
     fn try_from(value: String) -> Result<Self, Self::Error> {
-       Ok(ImportTime(NaiveTime::parse_from_str(&value, "%H:%M")?))
+        Ok(ImportTime(NaiveTime::parse_from_str(&value, "%H:%M")?))
     }
 }
 
@@ -176,7 +176,7 @@ impl TryFrom<ImportedEvent> for domain::event::IngestEvent {
 
         Ok(Self {
             game_id: value.game_id,
-            game_system,
+            game_system: to_option_with_default(game_system),
             event_type: value.event_type,
             title: value.title,
             description: value.description_short,
@@ -206,7 +206,18 @@ impl TryFrom<ImportedEvent> for domain::event::IngestEvent {
             } else {
                 None
             },
-            game_masters: value.gm_names.as_str().split(", ").map(ToOwned::to_owned).collect(),
+            game_masters: {
+                if value.gm_names == "" {
+                    Vec::new()
+                } else {
+                    value
+                        .gm_names
+                        .as_str()
+                        .split(", ")
+                        .map(ToOwned::to_owned)
+                        .collect()
+                }
+            },
         })
     }
 }
