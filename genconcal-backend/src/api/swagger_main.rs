@@ -15,8 +15,6 @@ struct TodoApi;
 pub fn build_documentation() -> SwaggerUi {
     let mut api_docs = TodoApi::openapi();
     api_docs.merge(dto::OpenApiSchemas::openapi());
-    api_docs.merge(super::user::UsersApi::openapi());
-    api_docs.merge(super::todo::TaskApi::openapi());
 
     SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", api_docs)
 }

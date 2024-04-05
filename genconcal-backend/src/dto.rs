@@ -1,4 +1,4 @@
-use chrono::{NaiveDate, NaiveDateTime, NaiveTime, TimeZone};
+use chrono::{NaiveDate, NaiveDateTime, NaiveTime, ParseError, TimeZone};
 use chrono_tz::Tz;
 use serde::{Deserialize, Serialize};
 use utoipa::{openapi, OpenApi, ToSchema};
@@ -24,40 +24,65 @@ pub struct OpenApiSchemas;
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct EventImportRequest {
-    event_data: Vec<ImportedEvent>,
+    pub event_data: Vec<ImportedEvent>,
 }
 
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ImportedEvent {
-    age_requirement: String,
-    contact: String,
-    cost: u16,
-    description_short: String,
-    end_date: NaiveDate,
-    end_time: NaiveTime,
-    event_type: String,
-    experience_type: String,
-    game_id: String,
-    game_system: String,
-    gm_names: String,
-    group: String,
-    location: String,
-    materials: String,
-    players_min: u16,
-    players_max: u16,
-    start_date: NaiveDate,
-    start_time: NaiveTime,
-    table_num: u16,
-    tickets_available: i16,
-    title: String,
-    tournament: bool,
-    room: NumberOrString,
-    round: u8,
-    round_total: u8,
-    website: String,
+    pub age_requirement: String,
+    pub contact: String,
+    pub cost: u16,
+    pub description_short: String,
+    pub end_date: ImportDate,
+    pub end_time: ImportTime,
+    pub event_type: String,
+    pub experience_type: String,
+    pub game_id: String,
+    pub game_system: NumberOrString,
+    pub gm_names: String,
+    pub group: String,
+    pub location: String,
+    pub materials: String,
+    pub players_min: u16,
+    pub players_max: u16,
+    pub start_date: ImportDate,
+    pub start_time: ImportTime,
+    pub table_num: u16,
+    pub tickets_available: i16,
+    pub title: String,
+    pub tournament: bool,
+    pub room: NumberOrString,
+    pub round: u8,
+    pub round_total: u8,
+    pub website: String,
 }
 
+#[derive(Deserialize)]
+#[serde(try_from = "String")]
+pub struct ImportDate(pub NaiveDate);
+
+impl TryFrom<String> for ImportDate {
+    type Error = ParseError;
+
+    fn try_from(value: String) -> Result<Self, Self::Error> {
+        Ok(ImportDate(NaiveDate::parse_from_str(&value, "%m/%d/%Y")?))
+    }
+}
+
+#[derive(Deserialize)]
+#[serde(try_from = "String")]
+pub struct ImportTime(NaiveTime);
+
+impl TryFrom<String> for ImportTime {
+    type Error = ParseError;
+
+    fn try_from(value: String) -> Result<Self, Self::Error> {
+       Ok(ImportTime(NaiveTime::parse_from_str(&value, "%H:%M")?))
+    }
+}
+
+#[derive(Debug)]
 pub enum IngestEventConvertErr {
     BadStartTime,
     BadEndTime,
@@ -78,18 +103,18 @@ impl TryFrom<ImportedEvent> for domain::event::IngestEvent {
 
     fn try_from(value: ImportedEvent) -> Result<Self, Self::Error> {
         let start = Tz::America__Indiana__Indianapolis
-            .from_local_datetime(&NaiveDateTime::new(value.start_date, value.start_time))
+            .from_local_datetime(&NaiveDateTime::new(value.start_date.0, value.start_time.0))
             .earliest()
             .ok_or(IngestEventConvertErr::BadStartTime)?;
         let end = Tz::America__Indiana__Indianapolis
-            .from_local_datetime(&NaiveDateTime::new(value.end_date, value.end_time))
+            .from_local_datetime(&NaiveDateTime::new(value.end_date.0, value.end_time.0))
             .earliest()
             .ok_or(IngestEventConvertErr::BadEndTime)?;
-        let age_requirement = match value.age_requirement.as_str() {
-            "Everyone (6+)" => AgeRequirement::Everyone,
-            "Kids Only (12 and under)" => AgeRequirement::KidsOnly,
-            "Teen (13+)" => AgeRequirement::Teen,
-            "Mature (18+)" => AgeRequirement::Mature,
+        let age_requirement = match value.age_requirement.to_lowercase().as_str() {
+            "everyone (6+)" => AgeRequirement::Everyone,
+            "kids only (12 and under)" => AgeRequirement::KidsOnly,
+            "teen (13+)" => AgeRequirement::Teen,
+            "mature (18+)" => AgeRequirement::Mature,
             "21+" => AgeRequirement::Adult,
 
             _ => return Err(UnrecognizedAgeRequirement(value.age_requirement)),
@@ -144,10 +169,14 @@ impl TryFrom<ImportedEvent> for domain::event::IngestEvent {
 
             Some(ingest)
         };
+        let game_system = match value.game_system {
+            NumberOrString::String(str) => str,
+            NumberOrString::Number(num) => format!("{}", num),
+        };
 
         Ok(Self {
             game_id: value.game_id,
-            game_system: value.game_system,
+            game_system,
             event_type: value.event_type,
             title: value.title,
             description: value.description_short,

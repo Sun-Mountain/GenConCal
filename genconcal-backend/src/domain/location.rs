@@ -16,6 +16,7 @@ pub struct Section {
     pub name: String,
 }
 
+#[derive(Debug)]
 pub enum LocationIngest {
     Location {
         name: String,

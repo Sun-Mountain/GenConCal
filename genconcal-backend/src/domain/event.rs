@@ -33,6 +33,7 @@ pub struct FullEvent {
     pub group: Option<Group>,
 }
 
+#[derive(Debug)]
 pub struct IngestEvent {
     pub game_id: String,
     
@@ -63,7 +64,7 @@ pub struct IngestEvent {
     pub game_masters: Vec<String>,
 }
 
-#[derive(PartialEq, Eq, Ord, PartialOrd)]
+#[derive(PartialEq, Eq, Ord, PartialOrd, Debug)]
 pub enum AgeRequirement {
     Everyone,
     KidsOnly,
@@ -82,7 +83,7 @@ pub struct EventType {
     pub name: String,
 }
 
-#[derive(PartialEq, Eq, Ord, PartialOrd)]
+#[derive(PartialEq, Eq, Ord, PartialOrd, Debug)]
 pub enum ExperienceLevel {
     None,
     Some,
