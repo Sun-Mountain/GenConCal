@@ -1,8 +1,9 @@
+use std::collections::HashMap;
+
+use serde::Serialize;
+
 use crate::domain::event;
 use crate::domain::event::FullEvent;
-use env_logger::init;
-use serde::Serialize;
-use std::collections::HashMap;
 
 pub struct Tournament {
     pub id: i32,
@@ -134,11 +135,13 @@ pub fn detect_tournaments<'evt>(events: &'evt [event::IngestEvent]) -> Vec<Tourn
             // If we know the size of the common prefix in this group...
             if let Some(last_group_prefix_size) = current_group.prefix_size {
                 // ...and the previous and current titles match perfectly...
-                if previous_event.sanitized_title == current_event.sanitized_title {
-                    // ...just add it to the current group
-                    current_group.group_entries.push(current_event);
-                // ...and the matching prefix has the same length as that of the current group...
-                } else if common_prefix_len == last_group_prefix_size {
+                if previous_event.sanitized_title == current_event.sanitized_title ||
+                    // ...or the matching prefix has the same length as that of the current group...
+                    common_prefix_len == last_group_prefix_size || 
+                    // ...or the matching prefix is longer than that of the current group, and both share that prefix
+                    (common_prefix_len > last_group_prefix_size && 
+                        previous_event.sanitized_title[0..last_group_prefix_size] == current_event.sanitized_title[0..last_group_prefix_size]
+                    ) {
                     // ...just add it to the current group
                     current_group.group_entries.push(current_event);
                 // ...and the matching prefix isn't the same length as that of the group...
@@ -263,17 +266,27 @@ pub fn detect_tournaments<'evt>(events: &'evt [event::IngestEvent]) -> Vec<Tourn
 /// Returns the number of characters at the beginning of two strings that match
 fn common_prefix_length(str1: &str, str2: &str) -> usize {
     let mut prefix_length = 0;
-    let mut character_iterator = str1.chars().zip(str2.chars());
+    let character_iterator = str1.chars().zip(str2.chars());
 
-    while let Some((char1, char2)) = character_iterator.next() {
+    // We want at least one whole word to match, so keep track of whether we see a space
+    let mut space_seen = false;
+    
+    for (char1, char2) in character_iterator {
         if char1 != char2 {
             break;
+        }
+        if char1 == ' ' {
+            space_seen = true
         }
 
         prefix_length += 1;
     }
 
-    prefix_length
+    if space_seen {
+        prefix_length
+    } else {
+        0
+    }
 }
 
 struct SanitizedTitle {
@@ -326,8 +339,8 @@ fn trim_punc_and_spaces(value: &str) -> &str {
     let mut slice_begin: usize = 0;
     let mut slice_end = value.len();
 
-    let mut chars_iterator = value.chars();
-    while let Some(char) = chars_iterator.next() {
+    let chars_iterator = value.chars();
+    for char in chars_iterator {
         if let 'a'..='z' | 'A'..='Z' | '0'..='9' = char {
             break;
         }
@@ -335,8 +348,8 @@ fn trim_punc_and_spaces(value: &str) -> &str {
         slice_begin += 1;
     }
 
-    let mut chars_rev_iterator = value.chars().rev();
-    while let Some(char) = chars_rev_iterator.next() {
+    let chars_rev_iterator = value.chars().rev();
+    for char in chars_rev_iterator {
         if let 'a'..='z' | 'A'..='Z' | '0'..='9' = char {
             break;
         }
@@ -353,10 +366,12 @@ fn trim_punc_and_spaces(value: &str) -> &str {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-    use crate::{domain, dto};
     use std::fs::File;
     use std::io::{BufReader, BufWriter};
+
+    use crate::dto;
+
+    use super::*;
 
     #[test]
     fn try_out_tourney_detection() {
