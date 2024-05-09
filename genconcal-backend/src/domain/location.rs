@@ -17,6 +17,17 @@ pub struct Section {
     pub name: String,
 }
 
+pub struct Ref {
+    pub id: i32,
+    pub ref_type: RefType,
+}
+
+pub enum RefType {
+    Location,
+    Room,
+    Section,
+}
+
 #[derive(Debug)]
 #[cfg_attr(test, derive(Serialize))]
 pub enum LocationIngest {

@@ -93,3 +93,58 @@ pub enum ExperienceLevel {
     Some,
     Expert,
 }
+
+pub struct Identifier {
+    pub id: i32,
+    pub game_id: String,
+}
+
+pub enum LocationRef {
+
+}
+pub struct CreateParams<'items> {
+    pub game_id: &'items str,
+    pub game_system_id: i32,
+    pub event_type_id: i32,
+    pub title: &'items str,
+    pub description: &'items str,
+    pub start: DateTime<Tz>,
+    pub end: DateTime<Tz>,
+    pub cost: Option<u16>,
+    pub tickets_available: u16,
+    pub min_players: u16,
+    pub max_players: u16,
+    pub age_requirement: AgeRequirement,
+    pub experience_level: ExperienceLevel,
+    pub location: super::location::Ref,
+    pub table_number: Option<u16>,
+    pub materials: Option<i32>,
+    pub contact: Option<i32>,
+    pub website: Option<i32>,
+    pub group: Option<i32>,
+}
+
+pub mod driven_ports {
+    use crate::external_connections::ExternalConnectivity;
+    use super::*;
+
+    pub trait TypeReader: Sync {
+        async fn all(&self, ext_cxn: &mut impl ExternalConnectivity) -> Result<Vec<EventType>, anyhow::Error>;
+    }
+
+    pub trait TypeWriter: Sync {
+        async fn bulk_save(&self, new_types: &[&str], ext_cxn: &mut impl ExternalConnectivity) -> Result<Vec<i32>, anyhow::Error>;
+    }
+
+    pub trait SystemReader: Sync {
+        async fn all(&self, ext_cxn: &mut impl ExternalConnectivity) -> Result<Vec<GameSystem>, anyhow::Error>;
+    }
+
+    pub trait SystemWriter: Sync {
+        async fn bulk_save(&self, new_systems: &[&str], ext_cxn: &mut impl ExternalConnectivity) -> Result<Vec<i32>, anyhow::Error>;
+    }
+
+    pub trait Reader: Sync {
+        async fn existing_events(&self, ext_cxn: &mut impl ExternalConnectivity) -> Result<Vec<Identifier>, anyhow::Error>;
+    }
+}
