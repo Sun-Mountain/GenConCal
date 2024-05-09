@@ -1,7 +1,9 @@
+import FilterBox from '@components/FilterBox';
+
 export default function Home() {
   return (
     <>
-      Hello
+      <FilterBox />
     </>
   );
 }
