@@ -332,7 +332,7 @@ fn sanitize_title(title: &str) -> SanitizedTitle {
 /// Trims both whitespace and punctuation from either end
 /// of a string
 fn trim_punc_and_spaces(value: &str) -> &str {
-    if value == "" {
+    if value.is_empty() {
         return value;
     }
 
