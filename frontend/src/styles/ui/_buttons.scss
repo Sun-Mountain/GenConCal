@@ -1,6 +1,6 @@
 button {
   background-color: $primary;
-  border: 1px solid $primary;
+  border: 2px solid $primary;
   border-radius: 0.25rem;
   color: $white;
   font-weight: 600;
@@ -9,6 +9,12 @@ button {
   align-items: center;
   
   &:hover {
+    background-color: $white;
+    color: $primary;
     cursor: pointer;
+  }
+
+  .hide-show-icon {
+    margin-right: 0.5rem;
   }
 }
