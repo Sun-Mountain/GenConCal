@@ -21,6 +21,23 @@ use crate::dto::IngestEventConvertErr::{UnrecognizedAgeRequirement, Unrecognized
 /// Captures OpenAPI schemas and canned responses defined in the DTO module
 pub struct OpenApiSchemas;
 
+#[derive(Serialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct EventDay {
+    #[schema(example = 20240708)]
+    day_id: u32,
+    #[schema(example = "7/8/2024")]
+    date: DateDto,
+}
+
+#[derive(Serialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct TimeInfo {
+    #[schema(example = )]
+    earliest_time: TimeDto,
+    latest_time: TimeDto,
+}
+
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct EventImportRequest {
@@ -34,8 +51,8 @@ pub struct ImportedEvent {
     pub contact: String,
     pub cost: u16,
     pub description_short: String,
-    pub end_date: ImportDate,
-    pub end_time: ImportTime,
+    pub end_date: DateDto,
+    pub end_time: TimeDto,
     pub event_type: String,
     pub experience_type: String,
     pub game_id: String,
@@ -46,8 +63,8 @@ pub struct ImportedEvent {
     pub materials: String,
     pub players_min: u16,
     pub players_max: u16,
-    pub start_date: ImportDate,
-    pub start_time: ImportTime,
+    pub start_date: DateDto,
+    pub start_time: TimeDto,
     pub table_num: u16,
     pub tickets_available: i16,
     pub title: String,
@@ -59,26 +76,38 @@ pub struct ImportedEvent {
 }
 
 #[derive(Deserialize)]
-#[serde(try_from = "String")]
-pub struct ImportDate(pub NaiveDate);
+#[serde(try_from = "String", into = "String")]
+pub struct DateDto(pub NaiveDate);
 
-impl TryFrom<String> for ImportDate {
+impl TryFrom<String> for DateDto {
     type Error = ParseError;
 
     fn try_from(value: String) -> Result<Self, Self::Error> {
-        Ok(ImportDate(NaiveDate::parse_from_str(&value, "%m/%d/%Y")?))
+        Ok(DateDto(NaiveDate::parse_from_str(&value, "%m/%d/%Y")?))
+    }
+}
+
+impl From<DateDto> for String {
+    fn from(value: DateDto) -> Self {
+        value.0.format("%m/%d/%Y").to_string()
     }
 }
 
 #[derive(Deserialize)]
-#[serde(try_from = "String")]
-pub struct ImportTime(NaiveTime);
+#[serde(try_from = "String", into = "String")]
+pub struct TimeDto(NaiveTime);
 
-impl TryFrom<String> for ImportTime {
+impl TryFrom<String> for TimeDto {
     type Error = ParseError;
 
     fn try_from(value: String) -> Result<Self, Self::Error> {
-        Ok(ImportTime(NaiveTime::parse_from_str(&value, "%H:%M")?))
+        Ok(TimeDto(NaiveTime::parse_from_str(&value, "%H:%M")?))
+    }
+}
+
+impl From<TimeDto> for String {
+    fn from(value: TimeDto) -> Self {
+        value.0.format("%H:%M").to_string()
     }
 }
 
