@@ -1,9 +1,12 @@
-
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 
 const index = () => {
   return (
     <nav>
-      Navigation
+      <CalendarMonthIcon />
+      <div>
+        
+      </div>
     </nav>
   )
 }
