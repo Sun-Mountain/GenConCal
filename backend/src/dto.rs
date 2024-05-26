@@ -1,5 +1,6 @@
-use chrono::{NaiveDate, NaiveDateTime, NaiveTime, ParseError, TimeZone};
+use chrono::{NaiveDate, NaiveDateTime, NaiveTime, ParseError, TimeZone, Utc};
 use chrono_tz::Tz;
+use fake::{Dummy};
 use serde::{Deserialize, Serialize};
 use utoipa::openapi::{RefOr, Schema};
 use utoipa::{openapi, OpenApi, ToSchema};
@@ -11,7 +12,19 @@ use crate::dto::IngestEventConvertErr::{UnrecognizedAgeRequirement, Unrecognized
 
 #[derive(OpenApi)]
 #[openapi(components(
-    schemas(BasicError, ExtraInfo, ValidationErrorSchema,),
+    schemas(
+        DaysResponse,
+        EventDay,
+        TimeInfoResponse,
+        EventsOnDayResponse,
+        EventBlock,
+        EventSummary,
+        TicketAvailability,
+        DateDto,
+        TimeDto,
+
+        BasicError, ExtraInfo, ValidationErrorSchema,
+    ),
     responses(
         err_resps::BasicError400Validation,
         err_resps::BasicError404,
@@ -23,19 +36,62 @@ pub struct OpenApiSchemas;
 
 #[derive(Serialize, ToSchema)]
 #[serde(rename_all = "camelCase")]
-pub struct EventDay {
-    #[schema(example = 20240708)]
-    day_id: u32,
-    #[schema(example = "7/8/2024")]
-    date: DateDto,
+pub struct DaysResponse {
+    pub days: Vec<EventDay>,
 }
 
 #[derive(Serialize, ToSchema)]
 #[serde(rename_all = "camelCase")]
-pub struct TimeInfo {
-    #[schema(example = )]
+pub struct EventDay {
+    #[schema(example = 20240708)]
+    pub day_id: u32,
+    #[schema(example = "7/8/2024")]
+    pub date: DateDto,
+    #[schema(example = 1000)]
+    pub total_events: u16,
+}
+
+#[derive(Serialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct TimeInfoResponse {
+    #[schema(example = "10:00")]
     earliest_time: TimeDto,
+    #[schema(example = "23:00")]
     latest_time: TimeDto,
+}
+
+#[derive(Serialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct EventsOnDayResponse {
+    events_by_time: Vec<EventBlock>,
+}
+
+#[derive(Serialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct EventBlock {
+    #[schema(example = "10:00")]
+    represented_time: TimeDto,
+    events: Vec<EventSummary>,
+}
+
+#[derive(Serialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct EventSummary {
+    id: i64,
+    title: String,
+    is_favorite: bool,
+    tickets: TicketAvailability,
+    duration: f32,
+    cost: Option<u16>,
+}
+
+#[derive(Serialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct TicketAvailability {
+    #[schema(example = 10)]
+    available: u16,
+    #[schema(example = 16)]
+    total: u16,
 }
 
 #[derive(Deserialize)]
@@ -75,8 +131,9 @@ pub struct ImportedEvent {
     pub website: String,
 }
 
-#[derive(Deserialize)]
+#[derive(Serialize, Deserialize, Clone, ToSchema)]
 #[serde(try_from = "String", into = "String")]
+#[schema(example = "7/28/2024", value_type = String)]
 pub struct DateDto(pub NaiveDate);
 
 impl TryFrom<String> for DateDto {
@@ -93,9 +150,10 @@ impl From<DateDto> for String {
     }
 }
 
-#[derive(Deserialize)]
+#[derive(Serialize, Deserialize, Clone, ToSchema)]
 #[serde(try_from = "String", into = "String")]
-pub struct TimeDto(NaiveTime);
+#[schema(example = "18:30", value_type = String)]
+pub struct TimeDto(pub NaiveTime);
 
 impl TryFrom<String> for TimeDto {
     type Error = ParseError;
@@ -261,6 +319,7 @@ pub enum NumberOrString {
 /// Contains diagnostic information about an API failure
 #[derive(Serialize, Debug, ToSchema)]
 #[cfg_attr(test, derive(Deserialize))]
+#[serde(rename_all = "camelCase")]
 pub struct BasicError {
     /// A sentinel value that can be used to differentiate between different causes of a non-2XX
     /// HTTP response code
@@ -284,10 +343,10 @@ pub mod err_resps {
     #[response(
         description = "Invalid request body was passed",
         example = json!({
-            "error_code": "invalid_input",
-            "error_description": "Submitted data was invalid.",
-            "extra_info": {
-                "first_name": [
+            "errorCode": "invalid_input",
+            "errorDescription": "Submitted data was invalid.",
+            "extraInfo": {
+                "firstName": [
                     {
                         "code": "length",
                         "message": null,
@@ -306,9 +365,9 @@ pub mod err_resps {
     #[response(
         description = "Entity could not be found",
         example = json!({
-            "error_code": "not_found",
-            "error_description": "The requested entity could not be found.",
-            "extra_info": null
+            "errorCode": "not_found",
+            "errorDescription": "The requested entity could not be found.",
+            "extraInfo": null
         })
     )]
     pub struct BasicError404(BasicError);
@@ -317,9 +376,9 @@ pub mod err_resps {
     #[response(
         description = "Something unexpected went wrong inside the server",
         example = json!({
-            "error_code": "internal_error",
-            "error_description": "Could not access data to complete your request",
-            "extra_info": null
+            "errorCode": "internal_error",
+            "errorDescription": "Could not access data to complete your request",
+            "extraInfo": null
         })
     )]
     pub struct BasicError500(BasicError);

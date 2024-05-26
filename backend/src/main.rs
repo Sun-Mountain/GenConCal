@@ -52,6 +52,7 @@ async fn main() {
     let ext_cxn = persistence::ExternalConnectivity::new(sqlx_db_connection);
 
     let router = Router::new()
+        .nest("/api/days", api::days::day_routes())
         .merge(api::swagger_main::build_documentation())
         .with_state(Arc::new(SharedData { ext_cxn }));
 
