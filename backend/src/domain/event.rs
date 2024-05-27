@@ -99,9 +99,7 @@ pub struct Identifier {
     pub game_id: String,
 }
 
-pub enum LocationRef {
-
-}
+pub enum LocationRef {}
 pub struct CreateParams<'items> {
     pub game_id: &'items str,
     pub game_system_id: i32,
@@ -125,26 +123,43 @@ pub struct CreateParams<'items> {
 }
 
 pub mod driven_ports {
-    use crate::external_connections::ExternalConnectivity;
     use super::*;
+    use crate::external_connections::ExternalConnectivity;
 
     pub trait TypeReader: Sync {
-        async fn all(&self, ext_cxn: &mut impl ExternalConnectivity) -> Result<Vec<EventType>, anyhow::Error>;
+        async fn all(
+            &self,
+            ext_cxn: &mut impl ExternalConnectivity,
+        ) -> Result<Vec<EventType>, anyhow::Error>;
     }
 
     pub trait TypeWriter: Sync {
-        async fn bulk_save(&self, new_types: &[&str], ext_cxn: &mut impl ExternalConnectivity) -> Result<Vec<i32>, anyhow::Error>;
+        async fn bulk_save(
+            &self,
+            new_types: &[&str],
+            ext_cxn: &mut impl ExternalConnectivity,
+        ) -> Result<Vec<i32>, anyhow::Error>;
     }
 
     pub trait SystemReader: Sync {
-        async fn all(&self, ext_cxn: &mut impl ExternalConnectivity) -> Result<Vec<GameSystem>, anyhow::Error>;
+        async fn all(
+            &self,
+            ext_cxn: &mut impl ExternalConnectivity,
+        ) -> Result<Vec<GameSystem>, anyhow::Error>;
     }
 
     pub trait SystemWriter: Sync {
-        async fn bulk_save(&self, new_systems: &[&str], ext_cxn: &mut impl ExternalConnectivity) -> Result<Vec<i32>, anyhow::Error>;
+        async fn bulk_save(
+            &self,
+            new_systems: &[&str],
+            ext_cxn: &mut impl ExternalConnectivity,
+        ) -> Result<Vec<i32>, anyhow::Error>;
     }
 
     pub trait Reader: Sync {
-        async fn existing_events(&self, ext_cxn: &mut impl ExternalConnectivity) -> Result<Vec<Identifier>, anyhow::Error>;
+        async fn existing_events(
+            &self,
+            ext_cxn: &mut impl ExternalConnectivity,
+        ) -> Result<Vec<Identifier>, anyhow::Error>;
     }
 }

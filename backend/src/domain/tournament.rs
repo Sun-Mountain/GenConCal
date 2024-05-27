@@ -137,11 +137,12 @@ pub fn detect_tournaments<'evt>(events: &'evt [event::IngestEvent]) -> Vec<Tourn
                 // ...and the previous and current titles match perfectly...
                 if previous_event.sanitized_title == current_event.sanitized_title ||
                     // ...or the matching prefix has the same length as that of the current group...
-                    common_prefix_len == last_group_prefix_size || 
+                    common_prefix_len == last_group_prefix_size ||
                     // ...or the matching prefix is longer than that of the current group, and both share that prefix
-                    (common_prefix_len > last_group_prefix_size && 
+                    (common_prefix_len > last_group_prefix_size &&
                         previous_event.sanitized_title[0..last_group_prefix_size] == current_event.sanitized_title[0..last_group_prefix_size]
-                    ) {
+                    )
+                {
                     // ...just add it to the current group
                     current_group.group_entries.push(current_event);
                 // ...and the matching prefix isn't the same length as that of the group...
@@ -270,7 +271,7 @@ fn common_prefix_length(str1: &str, str2: &str) -> usize {
 
     // We want at least one whole word to match, so keep track of whether we see a space
     let mut space_seen = false;
-    
+
     for (char1, char2) in character_iterator {
         if char1 != char2 {
             break;

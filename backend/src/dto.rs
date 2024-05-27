@@ -1,6 +1,6 @@
-use chrono::{NaiveDate, NaiveDateTime, NaiveTime, ParseError, TimeZone, Utc};
+use chrono::{NaiveDate, NaiveDateTime, NaiveTime, ParseError, TimeZone};
 use chrono_tz::Tz;
-use fake::{Dummy};
+use fake::Dummy;
 use serde::{Deserialize, Serialize};
 use utoipa::openapi::{RefOr, Schema};
 use utoipa::{openapi, OpenApi, ToSchema};
@@ -22,8 +22,9 @@ use crate::dto::IngestEventConvertErr::{UnrecognizedAgeRequirement, Unrecognized
         TicketAvailability,
         DateDto,
         TimeDto,
-
-        BasicError, ExtraInfo, ValidationErrorSchema,
+        BasicError,
+        ExtraInfo,
+        ValidationErrorSchema,
     ),
     responses(
         err_resps::BasicError400Validation,
@@ -55,9 +56,9 @@ pub struct EventDay {
 #[serde(rename_all = "camelCase")]
 pub struct TimeInfoResponse {
     #[schema(example = "10:00")]
-    earliest_time: TimeDto,
+    pub earliest_time: TimeDto,
     #[schema(example = "23:00")]
-    latest_time: TimeDto,
+    pub latest_time: TimeDto,
 }
 
 #[derive(Serialize, ToSchema)]
