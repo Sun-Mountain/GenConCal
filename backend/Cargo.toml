@@ -26,7 +26,8 @@ utoipa = { version = "4.2.0" }
 utoipa-swagger-ui = { version = "6.0.0", features = ["axum"] }
 chrono = { version = "0.4.37", features = ["serde"] }
 chrono-tz = "0.8.6"
-fake = { version = "2.9.2", features = ["chrono", "chrono-tz"] }
+fake = { version = "2.9.2", features = ["chrono", "chrono-tz", "derive"] }
+rand = "0.8.5"
 
 [dev-dependencies]
 futures-core = "0.3.29"

@@ -1,6 +1,10 @@
-use chrono::{NaiveDate, NaiveDateTime, NaiveTime, ParseError, TimeZone};
+use std::collections::HashMap;
+use std::ops::RangeInclusive;
+use chrono::{NaiveDate, NaiveDateTime, NaiveTime, ParseError, Timelike, TimeZone};
 use chrono_tz::Tz;
-use fake::Dummy;
+use fake::{Dummy, Fake, Faker, Opt, Optional};
+use fake::faker::lorem::en::*;
+use rand::prelude::*;
 use serde::{Deserialize, Serialize};
 use utoipa::openapi::{RefOr, Schema};
 use utoipa::{openapi, OpenApi, ToSchema};
@@ -16,7 +20,7 @@ use crate::dto::IngestEventConvertErr::{UnrecognizedAgeRequirement, Unrecognized
         DaysResponse,
         EventDay,
         TimeInfoResponse,
-        EventsOnDayResponse,
+        TimeBlockedEventsResponse,
         EventBlock,
         EventSummary,
         TicketAvailability,
@@ -63,36 +67,98 @@ pub struct TimeInfoResponse {
 
 #[derive(Serialize, ToSchema)]
 #[serde(rename_all = "camelCase")]
-pub struct EventsOnDayResponse {
-    events_by_time: Vec<EventBlock>,
+pub struct DailyTimeBlockedEventsResponse {
+    pub events_by_day: HashMap<u32, Vec<EventBlock>>,
+}
+
+#[derive(Serialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct TimeBlockedEventsResponse {
+    pub events_by_time: Vec<EventBlock>,
 }
 
 #[derive(Serialize, ToSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct EventBlock {
     #[schema(example = "10:00")]
-    represented_time: TimeDto,
-    events: Vec<EventSummary>,
+    pub represented_time: TimeDto,
+    pub events: Vec<EventSummary>,
 }
 
 #[derive(Serialize, ToSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct EventSummary {
-    id: i64,
-    title: String,
-    is_favorite: bool,
-    tickets: TicketAvailability,
-    duration: f32,
-    cost: Option<u16>,
+    pub id: i64,
+    pub event_time: TimeDto,
+    pub title: String,
+    pub tickets: TicketAvailability,
+    pub duration: f32,
+    pub cost: Option<u16>,
+}
+
+pub struct EventInTimeSlot(u32);
+
+pub fn event_in_time_slot(time: u32) -> EventInTimeSlot {
+    EventInTimeSlot(time)
+}
+
+impl Dummy<EventInTimeSlot> for EventSummary {
+    fn dummy_with_rng<R: Rng + ?Sized>(config: &EventInTimeSlot, rng: &mut R) -> Self {
+        let id: i64 = (100..10_000).fake_with_rng(rng);
+        let event_time = TimeDto(NaiveTime::from_hms_opt(config.0, (0..60).fake_with_rng(rng), 0).unwrap());
+        let title: String = Words(2..6).fake_with_rng::<Vec<String>, _>(rng).join(" ");
+        let tickets = FakeTicketAvailability.fake_with_rng(rng);;
+        let duration = discrete_f32(&[0.5, 1.0, 1.5, 2.0, 2.5, 3.0]).fake_with_rng(rng);
+        let cost: Option<u16> = Opt(1..30, 30).fake::<Optional<u16>>().into();
+
+        Self {
+            id,
+            event_time,
+            title,
+            tickets,
+            duration,
+            cost,
+        }
+    }
 }
 
 #[derive(Serialize, ToSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct TicketAvailability {
     #[schema(example = 10)]
-    available: u16,
+    pub available: u16,
     #[schema(example = 16)]
-    total: u16,
+    pub total: u16,
+}
+
+struct FakeTicketAvailability;
+
+impl Dummy<FakeTicketAvailability> for TicketAvailability {
+    fn dummy_with_rng<R: Rng + ?Sized>(_config: &FakeTicketAvailability, rng: &mut R) -> Self {
+        let total: u16 = (20..=100).fake_with_rng(rng);
+        let available: u16 = (20..=total).fake_with_rng(rng);
+
+        TicketAvailability {
+            total,
+            available,
+        }
+    }
+}
+
+struct DiscreteF32 {
+    float_options: Vec<f32>,
+}
+
+fn discrete_f32(options: &[f32]) -> DiscreteF32 {
+    DiscreteF32 {
+        float_options: options.into(),
+    }
+}
+
+impl Dummy<DiscreteF32> for f32 {
+    fn dummy_with_rng<R: Rng + ?Sized>(config: &DiscreteF32, rng: &mut R) -> Self {
+        config.float_options.choose(rng).expect("discrete_f32 must contain at least one option").clone()
+    }
 }
 
 #[derive(Deserialize)]

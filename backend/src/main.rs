@@ -53,6 +53,7 @@ async fn main() {
 
     let router = Router::new()
         .nest("/api/days", api::days::day_routes())
+        .nest("/api/events", api::events::events_routes())
         .merge(api::swagger_main::build_documentation())
         .with_state(Arc::new(SharedData { ext_cxn }));
 

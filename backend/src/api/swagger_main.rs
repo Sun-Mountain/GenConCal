@@ -16,6 +16,7 @@ pub fn build_documentation() -> SwaggerUi {
     let mut api_docs = TodoApi::openapi();
     api_docs.merge(dto::OpenApiSchemas::openapi());
     api_docs.merge(super::days::DaysApi::openapi());
+    api_docs.merge(super::events::EventsApi::openapi());
 
     SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", api_docs)
 }
