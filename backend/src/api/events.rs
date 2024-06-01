@@ -1,5 +1,6 @@
 use std::cell::OnceCell;
 use std::collections::HashMap;
+use std::str::FromStr;
 use std::sync::{Arc, OnceLock};
 
 use axum::extract::State;
@@ -10,7 +11,7 @@ use fake::Fake;
 use utoipa::OpenApi;
 
 use crate::{AppState, dto, SharedData};
-use crate::dto::{EventBlock, TimeDto};
+use crate::dto::{CommaSeparated, EventBlock, TimeDto};
 use crate::external_connections::ExternalConnectivity;
 
 #[derive(OpenApi)]
@@ -18,6 +19,14 @@ use crate::external_connections::ExternalConnectivity;
 pub struct EventsApi;
 
 pub const EVENTS_API_GROUP: &str = "Events";
+
+pub struct EventListQueryParams {
+    page: Option<u16>,
+    limit: Option<u16>,
+    min_available_tickets: Option<u16>,
+    event_types: Option<CommaSeparated<String>>,
+    // TODO finish adding the rest of the query params
+}
 
 pub fn events_routes() -> Router<Arc<SharedData>> {
     Router::new()

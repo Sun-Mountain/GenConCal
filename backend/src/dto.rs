@@ -1,11 +1,15 @@
 use std::collections::HashMap;
+use std::fmt::Display;
 use std::ops::RangeInclusive;
+use std::str::FromStr;
 use chrono::{NaiveDate, NaiveDateTime, NaiveTime, ParseError, Timelike, TimeZone};
 use chrono_tz::Tz;
 use fake::{Dummy, Fake, Faker, Opt, Optional};
 use fake::faker::lorem::en::*;
 use rand::prelude::*;
 use serde::{Deserialize, Serialize};
+use serde::de::DeserializeOwned;
+use thiserror::Error;
 use utoipa::openapi::{RefOr, Schema};
 use utoipa::{openapi, OpenApi, ToSchema};
 use validator::ValidationErrors;
@@ -38,6 +42,29 @@ use crate::dto::IngestEventConvertErr::{UnrecognizedAgeRequirement, Unrecognized
 ))]
 /// Captures OpenAPI schemas and canned responses defined in the DTO module
 pub struct OpenApiSchemas;
+
+#[derive(Debug, Error)]
+#[error("Failed to parse comma separated value: {0}")]
+pub struct CommaSepParseErr(String);
+
+#[derive(Deserialize, ToSchema)]
+#[serde(try_from = "String")]
+#[schema(value_type = String)]
+pub struct CommaSeparated<T: FromStr>(Vec<T>);
+
+impl <T: FromStr> TryFrom<String> for CommaSeparated<T> {
+    type Error = CommaSepParseErr;
+
+    fn try_from(value: String) -> Result<Self, Self::Error> {
+        let comma_sep_val: Vec<T> = value
+            .split(",")
+            .map(&str::trim)
+            .map(&str::parse::<T>)
+            .collect::<Result<Vec<T>, T::Err>>()
+            .map_err(|err| format!("{:?}", err))?;
+        Ok(Self(comma_sep_val))
+    }
+}
 
 #[derive(Serialize, ToSchema)]
 #[serde(rename_all = "camelCase")]
