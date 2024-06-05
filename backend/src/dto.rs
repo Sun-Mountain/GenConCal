@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use std::fmt::Display;
+use std::fmt::{Debug, Display};
 use std::ops::RangeInclusive;
 use std::str::FromStr;
 use chrono::{NaiveDate, NaiveDateTime, NaiveTime, ParseError, Timelike, TimeZone};
@@ -50,7 +50,7 @@ pub struct CommaSepParseErr(String);
 #[derive(Deserialize, ToSchema)]
 #[serde(try_from = "String")]
 #[schema(value_type = String)]
-pub struct CommaSeparated<T: FromStr>(Vec<T>);
+pub struct CommaSeparated<T: FromStr>(pub Vec<T>);
 
 impl <T: FromStr> TryFrom<String> for CommaSeparated<T> {
     type Error = CommaSepParseErr;
@@ -59,9 +59,11 @@ impl <T: FromStr> TryFrom<String> for CommaSeparated<T> {
         let comma_sep_val: Vec<T> = value
             .split(",")
             .map(&str::trim)
-            .map(&str::parse::<T>)
-            .collect::<Result<Vec<T>, T::Err>>()
-            .map_err(|err| format!("{:?}", err))?;
+            .map(|trimmed_str| {
+                trimmed_str.parse()
+                    .map_err(|_| CommaSepParseErr(trimmed_str.to_owned()))
+            })
+            .collect::<Result<Vec<T>, Self::Error>>()?;
         Ok(Self(comma_sep_val))
     }
 }

@@ -1,3 +1,4 @@
+use std::borrow::Cow;
 use std::cell::OnceCell;
 use std::collections::HashMap;
 use std::str::FromStr;
@@ -9,6 +10,7 @@ use axum::routing::get;
 use chrono::NaiveTime;
 use fake::Fake;
 use utoipa::OpenApi;
+use validator::{Validate, ValidationError};
 
 use crate::{AppState, dto, SharedData};
 use crate::dto::{CommaSeparated, EventBlock, TimeDto};
@@ -20,12 +22,42 @@ pub struct EventsApi;
 
 pub const EVENTS_API_GROUP: &str = "Events";
 
+#[derive(Validate)]
 pub struct EventListQueryParams {
     page: Option<u16>,
     limit: Option<u16>,
     min_available_tickets: Option<u16>,
-    event_types: Option<CommaSeparated<String>>,
-    // TODO finish adding the rest of the query params
+    event_types: Option<CommaSeparated<i32>>,
+    
+    #[validate(custom(function = "validate_experience_list"))]
+    experience: Option<CommaSeparated<String>>,
+    // TODO validate this field
+    age: Option<CommaSeparated<String>>,
+    game_systems: Option<CommaSeparated<i32>>,
+    groups: Option<CommaSeparated<i32>>,
+    locations: Option<CommaSeparated<i32>>,
+    show_tournaments: Option<bool>,
+    start_time: Option<TimeDto>,
+    end_time: Option<TimeDto>,
+    min_duration: Option<f32>,
+    max_duration: Option<f32>,
+    search_text: Option<String>,
+    cost_min: Option<u16>,
+    cost_max: Option<u16>,
+}
+
+fn validate_experience_list(type_list: &Option<CommaSeparated<String>>) -> Result<(), ValidationError> {
+    if let Some(CommaSeparated(ref str_list)) = type_list {
+        for str_to_check in str_list.iter() {
+            match str_to_check.as_str() {
+                "none" | "some" | "expert" => {}
+                _ => return Err(ValidationError::new("invalid_experience_value")
+                    .with_message(Cow::Borrowed("One or more experince values were not recognized. Valid values are: none, some, expert")))
+            }
+        }
+    }
+    
+    Ok(())
 }
 
 pub fn events_routes() -> Router<Arc<SharedData>> {
