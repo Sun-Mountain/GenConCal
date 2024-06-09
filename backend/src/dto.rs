@@ -47,24 +47,33 @@ pub struct OpenApiSchemas;
 #[error("Failed to parse comma separated value: {0}")]
 pub struct CommaSepParseErr(String);
 
-#[derive(Deserialize, ToSchema)]
-#[serde(try_from = "String")]
+#[derive(Clone, Deserialize, Serialize, ToSchema)]
+#[serde(try_from = "String", into = "String")]
 #[schema(value_type = String)]
-pub struct CommaSeparated<T: FromStr>(pub Vec<T>);
+pub struct CommaSeparated<T: FromStr + Display + Clone>(pub Vec<T>);
 
-impl <T: FromStr> TryFrom<String> for CommaSeparated<T> {
+impl <T: FromStr + Display + Clone> TryFrom<String> for CommaSeparated<T> {
     type Error = CommaSepParseErr;
 
     fn try_from(value: String) -> Result<Self, Self::Error> {
         let comma_sep_val: Vec<T> = value
-            .split(",")
+            .split(',')
             .map(&str::trim)
             .map(|trimmed_str| {
                 trimmed_str.parse()
                     .map_err(|_| CommaSepParseErr(trimmed_str.to_owned()))
             })
-            .collect::<Result<Vec<T>, Self::Error>>()?;
+            .collect::<Result<Vec<T>, CommaSepParseErr>>()?;
         Ok(Self(comma_sep_val))
+    }
+}
+
+impl <T: FromStr + Display + Clone> From<CommaSeparated<T>> for String {
+    fn from(value: CommaSeparated<T>) -> Self {
+        value.0.iter()
+            .map(T::to_string)
+            .collect::<Vec<String>>()
+            .join(",")
     }
 }
 
@@ -94,7 +103,7 @@ pub struct TimeInfoResponse {
     pub latest_time: TimeDto,
 }
 
-#[derive(Serialize, ToSchema)]
+#[derive(Clone, Serialize, ToSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct DailyTimeBlockedEventsResponse {
     pub events_by_day: HashMap<u32, Vec<EventBlock>>,
@@ -106,7 +115,7 @@ pub struct TimeBlockedEventsResponse {
     pub events_by_time: Vec<EventBlock>,
 }
 
-#[derive(Serialize, ToSchema)]
+#[derive(Clone, Serialize, ToSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct EventBlock {
     #[schema(example = "10:00")]
@@ -114,7 +123,7 @@ pub struct EventBlock {
     pub events: Vec<EventSummary>,
 }
 
-#[derive(Serialize, ToSchema)]
+#[derive(Clone, Serialize, ToSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct EventSummary {
     pub id: i64,
@@ -151,7 +160,7 @@ impl Dummy<EventInTimeSlot> for EventSummary {
     }
 }
 
-#[derive(Serialize, ToSchema)]
+#[derive(Clone, Serialize, ToSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct TicketAvailability {
     #[schema(example = 10)]
