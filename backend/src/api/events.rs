@@ -150,6 +150,7 @@ fn event_data() -> &'static dto::DailyTimeBlockedEventsResponse {
             (20240731, gen_day_blocks()),
             (20240801, gen_day_blocks()),
             (20240802, gen_day_blocks()),
+            (20240803, gen_day_blocks()),
         ]),
     });
 

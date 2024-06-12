@@ -69,6 +69,11 @@ async fn list_days(
                 date: dto::DateDto(NaiveDate::from_ymd_opt(2024, 8, 2).unwrap()),
                 total_events: (2000..=9000).fake(),
             },
+            EventDay {
+                day_id: 20240803,
+                date: dto::DateDto(NaiveDate::from_ymd_opt(2024, 8, 3).unwrap()),
+                total_events: (1000..=5000).fake(),
+            },
         ],
     };
 
