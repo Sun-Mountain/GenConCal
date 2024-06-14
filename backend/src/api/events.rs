@@ -1,24 +1,25 @@
 use std::borrow::Cow;
-use std::cell::OnceCell;
 use std::collections::HashMap;
-use std::str::FromStr;
 use std::sync::{Arc, OnceLock};
 
 use axum::extract::State;
-use axum::response::sse::Event;
-use axum::routing::get;
+use axum::response::ErrorResponse;
 use axum::Router;
-use chrono::NaiveTime;
+use axum::routing::get;
+use chrono::{NaiveDate, NaiveTime};
 use fake::Fake;
 use utoipa::OpenApi;
 use validator::{Validate, ValidationError};
 
-use crate::dto::{CommaSeparated, EventBlock, TimeDto};
+use crate::{AppState, dto, SharedData};
+use crate::dto::{CommaSeparated, EventBlock, EventDay, TimeDto};
 use crate::external_connections::ExternalConnectivity;
-use crate::{dto, AppState, SharedData};
+use crate::routing_utils::Json;
 
 #[derive(OpenApi)]
-#[openapi(paths())]
+#[openapi(paths(
+    list_event_counts_by_day,
+))]
 pub struct EventsApi;
 
 pub const EVENTS_API_GROUP: &str = "Events";
@@ -123,6 +124,13 @@ pub fn events_routes() -> Router<Arc<SharedData>> {
 
             // TODO call list_events here
         }),
+    ).route(
+        "/counts/daily",
+        get(|State(app_data): AppState| async move {
+            let mut ext_cxn = app_data.ext_cxn.clone();
+
+            list_event_counts_by_day(&mut ext_cxn).await
+        }),
     )
 }
 
@@ -160,4 +168,40 @@ fn event_data() -> &'static dto::DailyTimeBlockedEventsResponse {
 // TODO add openapi docs to this func & attach to EventsApi
 async fn list_events(ext_cxn: &mut impl ExternalConnectivity) {
     // TODO implement /api/events here
+}
+
+#[utoipa::path(
+    get,
+    path = "/api/events/counts/daily",
+    tag = EVENTS_API_GROUP,
+    responses(
+    (status = 200, description = "List of convention days was successfully retrieved", body = DaysResponse),
+    (status = 500, response = dto::err_resps::BasicError500),
+    )
+)]
+/// Lists the number of events by day for the current GenCon year
+async fn list_event_counts_by_day(
+    _: &mut impl ExternalConnectivity,
+) -> Result<Json<dto::DaysResponse>, ErrorResponse> {
+    let event_data = event_data();
+    let mut days: Vec<EventDay> = event_data.events_by_day.iter()
+        .map(|(day_id, event_list)| {
+            let day = day_id % 100;
+            let month = ((day_id - day) % 10000) / 100;
+            let year = (day_id - (month * 100) - day) / 10000;
+
+            let total_events: u16 = event_list.iter().map(|block| block.events.len() as u16).sum();
+
+            EventDay {
+                day_id: *day_id,
+                date: dto::DateDto(NaiveDate::from_ymd_opt(year as i32, month, day).unwrap()),
+                total_events,
+            }
+        }).collect();
+    days.sort_by(|day1, day2| day1.day_id.cmp(&day2.day_id));
+    let dummy_resp_data = dto::DaysResponse {
+        days,
+    };
+
+    Ok(Json(dummy_resp_data))
 }

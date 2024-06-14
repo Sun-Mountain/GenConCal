@@ -13,21 +13,13 @@ use std::sync::Arc;
 use utoipa::OpenApi;
 
 #[derive(OpenApi)]
-#[openapi(paths(list_days, day_time_info,))]
+#[openapi(paths(day_time_info,))]
 pub struct DaysApi;
 
 pub const DAYS_API_GROUP: &str = "Days";
 
 pub fn day_routes() -> Router<Arc<SharedData>> {
     Router::new()
-        .route(
-            "/",
-            get(|State(app_data): AppState| async move {
-                let mut ext_cxn = app_data.ext_cxn.clone();
-
-                list_days(&mut ext_cxn).await
-            }),
-        )
         .route(
             "/:day_id/time-info",
             get(
@@ -40,45 +32,6 @@ pub fn day_routes() -> Router<Arc<SharedData>> {
         )
 }
 
-#[utoipa::path(
-    get,
-    path = "/api/days",
-    tag = DAYS_API_GROUP,
-    responses(
-        (status = 200, description = "List of convention days was successfully retrieved", body = DaysResponse),
-        (status = 500, response = dto::err_resps::BasicError500),
-    )
-)]
-async fn list_days(
-    _: &mut impl ExternalConnectivity,
-) -> Result<Json<dto::DaysResponse>, ErrorResponse> {
-    let dummy_resp_data = dto::DaysResponse {
-        days: vec![
-            EventDay {
-                day_id: 20240731,
-                date: dto::DateDto(NaiveDate::from_ymd_opt(2024, 7, 31).unwrap()),
-                total_events: (200..=300).fake(),
-            },
-            EventDay {
-                day_id: 20240801,
-                date: dto::DateDto(NaiveDate::from_ymd_opt(2024, 8, 1).unwrap()),
-                total_events: (2000..=9000).fake(),
-            },
-            EventDay {
-                day_id: 20240802,
-                date: dto::DateDto(NaiveDate::from_ymd_opt(2024, 8, 2).unwrap()),
-                total_events: (2000..=9000).fake(),
-            },
-            EventDay {
-                day_id: 20240803,
-                date: dto::DateDto(NaiveDate::from_ymd_opt(2024, 8, 3).unwrap()),
-                total_events: (1000..=5000).fake(),
-            },
-        ],
-    };
-
-    Ok(Json(dummy_resp_data))
-}
 
 #[utoipa::path(
     get,
@@ -102,6 +55,7 @@ async fn list_days(
         (status = 500, response = dto::err_resps::BasicError500),
     ),
 )]
+/// Lists the earliest and latest start times for events on a given day
 async fn day_time_info(
     day_id: u32,
     _: &mut impl ExternalConnectivity,
