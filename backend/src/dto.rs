@@ -1,17 +1,16 @@
 use std::collections::HashMap;
 use std::fmt::{Debug, Display};
-use std::ops::RangeInclusive;
 use std::str::FromStr;
-use chrono::{NaiveDate, NaiveDateTime, NaiveTime, ParseError, Timelike, TimeZone};
+
+use chrono::{NaiveDate, NaiveDateTime, NaiveTime, ParseError, TimeZone};
 use chrono_tz::Tz;
-use fake::{Dummy, Fake, Faker, Opt, Optional};
+use fake::{Dummy, Fake, Opt, Optional};
 use fake::faker::lorem::en::*;
 use rand::prelude::*;
 use serde::{Deserialize, Serialize};
-use serde::de::DeserializeOwned;
 use thiserror::Error;
-use utoipa::openapi::{RefOr, Schema};
 use utoipa::{openapi, OpenApi, ToSchema};
+use utoipa::openapi::{RefOr, Schema};
 use validator::ValidationErrors;
 
 use crate::domain;
@@ -25,6 +24,7 @@ use crate::dto::IngestEventConvertErr::{UnrecognizedAgeRequirement, Unrecognized
         EventDay,
         TimeInfoResponse,
         TimeBlockedEventsResponse,
+        PaginationInfo,
         EventBlock,
         EventSummary,
         TicketAvailability,
@@ -112,7 +112,17 @@ pub struct DailyTimeBlockedEventsResponse {
 #[derive(Serialize, ToSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct TimeBlockedEventsResponse {
+    pub pagination_info: PaginationInfo,
     pub events_by_time: Vec<EventBlock>,
+}
+
+#[derive(Serialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct PaginationInfo {
+    #[schema(example = 1)]
+    pub page: u16,
+    #[schema(example = 15)]
+    pub total_pages: u16,
 }
 
 #[derive(Clone, Serialize, ToSchema)]
@@ -145,7 +155,7 @@ impl Dummy<EventInTimeSlot> for EventSummary {
         let id: i64 = (100..10_000).fake_with_rng(rng);
         let event_time = TimeDto(NaiveTime::from_hms_opt(config.0, (0..60).fake_with_rng(rng), 0).unwrap());
         let title: String = Words(2..6).fake_with_rng::<Vec<String>, _>(rng).join(" ");
-        let tickets = FakeTicketAvailability.fake_with_rng(rng);;
+        let tickets = FakeTicketAvailability.fake_with_rng(rng);
         let duration = discrete_f32(&[0.5, 1.0, 1.5, 2.0, 2.5, 3.0]).fake_with_rng(rng);
         let cost: Option<u16> = Opt(1..30, 30).fake::<Optional<u16>>().into();
 

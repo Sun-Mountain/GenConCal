@@ -135,23 +135,31 @@ pub fn events_routes() -> Router<Arc<SharedData>> {
 }
 
 fn gen_day_blocks() -> Vec<dto::EventBlock> {
+    let mut ten_am_events: Vec<dto::EventSummary> = (dto::event_in_time_slot(10), 5..20).fake();
+    let mut eleven_am_events: Vec<dto::EventSummary> = (dto::event_in_time_slot(11), 10..40).fake();
+    let mut one_pm_events: Vec<dto::EventSummary> = (dto::event_in_time_slot(13), 7..20).fake();
+    
+    ten_am_events.sort_by(|evt1, evt2| evt1.event_time.0.cmp(&evt2.event_time.0));
+    eleven_am_events.sort_by(|evt1, evt2| evt1.event_time.0.cmp(&evt2.event_time.0));
+    one_pm_events.sort_by(|evt1, evt2| evt1.event_time.0.cmp(&evt2.event_time.0));
+    
     vec![
         EventBlock {
             represented_time: TimeDto(NaiveTime::from_hms_opt(10, 0, 0).unwrap()),
-            events: (dto::event_in_time_slot(10), 5..30).fake(),
+            events: ten_am_events,
         },
         EventBlock {
             represented_time: TimeDto(NaiveTime::from_hms_opt(11, 0, 0).unwrap()),
-            events: (dto::event_in_time_slot(11), 10..40).fake(),
+            events: eleven_am_events,
         },
         EventBlock {
             represented_time: TimeDto(NaiveTime::from_hms_opt(13, 0, 0).unwrap()),
-            events: (dto::event_in_time_slot(13), 7..20).fake(),
+            events: one_pm_events,
         },
     ]
 }
 
-fn event_data() -> &'static dto::DailyTimeBlockedEventsResponse {
+pub(super) fn event_data() -> &'static dto::DailyTimeBlockedEventsResponse {
     static EVENTS_CELL: OnceLock<dto::DailyTimeBlockedEventsResponse> = OnceLock::new();
     let events = EVENTS_CELL.get_or_init(|| dto::DailyTimeBlockedEventsResponse {
         events_by_day: HashMap::from([
@@ -163,11 +171,6 @@ fn event_data() -> &'static dto::DailyTimeBlockedEventsResponse {
     });
 
     events
-}
-
-// TODO add openapi docs to this func & attach to EventsApi
-async fn list_events(ext_cxn: &mut impl ExternalConnectivity) {
-    // TODO implement /api/events here
 }
 
 #[utoipa::path(

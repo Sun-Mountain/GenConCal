@@ -1,4 +1,4 @@
-use crate::dto::EventDay;
+use crate::dto::{EventDay, TimeBlockedEventsResponse};
 use crate::external_connections::ExternalConnectivity;
 use crate::routing_utils::Json;
 use crate::{dto, AppState, SharedData};
@@ -13,7 +13,10 @@ use std::sync::Arc;
 use utoipa::OpenApi;
 
 #[derive(OpenApi)]
-#[openapi(paths(day_time_info,))]
+#[openapi(paths(
+    list_events_by_day,
+    day_time_info,
+))]
 pub struct DaysApi;
 
 pub const DAYS_API_GROUP: &str = "Days";
@@ -29,9 +32,67 @@ pub fn day_routes() -> Router<Arc<SharedData>> {
                     day_time_info(day_id, &mut ext_cxn).await
                 },
             ),
+        ).route(
+            "/:day_id/events",
+            get(
+                |State(app_data): AppState, Path(day_id): Path<u32>| async move {
+                    let mut ext_cxn = app_data.ext_cxn.clone();
+                    
+                    list_events_by_day(day_id, &mut ext_cxn).await
+                }
+            )
         )
 }
 
+
+#[utoipa::path(
+    get,
+    path = "/api/days/{day_id}/events",
+    tag = DAYS_API_GROUP,
+    params(
+        ("day_id" = u32, Path, description = "The ID of the day to look up the list of events for (YYYYMMDD format)"),
+    ),
+    responses(
+        (status = 200, description = "Events successfully retrieved", body = TimeBlockedEventsResponse),
+        (
+            status = 404,
+            description = "No GenCon dates have the requested day ID",
+            body = BasicError,
+            example = json!({
+                "errorCode": "no_matching_day",
+                "errorDescription": "The requested date was not found in the system.",
+                "extraInfo": null
+            }),
+        ),
+        (status = 500, response = dto::err_resps::BasicError500),
+    ),
+)]
+/// List events that occur on a certain day
+async fn list_events_by_day(day_id: u32, ext_cxn: &mut impl ExternalConnectivity) -> Result<Json<TimeBlockedEventsResponse>, ErrorResponse> {
+    let event_data = super::events::event_data();
+    let events_for_day_opt = event_data.events_by_day.get(&day_id);
+    let events_for_day = match events_for_day_opt {
+        Some(event_list) => event_list,
+        None => return Err((
+            StatusCode::NOT_FOUND,
+            Json(dto::BasicError {
+                error_code: "no_matching_day".to_owned(),
+                error_description: "The requested date was not found in the system.".to_owned(),
+                extra_info: None,
+            })
+        ).into())
+    };
+    
+    let resp = TimeBlockedEventsResponse {
+        pagination_info: dto::PaginationInfo {
+            page: 1,
+            total_pages: 1,
+        },
+        events_by_time: events_for_day.clone(),
+    };
+
+    Ok(Json(resp))
+}
 
 #[utoipa::path(
     get,
