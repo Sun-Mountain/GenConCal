@@ -51,6 +51,7 @@ pub fn day_routes() -> Router<Arc<SharedData>> {
     tag = DAYS_API_GROUP,
     params(
         ("day_id" = u32, Path, description = "The ID of the day to look up the list of events for (YYYYMMDD format)"),
+        super::events::EventListQueryParams,
     ),
     responses(
         (status = 200, description = "Events successfully retrieved", body = TimeBlockedEventsResponse),

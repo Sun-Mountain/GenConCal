@@ -8,7 +8,8 @@ use axum::Router;
 use axum::routing::get;
 use chrono::{NaiveDate, NaiveTime};
 use fake::Fake;
-use utoipa::OpenApi;
+use serde::Deserialize;
+use utoipa::{IntoParams, OpenApi};
 use validator::{Validate, ValidationError};
 
 use crate::{AppState, dto, SharedData};
@@ -24,27 +25,49 @@ pub struct EventsApi;
 
 pub const EVENTS_API_GROUP: &str = "Events";
 
-#[derive(Validate)]
+#[derive(Validate, Deserialize, IntoParams)]
+#[into_params(parameter_in = Query)]
 #[validate(schema(function = "validate_eventlist_query"))]
+#[serde(rename_all = "kebab-case")]
 pub struct EventListQueryParams {
+    /// The page of results to return (default 1)
     page: Option<u16>,
+    /// The number of results (total events) to return per page (default 50)
     limit: Option<u16>,
+    /// Lower bound for available tickets in returned events (default 0)
     min_available_tickets: Option<u16>,
+    /// Comma separated list of event type IDs to filter for
     event_types: Option<CommaSeparated<i32>>,
+    
     #[validate(custom(function = "validate_experience_list"))]
+    /// Comma separated list of experience levels to filter for (acceptable values are none, some, or expert)
     experience: Option<CommaSeparated<String>>,
+    
     #[validate(custom(function = "validate_age_list"))]
+    /// Comma separated list of age brackets to filter for (acceptable values are everyone, kidsonly, teen, mature, or adult)
     age: Option<CommaSeparated<String>>,
+
+    /// Comma separated list of game system IDs to filter for
     game_systems: Option<CommaSeparated<i32>>,
+    /// Comma separated list of organizer group IDs to filter for
     groups: Option<CommaSeparated<i32>>,
+    /// Comma separated list of location IDs to filter for
     locations: Option<CommaSeparated<i32>>,
+    /// Whether or not to show events that are part of a tournament (default true)
     show_tournaments: Option<bool>,
+    /// Time in HH:MM 24-hour format, the earliest start time of returned events
     start_time: Option<TimeDto>,
+    /// Time in HH:MM 24-hour format, the latest start time of returned events
     end_time: Option<TimeDto>,
+    /// The shortest duration of returned events
     min_duration: Option<f32>,
+    /// The longest duration of returned events
     max_duration: Option<f32>,
+    /// Partial event title to search for
     search_text: Option<String>,
+    /// The lowest event price that should be returned in results
     cost_min: Option<u16>,
+    /// The highest event price that should be returned in results
     cost_max: Option<u16>,
 }
 
@@ -116,6 +139,60 @@ fn validate_age_list(age_list: &Option<CommaSeparated<String>>) -> Result<(), Va
     Ok(())
 }
 
+pub(super) fn matches_event_filter(evt_summary: &dto::EventSummary, filter: &EventListQueryParams) -> bool {
+    // Time filter
+    if let Some(TimeDto(min_start)) = &filter.start_time {
+        if evt_summary.event_time.0 < *min_start {
+            return false
+        }
+    }
+    if let Some(TimeDto(max_start)) = &filter.end_time {
+        if evt_summary.event_time.0 > *max_start {
+            return false
+        }
+    }
+    
+    // Search text filter
+    if let Some(search_text) = &filter.search_text {
+        if !evt_summary.title.contains(search_text) {
+            return false
+        }
+    }
+    
+    // Ticket availability filter
+    if let Some(min_available_tix) = filter.min_available_tickets {
+        if evt_summary.tickets.available < min_available_tix {
+            return false
+        }
+    }
+    
+    // Duration filter
+    if let Some(min_duration) = filter.min_duration {
+        if evt_summary.duration < min_duration {
+            return false
+        }
+    }
+    if let Some(max_duration) = filter.max_duration {
+        if evt_summary.duration > max_duration {
+            return false
+        }
+    }
+    
+    // Cost filter
+    if let (Some(min_cost), Some(actual_cost)) = (filter.cost_min, evt_summary.cost) {
+        if actual_cost < min_cost {
+            return false
+        }
+    }
+    if let (Some(max_cost), Some(actual_cost)) = (filter.cost_max, evt_summary.cost) {
+        if actual_cost > max_cost {
+            return false
+        }
+    }
+    
+    true
+}
+
 pub fn events_routes() -> Router<Arc<SharedData>> {
     Router::new().route(
         "/",
@@ -178,8 +255,8 @@ pub(super) fn event_data() -> &'static dto::DailyTimeBlockedEventsResponse {
     path = "/api/events/counts/daily",
     tag = EVENTS_API_GROUP,
     responses(
-    (status = 200, description = "List of convention days was successfully retrieved", body = DaysResponse),
-    (status = 500, response = dto::err_resps::BasicError500),
+        (status = 200, description = "List of convention days was successfully retrieved", body = DaysResponse),
+        (status = 500, response = dto::err_resps::BasicError500),
     )
 )]
 /// Lists the number of events by day for the current GenCon year

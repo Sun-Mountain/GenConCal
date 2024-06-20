@@ -33,6 +33,9 @@ use crate::dto::IngestEventConvertErr::{UnrecognizedAgeRequirement, Unrecognized
         BasicError,
         ExtraInfo,
         ValidationErrorSchema,
+        CommaSeparated<u16>,
+        CommaSeparated<i32>,
+        CommaSeparated<String>,
     ),
     responses(
         err_resps::BasicError400Validation,
