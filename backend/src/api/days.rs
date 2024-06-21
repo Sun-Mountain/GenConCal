@@ -1,7 +1,8 @@
 use crate::dto::{EventDay, TimeBlockedEventsResponse};
 use crate::external_connections::ExternalConnectivity;
-use crate::routing_utils::Json;
-use crate::{dto, AppState, SharedData};
+use crate::routing_utils::{Json, ValidationErrorResponse};
+use crate::{api, AppState, dto, SharedData};
+use crate::api::{events, PaginationQueryParams};
 use axum::extract::{Path, Query, State};
 use axum::http::StatusCode;
 use axum::response::{ErrorResponse, IntoResponse};
@@ -11,6 +12,7 @@ use chrono::{NaiveDate, NaiveTime};
 use fake::Fake;
 use std::sync::Arc;
 use utoipa::OpenApi;
+use validator::Validate;
 
 #[derive(OpenApi)]
 #[openapi(paths(
@@ -34,13 +36,16 @@ pub fn day_routes() -> Router<Arc<SharedData>> {
             ),
         ).route(
             "/:day_id/events",
-            get(
-                |State(app_data): AppState, Path(day_id): Path<u32>, Query(filter): Query<super::events::EventListQueryParams>| async move {
-                    let mut ext_cxn = app_data.ext_cxn.clone();
-                    
-                    list_events_by_day(day_id, &filter, &mut ext_cxn).await
-                }
-            )
+            get(|
+                State(app_data): AppState,
+                Path(day_id): Path<u32>,
+                Query(filter): Query<events::EventListQueryParams>,
+                Query(pagination): Query<api::PaginationQueryParams>
+            | async move {
+                let mut ext_cxn = app_data.ext_cxn.clone();
+                
+                list_events_by_day(day_id, &filter, &pagination, &mut ext_cxn).await
+            })
         )
 }
 
@@ -51,10 +56,12 @@ pub fn day_routes() -> Router<Arc<SharedData>> {
     tag = DAYS_API_GROUP,
     params(
         ("day_id" = u32, Path, description = "The ID of the day to look up the list of events for (YYYYMMDD format)"),
-        super::events::EventListQueryParams,
+        events::EventListQueryParams,
+        PaginationQueryParams,
     ),
     responses(
         (status = 200, description = "Events successfully retrieved", body = TimeBlockedEventsResponse),
+        (status = 400, response = dto::err_resps::BasicError400Validation),
         (
             status = 404,
             description = "No GenCon dates have the requested day ID",
@@ -69,8 +76,11 @@ pub fn day_routes() -> Router<Arc<SharedData>> {
     ),
 )]
 /// List events that occur on a certain day
-async fn list_events_by_day(day_id: u32, filter: &super::events::EventListQueryParams, ext_cxn: &mut impl ExternalConnectivity) -> Result<Json<TimeBlockedEventsResponse>, ErrorResponse> {
-    let event_data = super::events::event_data();
+async fn list_events_by_day(day_id: u32, filter: &events::EventListQueryParams, pagination: &api::PaginationQueryParams, _ext_cxn: &mut impl ExternalConnectivity) -> Result<Json<TimeBlockedEventsResponse>, ErrorResponse> {
+    filter.validate().map_err(ValidationErrorResponse)?;
+    pagination.validate().map_err(ValidationErrorResponse)?;
+    
+    let event_data = events::event_data();
     let events_for_day_opt = event_data.events_by_day.get(&day_id);
     let events_for_day = match events_for_day_opt {
         Some(event_list) => event_list,
@@ -86,12 +96,12 @@ async fn list_events_by_day(day_id: u32, filter: &super::events::EventListQueryP
 
     let mut events_on_day = events_for_day.clone();
     for time_block in events_on_day.iter_mut() {
-        time_block.events.retain(|event| super::events::matches_event_filter(event, &filter));
+        time_block.events.retain(|event| super::events::matches_event_filter(event, filter));
     }
     events_on_day.retain(|block| !block.events.is_empty());
     
-    let page = filter.page.unwrap_or(1);
-    let results_per_page = filter.limit.unwrap_or(50);
+    let page = pagination.page.unwrap_or(1);
+    let results_per_page = pagination.limit.unwrap_or(50);
     let total_results = super::events::paginate_events(&mut events_on_day, page, results_per_page);
     let total_pages = super::total_pages(results_per_page, total_results);
     

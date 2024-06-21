@@ -1,3 +1,7 @@
+use serde::Deserialize;
+use utoipa::IntoParams;
+use validator::Validate;
+
 pub mod swagger_main;
 
 pub mod days;
@@ -27,5 +31,18 @@ fn total_pages(results_per_page: u16, total_results: usize) -> u16 {
     };
 
     pages as u16
+}
+
+#[derive(Validate, Deserialize, IntoParams)]
+#[into_params(parameter_in = Query)]
+#[serde(rename_all = "kebab-case")]
+pub struct PaginationQueryParams {
+    #[validate(range(min = 1))]
+    /// The page of results to return (default 1)
+    pub page: Option<u16>,
+    
+    #[validate(range(min = 1))]
+    /// The number of results to return per page
+    pub limit: Option<u16>,
 }
 

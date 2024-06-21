@@ -26,7 +26,7 @@ impl IntoResponse for GenericErrorResponse {
 }
 
 /// Response type that wraps validation errors and turns them into [BasicError]s
-pub struct ValidationErrorResponse(ValidationErrors);
+pub struct ValidationErrorResponse(pub ValidationErrors);
 
 impl IntoResponse for ValidationErrorResponse {
     fn into_response(self) -> Response {

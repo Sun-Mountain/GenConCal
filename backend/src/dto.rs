@@ -270,7 +270,7 @@ impl From<DateDto> for String {
 
 #[derive(Serialize, Deserialize, Clone, ToSchema)]
 #[serde(try_from = "String", into = "String")]
-#[schema(example = "18:30", value_type = String)]
+#[schema(value_type = String)]
 pub struct TimeDto(pub NaiveTime);
 
 impl TryFrom<String> for TimeDto {

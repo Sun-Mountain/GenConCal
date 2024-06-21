@@ -2,7 +2,7 @@ use std::borrow::Cow;
 use std::collections::HashMap;
 use std::sync::{Arc, OnceLock};
 
-use axum::extract::State;
+use axum::extract::{Query, State};
 use axum::response::ErrorResponse;
 use axum::Router;
 use axum::routing::get;
@@ -16,7 +16,7 @@ use crate::{AppState, dto, SharedData};
 use crate::api::{determine_page_limits, PageRange};
 use crate::dto::{CommaSeparated, EventBlock, EventDay, TimeDto};
 use crate::external_connections::ExternalConnectivity;
-use crate::routing_utils::Json;
+use crate::routing_utils::{Json, ValidationErrorResponse};
 
 #[derive(OpenApi)]
 #[openapi(paths(
@@ -31,10 +31,6 @@ pub const EVENTS_API_GROUP: &str = "Events";
 #[validate(schema(function = "validate_eventlist_query"))]
 #[serde(rename_all = "kebab-case")]
 pub struct EventListQueryParams {
-    /// The page of results to return (default 1)
-    pub page: Option<u16>,
-    /// The number of results (total events) to return per page (default 50)
-    pub limit: Option<u16>,
     /// Lower bound for available tickets in returned events (default 0)
     pub min_available_tickets: Option<u16>,
     /// Comma separated list of event type IDs to filter for
@@ -220,6 +216,7 @@ pub(super) fn paginate_additional_events(blocks: &mut Vec<EventBlock>, page: u16
     // Consume as many results as we can up to the page limit
     for block in blocks.iter_mut() {
         if processed_results + block.events.len() < page_end {
+            // If the entirety of this block is within the page, keep everything
             processed_results += block.events.len()
         } else if processed_results > page_end {
             // If we're beyond the page limit, clear out everything else
@@ -228,7 +225,7 @@ pub(super) fn paginate_additional_events(blocks: &mut Vec<EventBlock>, page: u16
         } else {
             // We only need to clear out the last few results (the ones off the end of the page)
             let results_to_keep = page_end - processed_results;
-            processed_results += results_to_keep;
+            processed_results += block.events.len();
             block.events.drain(results_to_keep..);
         }
     }
@@ -242,18 +239,11 @@ pub(super) fn paginate_events(blocks: &mut Vec<EventBlock>, page: u16, results_p
 
 pub fn events_routes() -> Router<Arc<SharedData>> {
     Router::new().route(
-        "/",
-        get(|State(app_data): AppState| async move {
-            let mut ext_cxn = app_data.ext_cxn.clone();
-
-            // TODO call list_events here
-        }),
-    ).route(
         "/counts/daily",
-        get(|State(app_data): AppState| async move {
+        get(|State(app_data): AppState, Query(filter): Query<EventListQueryParams>| async move {
             let mut ext_cxn = app_data.ext_cxn.clone();
 
-            list_event_counts_by_day(&mut ext_cxn).await
+            list_event_counts_by_day(&filter, &mut ext_cxn).await
         }),
     )
 }
@@ -300,17 +290,33 @@ pub(super) fn event_data() -> &'static dto::DailyTimeBlockedEventsResponse {
 #[utoipa::path(
     get,
     path = "/api/events/counts/daily",
+    params(
+        EventListQueryParams,
+    ),
     tag = EVENTS_API_GROUP,
     responses(
         (status = 200, description = "List of convention days was successfully retrieved", body = DaysResponse),
+        (status = 400, response = dto::err_resps::BasicError400Validation),
         (status = 500, response = dto::err_resps::BasicError500),
     )
 )]
 /// Lists the number of events by day for the current GenCon year
+/// 
+/// If filtering query parameters are supplied, the counts of events returned are the number
+/// of events by day which match the query.
 async fn list_event_counts_by_day(
+    filter: &EventListQueryParams,
     _: &mut impl ExternalConnectivity,
 ) -> Result<Json<dto::DaysResponse>, ErrorResponse> {
-    let event_data = event_data();
+    filter.validate().map_err(ValidationErrorResponse)?;
+    
+    let mut event_data = event_data().clone();
+    for (_, events_on_day) in event_data.events_by_day.iter_mut() {
+        for block in events_on_day.iter_mut() {
+            block.events.retain(|evt| matches_event_filter(evt, filter));
+        }
+    }
+    
     let mut days: Vec<EventDay> = event_data.events_by_day.iter()
         .map(|(day_id, event_list)| {
             let day = day_id % 100;

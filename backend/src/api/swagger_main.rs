@@ -4,8 +4,8 @@ use utoipa_swagger_ui::SwaggerUi;
 
 #[derive(OpenApi)]
 #[openapi(info(
-    title = "Rust Todo API",
-    description = "A sample to-do list API written in Rust"
+    title = "GenCon Event Calendar API",
+    description = "An API for effectively searching events at GenCon"
 ))]
 struct TodoApi;
 
