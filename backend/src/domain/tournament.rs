@@ -1,7 +1,5 @@
 use std::collections::HashMap;
 
-
-
 use crate::domain::event;
 use crate::domain::event::FullEvent;
 

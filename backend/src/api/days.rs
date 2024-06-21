@@ -1,14 +1,14 @@
 use crate::api::{events, PaginationQueryParams};
-use crate::dto::{TimeBlockedEventsResponse};
+use crate::dto::TimeBlockedEventsResponse;
 use crate::external_connections::ExternalConnectivity;
 use crate::routing_utils::{Json, ValidationErrorResponse};
 use crate::{api, dto, AppState, SharedData};
 use axum::extract::{Path, Query, State};
 use axum::http::StatusCode;
-use axum::response::{ErrorResponse};
+use axum::response::ErrorResponse;
 use axum::routing::get;
 use axum::Router;
-use chrono::{NaiveTime};
+use chrono::NaiveTime;
 
 use std::sync::Arc;
 use utoipa::OpenApi;

@@ -1,9 +1,6 @@
 use chrono::DateTime;
 use chrono_tz::Tz;
 
-
-
-
 use crate::domain::location::{Location, LocationIngest};
 use crate::domain::metadata::{Contact, Group, Materials, Website};
 use crate::domain::tournament::RoundInfoIngest;
