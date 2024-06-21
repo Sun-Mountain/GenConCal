@@ -4,13 +4,13 @@ use std::str::FromStr;
 
 use chrono::{NaiveDate, NaiveDateTime, NaiveTime, ParseError, TimeZone};
 use chrono_tz::Tz;
-use fake::{Dummy, Fake, Opt, Optional};
 use fake::faker::lorem::en::*;
+use fake::{Dummy, Fake, Opt, Optional};
 use rand::prelude::*;
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
-use utoipa::{openapi, OpenApi, ToSchema};
 use utoipa::openapi::{RefOr, Schema};
+use utoipa::{openapi, OpenApi, ToSchema};
 use validator::ValidationErrors;
 
 use crate::domain;
@@ -55,7 +55,7 @@ pub struct CommaSepParseErr(String);
 #[schema(value_type = String)]
 pub struct CommaSeparated<T: FromStr + Display + Clone>(pub Vec<T>);
 
-impl <T: FromStr + Display + Clone> TryFrom<String> for CommaSeparated<T> {
+impl<T: FromStr + Display + Clone> TryFrom<String> for CommaSeparated<T> {
     type Error = CommaSepParseErr;
 
     fn try_from(value: String) -> Result<Self, Self::Error> {
@@ -63,7 +63,8 @@ impl <T: FromStr + Display + Clone> TryFrom<String> for CommaSeparated<T> {
             .split(',')
             .map(&str::trim)
             .map(|trimmed_str| {
-                trimmed_str.parse()
+                trimmed_str
+                    .parse()
                     .map_err(|_| CommaSepParseErr(trimmed_str.to_owned()))
             })
             .collect::<Result<Vec<T>, CommaSepParseErr>>()?;
@@ -71,9 +72,11 @@ impl <T: FromStr + Display + Clone> TryFrom<String> for CommaSeparated<T> {
     }
 }
 
-impl <T: FromStr + Display + Clone> From<CommaSeparated<T>> for String {
+impl<T: FromStr + Display + Clone> From<CommaSeparated<T>> for String {
     fn from(value: CommaSeparated<T>) -> Self {
-        value.0.iter()
+        value
+            .0
+            .iter()
             .map(T::to_string)
             .collect::<Vec<String>>()
             .join(",")
@@ -156,7 +159,8 @@ pub fn event_in_time_slot(time: u32) -> EventInTimeSlot {
 impl Dummy<EventInTimeSlot> for EventSummary {
     fn dummy_with_rng<R: Rng + ?Sized>(config: &EventInTimeSlot, rng: &mut R) -> Self {
         let id: i64 = (100..10_000).fake_with_rng(rng);
-        let event_time = TimeDto(NaiveTime::from_hms_opt(config.0, (0..60).fake_with_rng(rng), 0).unwrap());
+        let event_time =
+            TimeDto(NaiveTime::from_hms_opt(config.0, (0..60).fake_with_rng(rng), 0).unwrap());
         let title: String = Words(2..6).fake_with_rng::<Vec<String>, _>(rng).join(" ");
         let tickets = FakeTicketAvailability.fake_with_rng(rng);
         let duration = discrete_f32(&[0.5, 1.0, 1.5, 2.0, 2.5, 3.0]).fake_with_rng(rng);
@@ -189,10 +193,7 @@ impl Dummy<FakeTicketAvailability> for TicketAvailability {
         let total: u16 = (20..=100).fake_with_rng(rng);
         let available: u16 = (20..=total).fake_with_rng(rng);
 
-        TicketAvailability {
-            total,
-            available,
-        }
+        TicketAvailability { total, available }
     }
 }
 
@@ -208,7 +209,11 @@ fn discrete_f32(options: &[f32]) -> DiscreteF32 {
 
 impl Dummy<DiscreteF32> for f32 {
     fn dummy_with_rng<R: Rng + ?Sized>(config: &DiscreteF32, rng: &mut R) -> Self {
-        config.float_options.choose(rng).expect("discrete_f32 must contain at least one option").clone()
+        config
+            .float_options
+            .choose(rng)
+            .expect("discrete_f32 must contain at least one option")
+            .clone()
     }
 }
 

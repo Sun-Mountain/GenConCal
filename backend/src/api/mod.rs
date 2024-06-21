@@ -19,7 +19,10 @@ fn determine_page_limits(page: u16, results_per_page: u16) -> PageRange {
     let page_start = (page as usize - 1) * results_per_page as usize;
     let page_end = page_start + results_per_page as usize;
 
-    PageRange { page_start, page_end }
+    PageRange {
+        page_start,
+        page_end,
+    }
 }
 
 fn total_pages(results_per_page: u16, total_results: usize) -> u16 {
@@ -40,9 +43,8 @@ pub struct PaginationQueryParams {
     #[validate(range(min = 1))]
     /// The page of results to return (default 1)
     pub page: Option<u16>,
-    
+
     #[validate(range(min = 1))]
     /// The number of results to return per page
     pub limit: Option<u16>,
 }
-

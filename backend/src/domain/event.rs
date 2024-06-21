@@ -1,7 +1,7 @@
-use std::str::FromStr;
 use chrono::DateTime;
 use chrono_tz::Tz;
 use serde::Serialize;
+use std::str::FromStr;
 use thiserror::Error;
 
 use crate::domain::location::{Location, LocationIngest};

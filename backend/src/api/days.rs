@@ -1,8 +1,8 @@
+use crate::api::{events, PaginationQueryParams};
 use crate::dto::{EventDay, TimeBlockedEventsResponse};
 use crate::external_connections::ExternalConnectivity;
 use crate::routing_utils::{Json, ValidationErrorResponse};
-use crate::{api, AppState, dto, SharedData};
-use crate::api::{events, PaginationQueryParams};
+use crate::{api, dto, AppState, SharedData};
 use axum::extract::{Path, Query, State};
 use axum::http::StatusCode;
 use axum::response::{ErrorResponse, IntoResponse};
@@ -15,10 +15,7 @@ use utoipa::OpenApi;
 use validator::Validate;
 
 #[derive(OpenApi)]
-#[openapi(paths(
-    list_events_by_day,
-    day_time_info,
-))]
+#[openapi(paths(list_events_by_day, day_time_info,))]
 pub struct DaysApi;
 
 pub const DAYS_API_GROUP: &str = "Days";
@@ -34,21 +31,21 @@ pub fn day_routes() -> Router<Arc<SharedData>> {
                     day_time_info(day_id, &mut ext_cxn).await
                 },
             ),
-        ).route(
+        )
+        .route(
             "/:day_id/events",
-            get(|
-                State(app_data): AppState,
-                Path(day_id): Path<u32>,
-                Query(filter): Query<events::EventListQueryParams>,
-                Query(pagination): Query<api::PaginationQueryParams>
-            | async move {
-                let mut ext_cxn = app_data.ext_cxn.clone();
-                
-                list_events_by_day(day_id, &filter, &pagination, &mut ext_cxn).await
-            })
+            get(
+                |State(app_data): AppState,
+                 Path(day_id): Path<u32>,
+                 Query(filter): Query<events::EventListQueryParams>,
+                 Query(pagination): Query<api::PaginationQueryParams>| async move {
+                    let mut ext_cxn = app_data.ext_cxn.clone();
+
+                    list_events_by_day(day_id, &filter, &pagination, &mut ext_cxn).await
+                },
+            ),
         )
 }
-
 
 #[utoipa::path(
     get,
@@ -76,42 +73,49 @@ pub fn day_routes() -> Router<Arc<SharedData>> {
     ),
 )]
 /// List events that occur on a certain day
-async fn list_events_by_day(day_id: u32, filter: &events::EventListQueryParams, pagination: &api::PaginationQueryParams, _ext_cxn: &mut impl ExternalConnectivity) -> Result<Json<TimeBlockedEventsResponse>, ErrorResponse> {
+async fn list_events_by_day(
+    day_id: u32,
+    filter: &events::EventListQueryParams,
+    pagination: &api::PaginationQueryParams,
+    _ext_cxn: &mut impl ExternalConnectivity,
+) -> Result<Json<TimeBlockedEventsResponse>, ErrorResponse> {
     filter.validate().map_err(ValidationErrorResponse)?;
     pagination.validate().map_err(ValidationErrorResponse)?;
-    
+
     let event_data = events::event_data();
     let events_for_day_opt = event_data.events_by_day.get(&day_id);
     let events_for_day = match events_for_day_opt {
         Some(event_list) => event_list,
-        None => return Err((
-            StatusCode::NOT_FOUND,
-            Json(dto::BasicError {
-                error_code: "no_matching_day".to_owned(),
-                error_description: "The requested date was not found in the system.".to_owned(),
-                extra_info: None,
-            })
-        ).into())
+        None => {
+            return Err((
+                StatusCode::NOT_FOUND,
+                Json(dto::BasicError {
+                    error_code: "no_matching_day".to_owned(),
+                    error_description: "The requested date was not found in the system.".to_owned(),
+                    extra_info: None,
+                }),
+            )
+                .into())
+        }
     };
 
     let mut events_on_day = events_for_day.clone();
     for time_block in events_on_day.iter_mut() {
-        time_block.events.retain(|event| super::events::matches_event_filter(event, filter));
+        time_block
+            .events
+            .retain(|event| super::events::matches_event_filter(event, filter));
     }
     events_on_day.retain(|block| !block.events.is_empty());
-    
+
     let page = pagination.page.unwrap_or(1);
     let results_per_page = pagination.limit.unwrap_or(50);
     let total_results = super::events::paginate_events(&mut events_on_day, page, results_per_page);
     let total_pages = super::total_pages(results_per_page, total_results);
-    
+
     events_on_day.retain(|block| !block.events.is_empty());
-    
+
     let resp = TimeBlockedEventsResponse {
-        pagination_info: dto::PaginationInfo {
-            page,
-            total_pages,
-        },
+        pagination_info: dto::PaginationInfo { page, total_pages },
         events_by_time: events_on_day,
     };
 

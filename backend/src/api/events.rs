@@ -4,24 +4,22 @@ use std::sync::{Arc, OnceLock};
 
 use axum::extract::{Query, State};
 use axum::response::ErrorResponse;
-use axum::Router;
 use axum::routing::get;
+use axum::Router;
 use chrono::{NaiveDate, NaiveTime};
 use fake::Fake;
 use serde::Deserialize;
 use utoipa::{IntoParams, OpenApi};
 use validator::{Validate, ValidationError};
 
-use crate::{AppState, dto, SharedData};
 use crate::api::{determine_page_limits, PageRange};
 use crate::dto::{CommaSeparated, EventBlock, EventDay, TimeDto};
 use crate::external_connections::ExternalConnectivity;
 use crate::routing_utils::{Json, ValidationErrorResponse};
+use crate::{dto, AppState, SharedData};
 
 #[derive(OpenApi)]
-#[openapi(paths(
-    list_event_counts_by_day,
-))]
+#[openapi(paths(list_event_counts_by_day,))]
 pub struct EventsApi;
 
 pub const EVENTS_API_GROUP: &str = "Events";
@@ -35,11 +33,11 @@ pub struct EventListQueryParams {
     pub min_available_tickets: Option<u16>,
     /// Comma separated list of event type IDs to filter for
     pub event_types: Option<CommaSeparated<i32>>,
-    
+
     #[validate(custom(function = "validate_experience_list"))]
     /// Comma separated list of experience levels to filter for (acceptable values are none, some, or expert)
     pub experience: Option<CommaSeparated<String>>,
-    
+
     #[validate(custom(function = "validate_age_list"))]
     /// Comma separated list of age brackets to filter for (acceptable values are everyone, kidsonly, teen, mature, or adult)
     pub age: Option<CommaSeparated<String>>,
@@ -136,64 +134,75 @@ fn validate_age_list(age_list: &Option<CommaSeparated<String>>) -> Result<(), Va
     Ok(())
 }
 
-pub(super) fn matches_event_filter(evt_summary: &dto::EventSummary, filter: &EventListQueryParams) -> bool {
+pub(super) fn matches_event_filter(
+    evt_summary: &dto::EventSummary,
+    filter: &EventListQueryParams,
+) -> bool {
     // Time filter
     if let Some(TimeDto(min_start)) = &filter.start_time {
         if evt_summary.event_time.0 < *min_start {
-            return false
+            return false;
         }
     }
     if let Some(TimeDto(max_start)) = &filter.end_time {
         if evt_summary.event_time.0 > *max_start {
-            return false
+            return false;
         }
     }
-    
+
     // Search text filter
     if let Some(search_text) = &filter.search_text {
         if !evt_summary.title.contains(search_text) {
-            return false
+            return false;
         }
     }
-    
+
     // Ticket availability filter
     if let Some(min_available_tix) = filter.min_available_tickets {
         if evt_summary.tickets.available < min_available_tix {
-            return false
+            return false;
         }
     }
-    
+
     // Duration filter
     if let Some(min_duration) = filter.min_duration {
         if evt_summary.duration < min_duration {
-            return false
+            return false;
         }
     }
     if let Some(max_duration) = filter.max_duration {
         if evt_summary.duration > max_duration {
-            return false
+            return false;
         }
     }
-    
+
     // Cost filter
     if let (Some(min_cost), Some(actual_cost)) = (filter.cost_min, evt_summary.cost) {
         if actual_cost < min_cost {
-            return false
+            return false;
         }
     }
     if let (Some(max_cost), Some(actual_cost)) = (filter.cost_max, evt_summary.cost) {
         if actual_cost > max_cost {
-            return false
+            return false;
         }
     }
-    
+
     true
 }
 
-pub(super) fn paginate_additional_events(blocks: &mut Vec<EventBlock>, page: u16, results_per_page: u16, results_already_processed: usize) -> usize {
+pub(super) fn paginate_additional_events(
+    blocks: &mut Vec<EventBlock>,
+    page: u16,
+    results_per_page: u16,
+    results_already_processed: usize,
+) -> usize {
     let mut processed_results = results_already_processed;
-    let PageRange { page_start, page_end } = determine_page_limits(page, results_per_page);
-    
+    let PageRange {
+        page_start,
+        page_end,
+    } = determine_page_limits(page, results_per_page);
+
     // If we're before the result page, get up to the result page
     if processed_results < page_start {
         for block in blocks.iter_mut() {
@@ -207,12 +216,12 @@ pub(super) fn paginate_additional_events(blocks: &mut Vec<EventBlock>, page: u16
             }
         }
     }
-    
+
     // If we went through all events and didn't hit the page start, just return the processed event count
     if blocks.iter().all(|block| block.events.is_empty()) {
         return processed_results;
     }
-    
+
     // Consume as many results as we can up to the page limit
     for block in blocks.iter_mut() {
         if processed_results + block.events.len() < page_end {
@@ -229,22 +238,28 @@ pub(super) fn paginate_additional_events(blocks: &mut Vec<EventBlock>, page: u16
             block.events.drain(results_to_keep..);
         }
     }
-    
+
     processed_results
 }
 
-pub(super) fn paginate_events(blocks: &mut Vec<EventBlock>, page: u16, results_per_page: u16) -> usize {
+pub(super) fn paginate_events(
+    blocks: &mut Vec<EventBlock>,
+    page: u16,
+    results_per_page: u16,
+) -> usize {
     paginate_additional_events(blocks, page, results_per_page, 0)
 }
 
 pub fn events_routes() -> Router<Arc<SharedData>> {
     Router::new().route(
         "/counts/daily",
-        get(|State(app_data): AppState, Query(filter): Query<EventListQueryParams>| async move {
-            let mut ext_cxn = app_data.ext_cxn.clone();
+        get(
+            |State(app_data): AppState, Query(filter): Query<EventListQueryParams>| async move {
+                let mut ext_cxn = app_data.ext_cxn.clone();
 
-            list_event_counts_by_day(&filter, &mut ext_cxn).await
-        }),
+                list_event_counts_by_day(&filter, &mut ext_cxn).await
+            },
+        ),
     )
 }
 
@@ -252,11 +267,11 @@ fn gen_day_blocks() -> Vec<dto::EventBlock> {
     let mut ten_am_events: Vec<dto::EventSummary> = (dto::event_in_time_slot(10), 5..20).fake();
     let mut eleven_am_events: Vec<dto::EventSummary> = (dto::event_in_time_slot(11), 10..40).fake();
     let mut one_pm_events: Vec<dto::EventSummary> = (dto::event_in_time_slot(13), 7..20).fake();
-    
+
     ten_am_events.sort_by(|evt1, evt2| evt1.event_time.0.cmp(&evt2.event_time.0));
     eleven_am_events.sort_by(|evt1, evt2| evt1.event_time.0.cmp(&evt2.event_time.0));
     one_pm_events.sort_by(|evt1, evt2| evt1.event_time.0.cmp(&evt2.event_time.0));
-    
+
     vec![
         EventBlock {
             represented_time: TimeDto(NaiveTime::from_hms_opt(10, 0, 0).unwrap()),
@@ -301,7 +316,7 @@ pub(super) fn event_data() -> &'static dto::DailyTimeBlockedEventsResponse {
     )
 )]
 /// Lists the number of events by day for the current GenCon year
-/// 
+///
 /// If filtering query parameters are supplied, the counts of events returned are the number
 /// of events by day which match the query.
 async fn list_event_counts_by_day(
@@ -309,32 +324,36 @@ async fn list_event_counts_by_day(
     _: &mut impl ExternalConnectivity,
 ) -> Result<Json<dto::DaysResponse>, ErrorResponse> {
     filter.validate().map_err(ValidationErrorResponse)?;
-    
+
     let mut event_data = event_data().clone();
     for (_, events_on_day) in event_data.events_by_day.iter_mut() {
         for block in events_on_day.iter_mut() {
             block.events.retain(|evt| matches_event_filter(evt, filter));
         }
     }
-    
-    let mut days: Vec<EventDay> = event_data.events_by_day.iter()
+
+    let mut days: Vec<EventDay> = event_data
+        .events_by_day
+        .iter()
         .map(|(day_id, event_list)| {
             let day = day_id % 100;
             let month = ((day_id - day) % 10000) / 100;
             let year = (day_id - (month * 100) - day) / 10000;
 
-            let total_events: u16 = event_list.iter().map(|block| block.events.len() as u16).sum();
+            let total_events: u16 = event_list
+                .iter()
+                .map(|block| block.events.len() as u16)
+                .sum();
 
             EventDay {
                 day_id: *day_id,
                 date: dto::DateDto(NaiveDate::from_ymd_opt(year as i32, month, day).unwrap()),
                 total_events,
             }
-        }).collect();
+        })
+        .collect();
     days.sort_by(|day1, day2| day1.day_id.cmp(&day2.day_id));
-    let dummy_resp_data = dto::DaysResponse {
-        days,
-    };
+    let dummy_resp_data = dto::DaysResponse { days };
 
     Ok(Json(dummy_resp_data))
 }
