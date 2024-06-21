@@ -13,6 +13,7 @@ use utoipa::{IntoParams, OpenApi};
 use validator::{Validate, ValidationError};
 
 use crate::{AppState, dto, SharedData};
+use crate::api::{determine_page_limits, PageRange};
 use crate::dto::{CommaSeparated, EventBlock, EventDay, TimeDto};
 use crate::external_connections::ExternalConnectivity;
 use crate::routing_utils::Json;
@@ -31,44 +32,44 @@ pub const EVENTS_API_GROUP: &str = "Events";
 #[serde(rename_all = "kebab-case")]
 pub struct EventListQueryParams {
     /// The page of results to return (default 1)
-    page: Option<u16>,
+    pub page: Option<u16>,
     /// The number of results (total events) to return per page (default 50)
-    limit: Option<u16>,
+    pub limit: Option<u16>,
     /// Lower bound for available tickets in returned events (default 0)
-    min_available_tickets: Option<u16>,
+    pub min_available_tickets: Option<u16>,
     /// Comma separated list of event type IDs to filter for
-    event_types: Option<CommaSeparated<i32>>,
+    pub event_types: Option<CommaSeparated<i32>>,
     
     #[validate(custom(function = "validate_experience_list"))]
     /// Comma separated list of experience levels to filter for (acceptable values are none, some, or expert)
-    experience: Option<CommaSeparated<String>>,
+    pub experience: Option<CommaSeparated<String>>,
     
     #[validate(custom(function = "validate_age_list"))]
     /// Comma separated list of age brackets to filter for (acceptable values are everyone, kidsonly, teen, mature, or adult)
-    age: Option<CommaSeparated<String>>,
+    pub age: Option<CommaSeparated<String>>,
 
     /// Comma separated list of game system IDs to filter for
-    game_systems: Option<CommaSeparated<i32>>,
+    pub game_systems: Option<CommaSeparated<i32>>,
     /// Comma separated list of organizer group IDs to filter for
-    groups: Option<CommaSeparated<i32>>,
+    pub groups: Option<CommaSeparated<i32>>,
     /// Comma separated list of location IDs to filter for
-    locations: Option<CommaSeparated<i32>>,
+    pub locations: Option<CommaSeparated<i32>>,
     /// Whether or not to show events that are part of a tournament (default true)
-    show_tournaments: Option<bool>,
+    pub show_tournaments: Option<bool>,
     /// Time in HH:MM 24-hour format, the earliest start time of returned events
-    start_time: Option<TimeDto>,
+    pub start_time: Option<TimeDto>,
     /// Time in HH:MM 24-hour format, the latest start time of returned events
-    end_time: Option<TimeDto>,
+    pub end_time: Option<TimeDto>,
     /// The shortest duration of returned events
-    min_duration: Option<f32>,
+    pub min_duration: Option<f32>,
     /// The longest duration of returned events
-    max_duration: Option<f32>,
+    pub max_duration: Option<f32>,
     /// Partial event title to search for
-    search_text: Option<String>,
+    pub search_text: Option<String>,
     /// The lowest event price that should be returned in results
-    cost_min: Option<u16>,
+    pub cost_min: Option<u16>,
     /// The highest event price that should be returned in results
-    cost_max: Option<u16>,
+    pub cost_max: Option<u16>,
 }
 
 fn validate_eventlist_query(query_params: &EventListQueryParams) -> Result<(), ValidationError> {
@@ -191,6 +192,52 @@ pub(super) fn matches_event_filter(evt_summary: &dto::EventSummary, filter: &Eve
     }
     
     true
+}
+
+pub(super) fn paginate_additional_events(blocks: &mut Vec<EventBlock>, page: u16, results_per_page: u16, results_already_processed: usize) -> usize {
+    let mut processed_results = results_already_processed;
+    let PageRange { page_start, page_end } = determine_page_limits(page, results_per_page);
+    
+    // If we're before the result page, get up to the result page
+    if processed_results < page_start {
+        for block in blocks.iter_mut() {
+            if block.events.len() + processed_results < page_start {
+                processed_results += block.events.len();
+                block.events.clear()
+            } else {
+                let events_outside_page = page_start - processed_results;
+                processed_results += events_outside_page;
+                block.events.drain(..events_outside_page);
+            }
+        }
+    }
+    
+    // If we went through all events and didn't hit the page start, just return the processed event count
+    if blocks.iter().all(|block| block.events.is_empty()) {
+        return processed_results;
+    }
+    
+    // Consume as many results as we can up to the page limit
+    for block in blocks.iter_mut() {
+        if processed_results + block.events.len() < page_end {
+            processed_results += block.events.len()
+        } else if processed_results > page_end {
+            // If we're beyond the page limit, clear out everything else
+            processed_results += block.events.len();
+            block.events.clear();
+        } else {
+            // We only need to clear out the last few results (the ones off the end of the page)
+            let results_to_keep = page_end - processed_results;
+            processed_results += results_to_keep;
+            block.events.drain(results_to_keep..);
+        }
+    }
+    
+    processed_results
+}
+
+pub(super) fn paginate_events(blocks: &mut Vec<EventBlock>, page: u16, results_per_page: u16) -> usize {
+    paginate_additional_events(blocks, page, results_per_page, 0)
 }
 
 pub fn events_routes() -> Router<Arc<SharedData>> {
