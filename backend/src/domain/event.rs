@@ -1,5 +1,7 @@
 use chrono::DateTime;
 use chrono_tz::Tz;
+#[cfg(test)]
+use serde::Serialize;
 
 use crate::domain::location::{Location, LocationIngest};
 use crate::domain::metadata::{Contact, Group, Materials, Website};

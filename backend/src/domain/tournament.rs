@@ -1,4 +1,6 @@
 use std::collections::HashMap;
+#[cfg(test)]
+use serde::Serialize;
 
 use crate::domain::event;
 use crate::domain::event::FullEvent;
