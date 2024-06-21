@@ -150,7 +150,7 @@ async fn day_time_info(
     _: &mut impl ExternalConnectivity,
 ) -> Result<Json<dto::TimeInfoResponse>, ErrorResponse> {
     let dummy_resp_data = match day_id {
-        20240731 | 20240801 | 20240802 => dto::TimeInfoResponse {
+        20240731 | 20240801 | 20240802 | 20240803 => dto::TimeInfoResponse {
             earliest_time: dto::TimeDto(NaiveTime::from_hms_opt(10, 0, 0).unwrap()),
             latest_time: dto::TimeDto(NaiveTime::from_hms_opt(13, 0, 0).unwrap()),
         },
