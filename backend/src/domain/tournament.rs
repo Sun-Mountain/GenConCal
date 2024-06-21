@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use serde::Serialize;
+
 
 use crate::domain::event;
 use crate::domain::event::FullEvent;
@@ -107,7 +107,7 @@ pub fn detect_tournaments<'evt>(events: &'evt [event::IngestEvent]) -> Vec<Tourn
                 SanitizedTitleEvent {
                     sanitized_title: sanitized_title.new_title,
                     removed_indices: sanitized_title.removed_indices,
-                    event: *evt,
+                    event: evt,
                 }
             })
             .collect();

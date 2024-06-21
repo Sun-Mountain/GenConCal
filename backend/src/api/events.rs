@@ -192,7 +192,7 @@ pub(super) fn matches_event_filter(
 }
 
 pub(super) fn paginate_additional_events(
-    blocks: &mut Vec<EventBlock>,
+    blocks: &mut [EventBlock],
     page: u16,
     results_per_page: u16,
     results_already_processed: usize,
@@ -243,7 +243,7 @@ pub(super) fn paginate_additional_events(
 }
 
 pub(super) fn paginate_events(
-    blocks: &mut Vec<EventBlock>,
+    blocks: &mut [EventBlock],
     page: u16,
     results_per_page: u16,
 ) -> usize {

@@ -1,4 +1,4 @@
-use serde::Serialize;
+
 
 pub struct Location {
     pub id: i32,

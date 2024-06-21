@@ -209,11 +209,10 @@ fn discrete_f32(options: &[f32]) -> DiscreteF32 {
 
 impl Dummy<DiscreteF32> for f32 {
     fn dummy_with_rng<R: Rng + ?Sized>(config: &DiscreteF32, rng: &mut R) -> Self {
-        config
+        *config
             .float_options
             .choose(rng)
             .expect("discrete_f32 must contain at least one option")
-            .clone()
     }
 }
 
@@ -417,7 +416,7 @@ impl TryFrom<ImportedEvent> for domain::event::IngestEvent {
                 None
             },
             game_masters: {
-                if value.gm_names == "" {
+                if value.gm_names.is_empty() {
                     Vec::new()
                 } else {
                     value
