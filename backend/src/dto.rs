@@ -5,6 +5,7 @@ use std::str::FromStr;
 use chrono::{NaiveDate, NaiveDateTime, NaiveTime, ParseError, TimeZone};
 use chrono_tz::Tz;
 use fake::faker::lorem::en::*;
+use fake::faker::name::en::*;
 use fake::{Dummy, Fake, Opt, Optional};
 use rand::prelude::*;
 use serde::{Deserialize, Serialize};
@@ -161,7 +162,7 @@ impl Dummy<EventInTimeSlot> for EventSummary {
         let id: i64 = (100..10_000).fake_with_rng(rng);
         let event_time =
             TimeDto(NaiveTime::from_hms_opt(config.0, (0..60).fake_with_rng(rng), 0).unwrap());
-        let title: String = Words(2..6).fake_with_rng::<Vec<String>, _>(rng).join(" ");
+        let title: String = Sentence(2..6).fake_with_rng(rng);
         let tickets = FakeTicketAvailability.fake_with_rng(rng);
         let duration = discrete_f32(&[0.5, 1.0, 1.5, 2.0, 2.5, 3.0]).fake_with_rng(rng);
         let cost: Option<u16> = Opt(1..30, 30).fake::<Optional<u16>>().into();
@@ -214,6 +215,113 @@ impl Dummy<DiscreteF32> for f32 {
             .choose(rng)
             .expect("discrete_f32 must contain at least one option")
     }
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct EventDetailResponse {
+    pub id: u32,
+    pub game_id: String,
+
+    pub game_system: Option<GameSystem>,
+    pub event_type: String,
+    pub title: String,
+    pub description: String,
+    pub start_time: NaiveDateTime,
+    pub end_time: NaiveDateTime,
+    pub duration: f32,
+    pub cost: Option<u16>,
+
+    pub tickets_available: u16,
+    pub min_players: u16,
+    pub max_players: u16,
+
+    pub age_requirement: String,
+    pub experience_requirement: String,
+
+    pub location: Location,
+
+    pub materials: Option<Vec<String>>,
+    pub contact: Option<String>,
+    pub website: Option<String>,
+    pub game_masters: Vec<GameMaster>,
+    pub group: Option<Group>,
+
+    pub tournament_info: Option<TournamentInfo>,
+}
+
+#[derive(Serialize, Dummy)]
+#[serde(rename_all = "camelCase")]
+pub struct GameSystem {
+    #[dummy(faker = "1..=100")]
+    pub id: i32,
+    #[dummy(faker = "Sentence(2..6)")]
+    pub name: String,
+}
+
+#[derive(Serialize, Dummy)]
+#[serde(rename_all = "camelCase")]
+pub struct GameMaster {
+    #[dummy(faker = "10..=10000")]
+    pub id: i32,
+    #[dummy(faker = "Name()")]
+    pub name: String,
+}
+
+#[derive(Serialize, Dummy)]
+#[serde(rename_all = "camelCase")]
+pub struct Group {
+    #[dummy(faker = "10..=1000")]
+    pub id: i32,
+    #[dummy(faker = "Word()")]
+    pub name: String,
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Location {
+    pub building: Option<LocationPart>,
+    pub room: Option<LocationPart>,
+    pub section: Option<LocationPart>,
+    pub table_num: Option<u16>,
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TournamentInfo {
+    pub id: i32,
+    pub name: String,
+    pub current_round: u8,
+    pub total_rounds: u8,
+    pub previous_segment: Option<TournamentSegment>,
+    pub next_segment: Option<TournamentSegment>,
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TournamentSegment {
+    pub round: u8,
+    pub segment_events: Vec<RelatedEvent>,
+}
+
+#[derive(Serialize, Dummy)]
+#[serde(rename_all = "camelCase")]
+pub struct RelatedEvent {
+    #[dummy(faker = "10..=10000")]
+    pub id: i32,
+    #[dummy(faker = "Word()")]
+    pub event_id: String,
+    #[dummy(faker = "Sentence(2..6)")]
+    pub title: String,
+}
+
+#[derive(Serialize, Dummy)]
+#[serde(rename_all = "camelCase")]
+pub struct LocationPart {
+    #[dummy(faker = "10..20")]
+    pub id: i32,
+    #[dummy(faker = "Sentence(1..3)")]
+    pub name: String,
 }
 
 #[derive(Deserialize)]

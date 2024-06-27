@@ -1,6 +1,6 @@
 use std::borrow::Cow;
 use std::collections::HashMap;
-use std::sync::{Arc, OnceLock};
+use std::sync::{Arc, Mutex, MutexGuard, OnceLock};
 
 use axum::extract::{Query, State};
 use axum::response::ErrorResponse;
@@ -300,6 +300,12 @@ pub(super) fn event_data() -> &'static dto::DailyTimeBlockedEventsResponse {
     });
 
     events
+}
+
+fn event_detail_cache() -> MutexGuard<'static, HashMap<i32, dto::EventDetailResponse>> {
+    static DETAIL_MUTEX: OnceLock<Mutex<HashMap<i32, dto::EventDetailResponse>>> = OnceLock::new();
+    let retrieved_mutex = DETAIL_MUTEX.get_or_init(|| Mutex::new(HashMap::new()));
+    retrieved_mutex.lock().unwrap()
 }
 
 #[utoipa::path(
