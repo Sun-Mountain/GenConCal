@@ -250,6 +250,15 @@ pub struct EventDetailResponse {
     pub tournament_info: Option<TournamentInfo>,
 }
 
+pub struct DetailFromBlock<'block>(pub &'block EventSummary);
+
+impl Dummy<DetailFromBlock<'_>> for EventDetailResponse {
+    fn dummy_with_rng<R: Rng + ?Sized>(config: &DetailFromBlock, rng: &mut R) -> Self {
+        let id = config.0.id;
+        let game_id = String::new() + 
+    }
+}
+
 #[derive(Serialize, Dummy)]
 #[serde(rename_all = "camelCase")]
 pub struct GameSystem {
