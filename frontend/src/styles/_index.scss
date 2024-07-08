@@ -1,11 +1,17 @@
 @import "breakpoints";
 @import "colors";
 
+// Global variables
+$nav-bg: $jet;
+$body-bg: $white;
+$shadow-color: $jet-50;
+
+// Global styles
 body {
   background: $body-bg;
-  // color: $ink;
+  color: $jet;
   display: flex;
-  flex-direction: column;
+  flex-flow: column;
   font-family: 'Roboto', sans-serif;
   font-size: 1.125rem;
   height: 100vh;
@@ -19,4 +25,28 @@ nav {
   display: flex;
   justify-content: center;
   padding: 1rem;
+  min-height: 1rem;
 }
+
+main {
+  border-left: $jet-50 1px solid;
+  border-right: $jet-50 1px solid;
+  box-shadow: 12px 0 15px -4px $shadow-color, -12px 0 15px -4px $shadow-color;
+  flex: 1;
+  margin: 0 auto;
+  padding: 1rem;
+  max-width: $desktop;
+}
+
+footer {
+  background: $nav-bg;
+  color: $white;
+  display: flex;
+  font-size: .85rem;
+  justify-content: center;
+  padding: 1rem;
+  min-height: 1rem;
+}
+
+// Comoponent styles
+@import "components/_navigation";

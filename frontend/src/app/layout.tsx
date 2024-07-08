@@ -17,11 +17,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
+        <MainNav />
         <main>
-          <MainNav />
           {children}
-          <Footer />
         </main>
+        <Footer />
       </body>
     </html>
   );

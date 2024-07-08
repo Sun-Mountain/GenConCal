@@ -2,7 +2,9 @@
 
 const Footer = () => {
   return (
-    <div>Footer</div>
+    <footer>
+      <p>Gen Con Calendar is not affiliated with Gen Con</p>
+    </footer>
   )
 }
 
