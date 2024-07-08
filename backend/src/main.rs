@@ -58,7 +58,7 @@ async fn main() {
         .with_state(Arc::new(SharedData { ext_cxn }));
 
     info!("Starting server.");
-    let network_listener = match TcpListener::bind(&"0.0.0.0:8080").await {
+    let network_listener = match TcpListener::bind(&"0.0.0.0:9090").await {
         Ok(listener) => listener,
         Err(bind_err) => panic!("Could not listen on requested port! {}", bind_err),
     };

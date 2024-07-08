@@ -1,0 +1,22 @@
+@import "breakpoints";
+@import "colors";
+
+body {
+  background: $body-bg;
+  // color: $ink;
+  display: flex;
+  flex-direction: column;
+  font-family: 'Roboto', sans-serif;
+  font-size: 1.125rem;
+  height: 100vh;
+  margin: 0 auto;
+  padding: 0;
+}
+
+nav {
+  background: $nav-bg;
+  color: $white;
+  display: flex;
+  justify-content: center;
+  padding: 1rem;
+}

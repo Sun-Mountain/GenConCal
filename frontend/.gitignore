@@ -4,10 +4,10 @@
 /node_modules
 /.pnp
 .pnp.js
+.yarn/install-state.gz
 
 # testing
 /coverage
-/test-results
 
 # next.js
 /.next/
