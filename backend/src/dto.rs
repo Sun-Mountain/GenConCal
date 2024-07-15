@@ -250,12 +250,16 @@ pub struct EventDetailResponse {
     pub tournament_info: Option<TournamentInfo>,
 }
 
-pub struct DetailFromBlock<'block>(pub &'block EventSummary);
+pub struct DetailFromBlock<'refdata> {
+    pub summary: &'refdata EventSummary,
+    pub event_types: &'refdata [String],
+}
 
 impl Dummy<DetailFromBlock<'_>> for EventDetailResponse {
     fn dummy_with_rng<R: Rng + ?Sized>(config: &DetailFromBlock, rng: &mut R) -> Self {
-        let id = config.0.id;
-        let game_id = String::new() + 
+        let id = config.summary.id;
+        // game_id always has the format (3-letter game type) (last 2 year nums) ND (6 digit event number)
+        let game_id = String::new() + &config.event_types.choose(&mut *rng).unwrap();
     }
 }
 
