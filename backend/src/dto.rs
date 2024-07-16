@@ -2,11 +2,13 @@ use std::collections::HashMap;
 use std::fmt::{Debug, Display};
 use std::str::FromStr;
 
-use chrono::{NaiveDate, NaiveDateTime, NaiveTime, ParseError, TimeZone};
+use chrono::{Duration, NaiveDate, NaiveDateTime, NaiveTime, ParseError, TimeZone};
 use chrono_tz::Tz;
 use fake::faker::lorem::en::*;
 use fake::faker::name::en::*;
 use fake::{Dummy, Fake, Opt, Optional};
+use fake::faker::boolean::en::Boolean;
+use fake::faker::internet::en::SafeEmail;
 use rand::prelude::*;
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
@@ -220,7 +222,7 @@ impl Dummy<DiscreteF32> for f32 {
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct EventDetailResponse {
-    pub id: u32,
+    pub id: i64,
     pub game_id: String,
 
     pub game_system: Option<GameSystem>,
@@ -251,15 +253,72 @@ pub struct EventDetailResponse {
 }
 
 pub struct DetailFromBlock<'refdata> {
+    pub event_date: NaiveDate,
     pub summary: &'refdata EventSummary,
     pub event_types: &'refdata [String],
+    pub event_locations: &'refdata [Location],
 }
 
 impl Dummy<DetailFromBlock<'_>> for EventDetailResponse {
     fn dummy_with_rng<R: Rng + ?Sized>(config: &DetailFromBlock, rng: &mut R) -> Self {
         let id = config.summary.id;
         // game_id always has the format (3-letter game type) (last 2 year nums) ND (6 digit event number)
-        let game_id = String::new() + &config.event_types.choose(&mut *rng).unwrap();
+        let event_type_short = config.event_types.choose(&mut *rng).unwrap();
+        let game_id = String::new() + event_type_short + "24ND" + &id.to_string();
+        let game_system: Option<GameSystem> = Opt(fake::Faker, 7).fake_with_rng::<Optional<GameSystem>, _>(&mut *rng).into();
+        let event_type = String::new() + event_type_short + " - " + &Sentence(2..4).fake_with_rng::<String, _>(&mut *rng);
+        let title = config.summary.title.clone();
+        let description = Sentences(2..11).fake_with_rng::<Vec<String>, _>(&mut *rng).join(". ");
+        let start_time = NaiveDateTime::new(config.event_date.clone(), config.summary.event_time.0.clone());
+        let end_time = if config.summary.duration % 1.0 != 0_f32 {
+            start_time + Duration::hours(config.summary.duration as i64) + Duration::minutes(30)
+        } else {
+            start_time + Duration::hours(config.summary.duration as i64)
+        };
+        let duration = config.summary.duration;
+        let cost = config.summary.cost;
+        let tickets_available = config.summary.tickets.available;
+        let max_players = config.summary.tickets.total;
+        let min_players = (1..=u16::max(max_players / 2, 1)).fake_with_rng(&mut *rng);
+        let age_requirement = ["everyone", "kidsonly", "teen", "mature", "adult"].choose(&mut *rng).unwrap().to_string();
+        let experience_requirement = ["none", "some", "expert"].choose(&mut *rng).unwrap().to_string();
+        let location = config.event_locations.choose(&mut *rng).unwrap().clone();
+        let materials: Option<Vec<String>> = Opt(Words(1..6), 30).fake_with_rng::<Optional<Vec<String>>, _>(&mut *rng).into();
+        let contact: Option<String> = Opt(SafeEmail(), 80).fake_with_rng::<Optional<String>, _>(&mut *rng).into();
+        let website = if Boolean(40).fake_with_rng(&mut *rng) {
+            Some("https://www.example.com".to_owned())
+        } else {
+            None
+        };
+        let game_masters: Vec<GameMaster> = (fake::Faker, 0..=6).fake_with_rng(&mut *rng);
+        let group: Option<Group> = Opt(fake::Faker, 50).fake_with_rng::<Optional<Group>, _>(&mut *rng).into();
+        // TODO make a fake value for this
+        let tournament_info: Option<TournamentInfo> = None;
+
+        Self {
+            id,
+            game_id,
+            game_system,
+            event_type,
+            title,
+            description,
+            start_time,
+            end_time,
+            duration,
+            cost,
+            tickets_available,
+            max_players,
+            min_players,
+            age_requirement,
+            experience_requirement,
+            location,
+            materials,
+            contact,
+            website,
+            game_masters,
+            group,
+            tournament_info,
+        }
     }
 }
 
@@ -290,7 +349,7 @@ pub struct Group {
     pub name: String,
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct Location {
     pub building: Option<LocationPart>,
@@ -328,7 +387,7 @@ pub struct RelatedEvent {
     pub title: String,
 }
 
-#[derive(Serialize, Dummy)]
+#[derive(Serialize, Dummy, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct LocationPart {
     #[dummy(faker = "10..20")]
