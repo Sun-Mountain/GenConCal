@@ -300,7 +300,7 @@ impl Dummy<DetailFromBlock<'_>> for EventDetailResponse {
         let title = config.summary.title.clone();
         let description = Sentences(2..11)
             .fake_with_rng::<Vec<String>, _>(&mut *rng)
-            .join(". ");
+            .join(" ");
         let start_time = NaiveDateTime::new(config.event_date, config.summary.event_time.0);
         let end_time = if config.summary.duration % 1.0 != 0_f32 {
             start_time + Duration::hours(config.summary.duration as i64) + Duration::minutes(30)
