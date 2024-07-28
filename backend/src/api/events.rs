@@ -2,7 +2,8 @@ use std::borrow::Cow;
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex, MutexGuard, OnceLock};
 
-use axum::extract::{Query, State};
+use axum::extract::{Path, Query, State};
+use axum::http::StatusCode;
 use axum::response::ErrorResponse;
 use axum::routing::get;
 use axum::Router;
@@ -13,13 +14,16 @@ use utoipa::{IntoParams, OpenApi};
 use validator::{Validate, ValidationError};
 
 use crate::api::{determine_page_limits, PageRange};
-use crate::dto::{CommaSeparated, EventBlock, EventDay, TimeDto};
+use crate::dto::{CommaSeparated, event_in_time_slot, EventBlock, EventDay, EventDetailResponse, EventSummary, Location, TimeDto};
 use crate::external_connections::ExternalConnectivity;
 use crate::routing_utils::{Json, ValidationErrorResponse};
 use crate::{dto, AppState, SharedData};
 
 #[derive(OpenApi)]
-#[openapi(paths(list_event_counts_by_day,))]
+#[openapi(paths(
+    list_event_counts_by_day,
+    retrieve_event_detail,
+))]
 pub struct EventsApi;
 
 pub const EVENTS_API_GROUP: &str = "Events";
@@ -32,7 +36,7 @@ pub struct EventListQueryParams {
     /// Lower bound for available tickets in returned events (default 0)
     pub min_available_tickets: Option<u16>,
     /// Comma separated list of event type IDs to filter for
-    pub event_types: Option<CommaSeparated<i32>>,
+    pub event_types: Option<CommaSeparated<u32>>,
 
     #[validate(custom(function = "validate_experience_list"))]
     /// Comma separated list of experience levels to filter for (acceptable values are none, some, or expert)
@@ -43,11 +47,11 @@ pub struct EventListQueryParams {
     pub age: Option<CommaSeparated<String>>,
 
     /// Comma separated list of game system IDs to filter for
-    pub game_systems: Option<CommaSeparated<i32>>,
+    pub game_systems: Option<CommaSeparated<u32>>,
     /// Comma separated list of organizer group IDs to filter for
-    pub groups: Option<CommaSeparated<i32>>,
+    pub groups: Option<CommaSeparated<u32>>,
     /// Comma separated list of location IDs to filter for
-    pub locations: Option<CommaSeparated<i32>>,
+    pub locations: Option<CommaSeparated<u32>>,
     /// Whether or not to show events that are part of a tournament (default true)
     pub show_tournaments: Option<bool>,
     /// Time in HH:MM 24-hour format, the earliest start time of returned events
@@ -260,6 +264,15 @@ pub fn events_routes() -> Router<Arc<SharedData>> {
                 list_event_counts_by_day(&filter, &mut ext_cxn).await
             },
         ),
+    ).route(
+        "/:event_id",
+        get(
+            |State(app_data): AppState, Path(event_id): Path<u32>| async move {
+                let mut ext_cxn = app_data.ext_cxn.clone();
+                
+                retrieve_event_detail(event_id, &mut ext_cxn).await
+            }
+        )
     )
 }
 
@@ -302,8 +315,8 @@ pub(super) fn event_data() -> &'static dto::DailyTimeBlockedEventsResponse {
     events
 }
 
-fn event_detail_cache() -> MutexGuard<'static, HashMap<i32, dto::EventDetailResponse>> {
-    static DETAIL_MUTEX: OnceLock<Mutex<HashMap<i32, dto::EventDetailResponse>>> = OnceLock::new();
+fn event_detail_cache() -> MutexGuard<'static, HashMap<u32, dto::EventDetailResponse>> {
+    static DETAIL_MUTEX: OnceLock<Mutex<HashMap<u32, dto::EventDetailResponse>>> = OnceLock::new();
     let retrieved_mutex = DETAIL_MUTEX.get_or_init(|| Mutex::new(HashMap::new()));
     retrieved_mutex.lock().unwrap()
 }
@@ -342,10 +355,6 @@ async fn list_event_counts_by_day(
         .events_by_day
         .iter()
         .map(|(day_id, event_list)| {
-            let day = day_id % 100;
-            let month = ((day_id - day) % 10000) / 100;
-            let year = (day_id - (month * 100) - day) / 10000;
-
             let total_events: u16 = event_list
                 .iter()
                 .map(|block| block.events.len() as u16)
@@ -353,7 +362,7 @@ async fn list_event_counts_by_day(
 
             EventDay {
                 day_id: *day_id,
-                date: dto::DateDto(NaiveDate::from_ymd_opt(year as i32, month, day).unwrap()),
+                date: dto::DateDto::from_date_id(*day_id),
                 total_events,
             }
         })
@@ -362,4 +371,123 @@ async fn list_event_counts_by_day(
     let dummy_resp_data = dto::DaysResponse { days };
 
     Ok(Json(dummy_resp_data))
+}
+
+#[utoipa::path(
+    get,
+    path = "/api/events/{event_id}",
+    tag = EVENTS_API_GROUP,
+    params(
+        ("event_id" = u32, Path, description = "The ID of the event to look up"),
+    ),
+    responses(
+        (status = 200, description = "Event successfully retrieved", body = EventDetailResponse),
+        (
+            status = 404,
+            description = "No GenCon events exist with the given ID",
+            body = BasicError,
+            example = json!({
+                "errorCode": "no_matching_event",
+                "errorDescription": "The requested event was not found in the system.",
+                "extraInfo": null
+            }),
+        ),
+        (status = 500, response = dto::err_resps::BasicError500),
+    ),
+)]
+/// Retrieve detailed information about a single GenCon event
+async fn retrieve_event_detail(event_id: u32, _: &mut impl ExternalConnectivity) -> Result<Json<EventDetailResponse>, ErrorResponse> {
+    // Find the event in the event blocks
+    let evt_data = event_data();
+    let mut retrieved_event: Option<(dto::DateDto, &EventSummary)> = None;
+    
+    'mainEvtLoop: for (day_id, event_list) in evt_data.events_by_day.iter() {
+        for evt_block in event_list.iter() {
+            let maybe_located_event = evt_block.events.iter().find(|evt_summary| evt_summary.id == event_id);
+            if let Some(located_event) = maybe_located_event {
+                retrieved_event = Some((dto::DateDto::from_date_id(*day_id), located_event));
+                break 'mainEvtLoop;
+            }
+        }
+    }
+    
+    let evt_ref = match retrieved_event {
+        Some(evt) => evt,
+        None => {
+            return Err(
+                (
+                    StatusCode::NOT_FOUND,
+                    Json(dto::BasicError {
+                        error_code: "no_matching_event".to_owned(),
+                        error_description: "There is no event in the system with the given ID.".to_owned(),
+                        extra_info: None,
+                    })
+                ).into()
+            )
+        }
+    };
+    
+    let mut event_cache = event_detail_cache();
+    let event_to_return = match event_cache.get(&event_id) {
+        Some(evt) => evt.clone(),
+        None => {
+            let newly_created_detail: EventDetailResponse = dto::DetailFromBlock {
+                event_date: evt_ref.0.0,
+                summary: evt_ref.1,
+                event_types: &[
+                    "BGM".to_owned(),
+                    "RPG".to_owned(),
+                    "SPA".to_owned(),
+                    "MHE".to_owned(),
+                    "ENT".to_owned(),
+                ],
+                event_locations: &[
+                    Location {
+                        building: Some(dto::LocationPart{
+                            id: 1,
+                            name: "ICC".to_owned(),
+                        }),
+                        room: Some(dto::LocationPart{
+                            id: 1,
+                            name: "Room 212".to_owned(),
+                        }),
+                        section: None,
+                        table_num: None,
+                    },
+                    Location {
+                        building: Some(dto::LocationPart {
+                            id: 2,
+                            name: "Hyatt".to_owned(),
+                        }),
+                        room: Some(dto::LocationPart {
+                            id: 2,
+                            name: "Studio 5".to_owned(),
+                        }),
+                        section: None,
+                        table_num: Some(3),
+                    },
+                    Location {
+                        building: Some(dto::LocationPart {
+                            id: 3,
+                            name: "Stadium".to_owned(),
+                        }),
+                        room: Some(dto::LocationPart {
+                            id: 3,
+                            name: "Field".to_owned(),
+                        }),
+                        section: Some(dto::LocationPart {
+                            id: 1,
+                            name: "Rising Phoenix".to_owned(),
+                        }),
+                        table_num: None,
+                    }
+                ],
+            }.fake();
+            event_cache.insert(evt_ref.1.id, newly_created_detail.clone());
+            newly_created_detail
+        }
+    };
+    
+    
+    Ok(Json(event_to_return))
 }
