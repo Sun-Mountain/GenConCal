@@ -7,23 +7,22 @@ use axum::http::StatusCode;
 use axum::response::ErrorResponse;
 use axum::routing::get;
 use axum::Router;
-use chrono::{NaiveDate, NaiveTime};
+use chrono::NaiveTime;
 use fake::Fake;
 use serde::Deserialize;
 use utoipa::{IntoParams, OpenApi};
 use validator::{Validate, ValidationError};
 
 use crate::api::{determine_page_limits, PageRange};
-use crate::dto::{CommaSeparated, event_in_time_slot, EventBlock, EventDay, EventDetailResponse, EventSummary, Location, TimeDto};
+use crate::dto::{
+    CommaSeparated, EventBlock, EventDay, EventDetailResponse, EventSummary, Location, TimeDto,
+};
 use crate::external_connections::ExternalConnectivity;
 use crate::routing_utils::{Json, ValidationErrorResponse};
 use crate::{dto, AppState, SharedData};
 
 #[derive(OpenApi)]
-#[openapi(paths(
-    list_event_counts_by_day,
-    retrieve_event_detail,
-))]
+#[openapi(paths(list_event_counts_by_day, retrieve_event_detail,))]
 pub struct EventsApi;
 
 pub const EVENTS_API_GROUP: &str = "Events";
@@ -255,25 +254,27 @@ pub(super) fn paginate_events(
 }
 
 pub fn events_routes() -> Router<Arc<SharedData>> {
-    Router::new().route(
-        "/counts/daily",
-        get(
-            |State(app_data): AppState, Query(filter): Query<EventListQueryParams>| async move {
-                let mut ext_cxn = app_data.ext_cxn.clone();
+    Router::new()
+        .route(
+            "/counts/daily",
+            get(
+                |State(app_data): AppState, Query(filter): Query<EventListQueryParams>| async move {
+                    let mut ext_cxn = app_data.ext_cxn.clone();
 
-                list_event_counts_by_day(&filter, &mut ext_cxn).await
-            },
-        ),
-    ).route(
-        "/:event_id",
-        get(
-            |State(app_data): AppState, Path(event_id): Path<u32>| async move {
-                let mut ext_cxn = app_data.ext_cxn.clone();
-                
-                retrieve_event_detail(event_id, &mut ext_cxn).await
-            }
+                    list_event_counts_by_day(&filter, &mut ext_cxn).await
+                },
+            ),
         )
-    )
+        .route(
+            "/:event_id",
+            get(
+                |State(app_data): AppState, Path(event_id): Path<u32>| async move {
+                    let mut ext_cxn = app_data.ext_cxn.clone();
+
+                    retrieve_event_detail(event_id, &mut ext_cxn).await
+                },
+            ),
+        )
 }
 
 fn gen_day_blocks() -> Vec<dto::EventBlock> {
@@ -396,43 +397,49 @@ async fn list_event_counts_by_day(
     ),
 )]
 /// Retrieve detailed information about a single GenCon event
-async fn retrieve_event_detail(event_id: u32, _: &mut impl ExternalConnectivity) -> Result<Json<EventDetailResponse>, ErrorResponse> {
+async fn retrieve_event_detail(
+    event_id: u32,
+    _: &mut impl ExternalConnectivity,
+) -> Result<Json<EventDetailResponse>, ErrorResponse> {
     // Find the event in the event blocks
     let evt_data = event_data();
     let mut retrieved_event: Option<(dto::DateDto, &EventSummary)> = None;
-    
+
     'mainEvtLoop: for (day_id, event_list) in evt_data.events_by_day.iter() {
         for evt_block in event_list.iter() {
-            let maybe_located_event = evt_block.events.iter().find(|evt_summary| evt_summary.id == event_id);
+            let maybe_located_event = evt_block
+                .events
+                .iter()
+                .find(|evt_summary| evt_summary.id == event_id);
             if let Some(located_event) = maybe_located_event {
                 retrieved_event = Some((dto::DateDto::from_date_id(*day_id), located_event));
                 break 'mainEvtLoop;
             }
         }
     }
-    
+
     let evt_ref = match retrieved_event {
         Some(evt) => evt,
         None => {
-            return Err(
-                (
-                    StatusCode::NOT_FOUND,
-                    Json(dto::BasicError {
-                        error_code: "no_matching_event".to_owned(),
-                        error_description: "There is no event in the system with the given ID.".to_owned(),
-                        extra_info: None,
-                    })
-                ).into()
+            return Err((
+                StatusCode::NOT_FOUND,
+                Json(dto::BasicError {
+                    error_code: "no_matching_event".to_owned(),
+                    error_description: "There is no event in the system with the given ID."
+                        .to_owned(),
+                    extra_info: None,
+                }),
             )
+                .into())
         }
     };
-    
+
     let mut event_cache = event_detail_cache();
     let event_to_return = match event_cache.get(&event_id) {
         Some(evt) => evt.clone(),
         None => {
             let newly_created_detail: EventDetailResponse = dto::DetailFromBlock {
-                event_date: evt_ref.0.0,
+                event_date: evt_ref.0 .0,
                 summary: evt_ref.1,
                 event_types: &[
                     "BGM".to_owned(),
@@ -443,11 +450,11 @@ async fn retrieve_event_detail(event_id: u32, _: &mut impl ExternalConnectivity)
                 ],
                 event_locations: &[
                     Location {
-                        building: Some(dto::LocationPart{
+                        building: Some(dto::LocationPart {
                             id: 1,
                             name: "ICC".to_owned(),
                         }),
-                        room: Some(dto::LocationPart{
+                        room: Some(dto::LocationPart {
                             id: 1,
                             name: "Room 212".to_owned(),
                         }),
@@ -480,14 +487,14 @@ async fn retrieve_event_detail(event_id: u32, _: &mut impl ExternalConnectivity)
                             name: "Rising Phoenix".to_owned(),
                         }),
                         table_num: None,
-                    }
+                    },
                 ],
-            }.fake();
+            }
+            .fake();
             event_cache.insert(evt_ref.1.id, newly_created_detail.clone());
             newly_created_detail
         }
     };
-    
-    
+
     Ok(Json(event_to_return))
 }

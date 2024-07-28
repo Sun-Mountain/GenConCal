@@ -4,11 +4,11 @@ use std::str::FromStr;
 
 use chrono::{Duration, NaiveDate, NaiveDateTime, NaiveTime, ParseError, TimeZone};
 use chrono_tz::Tz;
+use fake::faker::boolean::en::Boolean;
+use fake::faker::internet::en::SafeEmail;
 use fake::faker::lorem::en::*;
 use fake::faker::name::en::*;
 use fake::{Dummy, Fake, Faker, Opt, Optional};
-use fake::faker::boolean::en::Boolean;
-use fake::faker::internet::en::SafeEmail;
 use rand::prelude::*;
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
@@ -290,10 +290,17 @@ impl Dummy<DetailFromBlock<'_>> for EventDetailResponse {
         // game_id always has the format (3-letter game type) (last 2 year nums) ND (6 digit event number)
         let event_type_short = config.event_types.choose(&mut *rng).unwrap();
         let game_id = String::new() + event_type_short + "24ND" + &id.to_string();
-        let game_system: Option<GameSystem> = Opt(fake::Faker, 7).fake_with_rng::<Optional<GameSystem>, _>(&mut *rng).into();
-        let event_type = String::new() + event_type_short + " - " + &Sentence(2..4).fake_with_rng::<String, _>(&mut *rng);
+        let game_system: Option<GameSystem> = Opt(fake::Faker, 7)
+            .fake_with_rng::<Optional<GameSystem>, _>(&mut *rng)
+            .into();
+        let event_type = String::new()
+            + event_type_short
+            + " - "
+            + &Sentence(2..4).fake_with_rng::<String, _>(&mut *rng);
         let title = config.summary.title.clone();
-        let description = Sentences(2..11).fake_with_rng::<Vec<String>, _>(&mut *rng).join(". ");
+        let description = Sentences(2..11)
+            .fake_with_rng::<Vec<String>, _>(&mut *rng)
+            .join(". ");
         let start_time = NaiveDateTime::new(config.event_date, config.summary.event_time.0);
         let end_time = if config.summary.duration % 1.0 != 0_f32 {
             start_time + Duration::hours(config.summary.duration as i64) + Duration::minutes(30)
@@ -305,19 +312,33 @@ impl Dummy<DetailFromBlock<'_>> for EventDetailResponse {
         let tickets_available = config.summary.tickets.available;
         let max_players = config.summary.tickets.total;
         let min_players = (1..=u16::max(max_players / 2, 1)).fake_with_rng(&mut *rng);
-        let age_requirement = ["everyone", "kidsonly", "teen", "mature", "adult"].choose(&mut *rng).unwrap().to_string();
-        let experience_requirement = ["none", "some", "expert"].choose(&mut *rng).unwrap().to_string();
+        let age_requirement = ["everyone", "kidsonly", "teen", "mature", "adult"]
+            .choose(&mut *rng)
+            .unwrap()
+            .to_string();
+        let experience_requirement = ["none", "some", "expert"]
+            .choose(&mut *rng)
+            .unwrap()
+            .to_string();
         let location = config.event_locations.choose(&mut *rng).unwrap().clone();
-        let materials: Option<Vec<String>> = Opt(Words(1..6), 30).fake_with_rng::<Optional<Vec<String>>, _>(&mut *rng).into();
-        let contact: Option<String> = Opt(SafeEmail(), 80).fake_with_rng::<Optional<String>, _>(&mut *rng).into();
+        let materials: Option<Vec<String>> = Opt(Words(1..6), 30)
+            .fake_with_rng::<Optional<Vec<String>>, _>(&mut *rng)
+            .into();
+        let contact: Option<String> = Opt(SafeEmail(), 80)
+            .fake_with_rng::<Optional<String>, _>(&mut *rng)
+            .into();
         let website = if Boolean(40).fake_with_rng(&mut *rng) {
             Some("https://www.example.com".to_owned())
         } else {
             None
         };
         let game_masters: Vec<GameMaster> = (Faker, 0..=6).fake_with_rng(&mut *rng);
-        let group: Option<Group> = Opt(Faker, 50).fake_with_rng::<Optional<Group>, _>(&mut *rng).into();
-        let tournament_info: Option<TournamentInfo> = Opt(Faker, 25).fake_with_rng::<Optional<TournamentInfo>, _>(&mut *rng).into();
+        let group: Option<Group> = Opt(Faker, 50)
+            .fake_with_rng::<Optional<Group>, _>(&mut *rng)
+            .into();
+        let tournament_info: Option<TournamentInfo> = Opt(Faker, 25)
+            .fake_with_rng::<Optional<TournamentInfo>, _>(&mut *rng)
+            .into();
 
         Self {
             id,
@@ -429,7 +450,7 @@ impl Dummy<Faker> for TournamentInfo {
                 segment_events: (Faker, 1..=4).fake_with_rng(&mut *rng),
             })
         };
-        
+
         Self {
             id,
             name,
@@ -533,7 +554,7 @@ impl DateDto {
         let day = day_id % 100;
         let month = ((day_id - day) % 10000) / 100;
         let year = (day_id - (month * 100) - day) / 10000;
-        
+
         Self(NaiveDate::from_ymd_opt(year as i32, month, day).unwrap())
     }
 }
