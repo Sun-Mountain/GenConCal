@@ -1,5 +1,7 @@
 use std::borrow::Cow;
 use std::collections::HashMap;
+use std::fs::File;
+use std::io::BufReader;
 use std::sync::{Arc, Mutex, MutexGuard, OnceLock};
 
 use axum::extract::{Path, Query, State};
@@ -15,14 +17,15 @@ use validator::{Validate, ValidationError};
 
 use crate::api::{determine_page_limits, PageRange};
 use crate::dto::{
-    CommaSeparated, EventBlock, EventDay, EventDetailResponse, EventSummary, Location, TimeDto,
+    CommaSeparated, EventBlock, EventDay, EventDetailResponse, EventSummary, GameSystem, Location,
+    TimeDto,
 };
 use crate::external_connections::ExternalConnectivity;
 use crate::routing_utils::{Json, ValidationErrorResponse};
 use crate::{dto, AppState, SharedData};
 
 #[derive(OpenApi)]
-#[openapi(paths(list_event_counts_by_day, retrieve_event_detail,))]
+#[openapi(paths(list_event_counts_by_day, retrieve_event_detail, retrieve_game_systems,))]
 pub struct EventsApi;
 
 pub const EVENTS_API_GROUP: &str = "Events";
@@ -275,6 +278,14 @@ pub fn events_routes() -> Router<Arc<SharedData>> {
                 },
             ),
         )
+        .route(
+            "/game-systems",
+            get(|State(app_data): AppState| async move {
+                let mut ext_cxn = app_data.ext_cxn.clone();
+
+                retrieve_game_systems(&mut ext_cxn).await
+            }),
+        )
 }
 
 fn gen_day_blocks() -> Vec<dto::EventBlock> {
@@ -314,6 +325,28 @@ pub(super) fn event_data() -> &'static dto::DailyTimeBlockedEventsResponse {
     });
 
     events
+}
+
+fn game_systems() -> &'static [dto::GameSystem] {
+    static SYSTEMS_CELL: OnceLock<Vec<dto::GameSystem>> = OnceLock::new();
+    let game_systems = SYSTEMS_CELL.get_or_init(|| {
+        let file_reader = File::open("./unique-games.json")
+            .expect("unique-games.json should exist and be readable!");
+        let buf_reader = BufReader::new(file_reader);
+        let sys_names: Vec<String> = serde_json::from_reader(buf_reader)
+            .expect("unique-games.json should be able to be parsed into a Vec<String>!");
+
+        sys_names
+            .into_iter()
+            .enumerate()
+            .map(|(idx, name)| dto::GameSystem {
+                id: (idx + 1) as u32,
+                name,
+            })
+            .collect()
+    });
+
+    game_systems
 }
 
 fn event_detail_cache() -> MutexGuard<'static, HashMap<u32, dto::EventDetailResponse>> {
@@ -441,6 +474,7 @@ async fn retrieve_event_detail(
             let newly_created_detail: EventDetailResponse = dto::DetailFromBlock {
                 event_date: evt_ref.0 .0,
                 summary: evt_ref.1,
+                game_systems: game_systems(),
                 event_types: &[
                     "BGM".to_owned(),
                     "RPG".to_owned(),
@@ -497,4 +531,22 @@ async fn retrieve_event_detail(
     };
 
     Ok(Json(event_to_return))
+}
+
+#[utoipa::path(
+    get,
+    path = "/api/events/game-systems",
+    tag = EVENTS_API_GROUP,
+    responses(
+        (status = 200, description = "Successfully retrieved game systems", body = Vec<GameSystem>),
+        (status = 500, response = dto::err_resps::BasicError500)
+    )
+)]
+/// Lists known game systems in the current GenCon year
+async fn retrieve_game_systems(
+    _ext_cxn: &mut impl ExternalConnectivity,
+) -> Result<Json<&'static [GameSystem]>, ErrorResponse> {
+    let systems = game_systems();
+
+    Ok(Json(systems))
 }

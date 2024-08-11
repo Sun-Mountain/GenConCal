@@ -282,6 +282,7 @@ pub struct DetailFromBlock<'refdata> {
     pub summary: &'refdata EventSummary,
     pub event_types: &'refdata [String],
     pub event_locations: &'refdata [Location],
+    pub game_systems: &'refdata [GameSystem],
 }
 
 impl Dummy<DetailFromBlock<'_>> for EventDetailResponse {
@@ -290,9 +291,11 @@ impl Dummy<DetailFromBlock<'_>> for EventDetailResponse {
         // game_id always has the format (3-letter game type) (last 2 year nums) ND (6 digit event number)
         let event_type_short = config.event_types.choose(&mut *rng).unwrap();
         let game_id = String::new() + event_type_short + "24ND" + &id.to_string();
-        let game_system: Option<GameSystem> = Opt(fake::Faker, 7)
-            .fake_with_rng::<Optional<GameSystem>, _>(&mut *rng)
-            .into();
+        let game_system: Option<GameSystem> = if Boolean(7).fake_with_rng(&mut *rng) {
+            Some(config.game_systems.choose(&mut *rng).unwrap().clone())
+        } else {
+            None
+        };
         let event_type = String::new()
             + event_type_short
             + " - "
