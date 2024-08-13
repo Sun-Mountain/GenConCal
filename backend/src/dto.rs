@@ -2,10 +2,13 @@ use std::collections::HashMap;
 use std::fmt::{Debug, Display};
 use std::str::FromStr;
 
-use chrono::{NaiveDate, NaiveDateTime, NaiveTime, ParseError, TimeZone};
+use chrono::{Duration, NaiveDate, NaiveDateTime, NaiveTime, ParseError, TimeZone};
 use chrono_tz::Tz;
+use fake::faker::boolean::en::Boolean;
+use fake::faker::internet::en::SafeEmail;
 use fake::faker::lorem::en::*;
-use fake::{Dummy, Fake, Opt, Optional};
+use fake::faker::name::en::*;
+use fake::{Dummy, Fake, Faker, Opt, Optional};
 use rand::prelude::*;
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
@@ -36,6 +39,15 @@ use crate::dto::IngestEventConvertErr::{UnrecognizedAgeRequirement, Unrecognized
         CommaSeparated<u16>,
         CommaSeparated<i32>,
         CommaSeparated<String>,
+        EventDetailResponse,
+        GameSystem,
+        Location,
+        GameMaster,
+        Group,
+        TournamentInfo,
+        LocationPart,
+        TournamentSegment,
+        RelatedEvent,
     ),
     responses(
         err_resps::BasicError400Validation,
@@ -142,7 +154,7 @@ pub struct EventBlock {
 #[derive(Clone, Serialize, ToSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct EventSummary {
-    pub id: i64,
+    pub id: u32,
     pub event_time: TimeDto,
     pub title: String,
     pub tickets: TicketAvailability,
@@ -158,10 +170,10 @@ pub fn event_in_time_slot(time: u32) -> EventInTimeSlot {
 
 impl Dummy<EventInTimeSlot> for EventSummary {
     fn dummy_with_rng<R: Rng + ?Sized>(config: &EventInTimeSlot, rng: &mut R) -> Self {
-        let id: i64 = (100..10_000).fake_with_rng(rng);
+        let id: u32 = (100..10_000).fake_with_rng(rng);
         let event_time =
             TimeDto(NaiveTime::from_hms_opt(config.0, (0..60).fake_with_rng(rng), 0).unwrap());
-        let title: String = Words(2..6).fake_with_rng::<Vec<String>, _>(rng).join(" ");
+        let title: String = Sentence(2..6).fake_with_rng(rng);
         let tickets = FakeTicketAvailability.fake_with_rng(rng);
         let duration = discrete_f32(&[0.5, 1.0, 1.5, 2.0, 2.5, 3.0]).fake_with_rng(rng);
         let cost: Option<u16> = Opt(1..30, 30).fake::<Optional<u16>>().into();
@@ -214,6 +226,274 @@ impl Dummy<DiscreteF32> for f32 {
             .choose(rng)
             .expect("discrete_f32 must contain at least one option")
     }
+}
+
+#[derive(Serialize, ToSchema, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct EventDetailResponse {
+    #[schema(example = 108)]
+    pub id: u32,
+    #[schema(example = "EVT24ND8193809")]
+    pub game_id: String,
+
+    pub game_system: Option<GameSystem>,
+    #[schema(example = "EVT - Event")]
+    pub event_type: String,
+    #[schema(example = "Super Smash Bros Tournament (Semi-final)")]
+    pub title: String,
+    #[schema(example = "Another round of the super smash bros tournament!")]
+    pub description: String,
+    #[schema(example = "2024-08-02T11:30:00.000")]
+    pub start_time: NaiveDateTime,
+    #[schema(example = "2024-08-02T12:00:00.000")]
+    pub end_time: NaiveDateTime,
+    #[schema(example = 0.5)]
+    pub duration: f32,
+    #[schema(example = 5)]
+    pub cost: Option<u16>,
+
+    #[schema(example = 10)]
+    pub tickets_available: u16,
+    #[schema(example = 4)]
+    pub min_players: u16,
+    #[schema(example = 30)]
+    pub max_players: u16,
+
+    #[schema(example = "teen")]
+    pub age_requirement: String,
+    #[schema(example = "expert")]
+    pub experience_requirement: String,
+
+    pub location: Location,
+
+    pub materials: Option<Vec<String>>,
+    #[schema(example = "jdoe@fake.com")]
+    pub contact: Option<String>,
+    #[schema(example = "https://www.fake.com")]
+    pub website: Option<String>,
+    pub game_masters: Vec<GameMaster>,
+    pub group: Option<Group>,
+
+    pub tournament_info: Option<TournamentInfo>,
+}
+
+pub struct DetailFromBlock<'refdata> {
+    pub event_date: NaiveDate,
+    pub summary: &'refdata EventSummary,
+    pub event_types: &'refdata [String],
+    pub event_locations: &'refdata [Location],
+    pub game_systems: &'refdata [GameSystem],
+}
+
+impl Dummy<DetailFromBlock<'_>> for EventDetailResponse {
+    fn dummy_with_rng<R: Rng + ?Sized>(config: &DetailFromBlock, rng: &mut R) -> Self {
+        let id = config.summary.id;
+        // game_id always has the format (3-letter game type) (last 2 year nums) ND (6 digit event number)
+        let event_type_short = config.event_types.choose(&mut *rng).unwrap();
+        let game_id = String::new() + event_type_short + "24ND" + &id.to_string();
+        let game_system: Option<GameSystem> = if Boolean(7).fake_with_rng(&mut *rng) {
+            Some(config.game_systems.choose(&mut *rng).unwrap().clone())
+        } else {
+            None
+        };
+        let event_type = String::new()
+            + event_type_short
+            + " - "
+            + &Sentence(2..4).fake_with_rng::<String, _>(&mut *rng);
+        let title = config.summary.title.clone();
+        let description = Sentences(2..11)
+            .fake_with_rng::<Vec<String>, _>(&mut *rng)
+            .join(" ");
+        let start_time = NaiveDateTime::new(config.event_date, config.summary.event_time.0);
+        let end_time = if config.summary.duration % 1.0 != 0_f32 {
+            start_time + Duration::hours(config.summary.duration as i64) + Duration::minutes(30)
+        } else {
+            start_time + Duration::hours(config.summary.duration as i64)
+        };
+        let duration = config.summary.duration;
+        let cost = config.summary.cost;
+        let tickets_available = config.summary.tickets.available;
+        let max_players = config.summary.tickets.total;
+        let min_players = (1..=u16::max(max_players / 2, 1)).fake_with_rng(&mut *rng);
+        let age_requirement = ["everyone", "kidsonly", "teen", "mature", "adult"]
+            .choose(&mut *rng)
+            .unwrap()
+            .to_string();
+        let experience_requirement = ["none", "some", "expert"]
+            .choose(&mut *rng)
+            .unwrap()
+            .to_string();
+        let location = config.event_locations.choose(&mut *rng).unwrap().clone();
+        let materials: Option<Vec<String>> = Opt(Words(1..6), 30)
+            .fake_with_rng::<Optional<Vec<String>>, _>(&mut *rng)
+            .into();
+        let contact: Option<String> = Opt(SafeEmail(), 80)
+            .fake_with_rng::<Optional<String>, _>(&mut *rng)
+            .into();
+        let website = if Boolean(40).fake_with_rng(&mut *rng) {
+            Some("https://www.example.com".to_owned())
+        } else {
+            None
+        };
+        let game_masters: Vec<GameMaster> = (Faker, 0..=6).fake_with_rng(&mut *rng);
+        let group: Option<Group> = Opt(Faker, 50)
+            .fake_with_rng::<Optional<Group>, _>(&mut *rng)
+            .into();
+        let tournament_info: Option<TournamentInfo> = Opt(Faker, 25)
+            .fake_with_rng::<Optional<TournamentInfo>, _>(&mut *rng)
+            .into();
+
+        Self {
+            id,
+            game_id,
+            game_system,
+            event_type,
+            title,
+            description,
+            start_time,
+            end_time,
+            duration,
+            cost,
+            tickets_available,
+            max_players,
+            min_players,
+            age_requirement,
+            experience_requirement,
+            location,
+            materials,
+            contact,
+            website,
+            game_masters,
+            group,
+            tournament_info,
+        }
+    }
+}
+
+#[derive(Serialize, Dummy, ToSchema, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct GameSystem {
+    #[dummy(faker = "1..=100")]
+    #[schema(example = 58)]
+    pub id: u32,
+    #[dummy(faker = "Sentence(2..6)")]
+    #[schema(example = "Twilight Imperium 4th Edition")]
+    pub name: String,
+}
+
+#[derive(Serialize, Dummy, ToSchema, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct GameMaster {
+    #[dummy(faker = "10..=10000")]
+    #[schema(example = 40)]
+    pub id: u32,
+    #[dummy(faker = "Name()")]
+    #[schema(example = "John Smith")]
+    pub name: String,
+}
+
+#[derive(Serialize, Dummy, ToSchema, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct Group {
+    #[dummy(faker = "10..=1000")]
+    #[schema(example = 30)]
+    pub id: u32,
+    #[dummy(faker = "Word()")]
+    #[schema(example = "Super Group Ltd.")]
+    pub name: String,
+}
+
+#[derive(Serialize, Clone, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct Location {
+    #[schema(example = json!({"id": 5, "name": "JW Marriott"}))]
+    pub building: Option<LocationPart>,
+    #[schema(example = json!({"id": 18, "name": "3rd Floor Ballroom"}))]
+    pub room: Option<LocationPart>,
+    #[schema(example = json!({"id": 5, "name": "Section B"}))]
+    pub section: Option<LocationPart>,
+    #[schema(example = 10)]
+    pub table_num: Option<u16>,
+}
+
+#[derive(Serialize, ToSchema, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct TournamentInfo {
+    #[schema(example = 17)]
+    pub id: u32,
+    #[schema(example = "Super Smash Bros Ultimate Semifinal")]
+    pub name: String,
+    #[schema(example = 2)]
+    pub current_round: u8,
+    #[schema(example = 5)]
+    pub total_rounds: u8,
+    pub previous_segment: Option<TournamentSegment>,
+    pub next_segment: Option<TournamentSegment>,
+}
+
+impl Dummy<Faker> for TournamentInfo {
+    fn dummy_with_rng<R: Rng + ?Sized>(_: &Faker, rng: &mut R) -> Self {
+        let id: u32 = (1..=300).fake_with_rng(&mut *rng);
+        let name = Sentence(2..7).fake_with_rng(&mut *rng);
+        let current_round = (1..=5).fake_with_rng(&mut *rng);
+        let total_rounds = (current_round..=5).fake_with_rng(&mut *rng);
+        let previous_segment = if current_round == 1 {
+            None
+        } else {
+            Some(TournamentSegment {
+                round: current_round - 1,
+                segment_events: (Faker, 1..=4).fake_with_rng(&mut *rng),
+            })
+        };
+        let next_segment = if current_round == total_rounds {
+            None
+        } else {
+            Some(TournamentSegment {
+                round: current_round + 1,
+                segment_events: (Faker, 1..=4).fake_with_rng(&mut *rng),
+            })
+        };
+
+        Self {
+            id,
+            name,
+            current_round,
+            total_rounds,
+            previous_segment,
+            next_segment,
+        }
+    }
+}
+
+#[derive(Serialize, ToSchema, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct TournamentSegment {
+    #[schema(example = 3)]
+    pub round: u8,
+    pub segment_events: Vec<RelatedEvent>,
+}
+
+#[derive(Serialize, Dummy, ToSchema, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct RelatedEvent {
+    #[dummy(faker = "10..=10000")]
+    #[schema(example = 10)]
+    pub id: u32,
+    #[dummy(faker = "Word()")]
+    #[schema(example = "FAKE")]
+    pub event_id: String,
+    #[dummy(faker = "Sentence(2..6)")]
+    #[schema(example = "LARPing for real!")]
+    pub title: String,
+}
+
+#[derive(Serialize, Dummy, Clone, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct LocationPart {
+    #[dummy(faker = "10..20")]
+    pub id: u32,
+    #[dummy(faker = "Sentence(1..3)")]
+    pub name: String,
 }
 
 #[derive(Deserialize)]
@@ -269,6 +549,16 @@ impl TryFrom<String> for DateDto {
 impl From<DateDto> for String {
     fn from(value: DateDto) -> Self {
         value.0.format("%m/%d/%Y").to_string()
+    }
+}
+
+impl DateDto {
+    pub fn from_date_id(day_id: u32) -> Self {
+        let day = day_id % 100;
+        let month = ((day_id - day) % 10000) / 100;
+        let year = (day_id - (month * 100) - day) / 10000;
+
+        Self(NaiveDate::from_ymd_opt(year as i32, month, day).unwrap())
     }
 }
 
