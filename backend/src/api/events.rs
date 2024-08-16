@@ -1,5 +1,5 @@
 use std::borrow::Cow;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::fs::File;
 use std::io::BufReader;
 use std::sync::{Arc, Mutex, MutexGuard, OnceLock};
@@ -11,6 +11,7 @@ use axum::routing::get;
 use axum::Router;
 use chrono::NaiveTime;
 use fake::Fake;
+use log::*;
 use serde::Deserialize;
 use utoipa::{IntoParams, OpenApi};
 use validator::{Validate, ValidationError};
@@ -25,7 +26,13 @@ use crate::routing_utils::{Json, ValidationErrorResponse};
 use crate::{dto, AppState, SharedData};
 
 #[derive(OpenApi)]
-#[openapi(paths(list_event_counts_by_day, retrieve_event_detail, retrieve_game_systems,))]
+#[openapi(paths(
+    list_event_counts_by_day,
+    retrieve_event_detail,
+    retrieve_game_systems,
+    retrieve_event_types,
+    retrieve_locations
+))]
 pub struct EventsApi;
 
 pub const EVENTS_API_GROUP: &str = "Events";
@@ -286,6 +293,22 @@ pub fn events_routes() -> Router<Arc<SharedData>> {
                 retrieve_game_systems(&mut ext_cxn).await
             }),
         )
+        .route(
+            "/locations",
+            get(|State(app_data): AppState| async move {
+                let mut ext_cxn = app_data.ext_cxn.clone();
+
+                retrieve_locations(&mut ext_cxn).await
+            }),
+        )
+        .route(
+            "/types",
+            get(|State(app_data): AppState| async move {
+                let mut ext_cxn = app_data.ext_cxn.clone();
+
+                retrieve_event_types(&mut ext_cxn).await
+            }),
+        )
 }
 
 fn gen_day_blocks() -> Vec<dto::EventBlock> {
@@ -349,6 +372,70 @@ fn game_systems() -> &'static [dto::GameSystem] {
     game_systems
 }
 
+fn locations() -> &'static [dto::Location] {
+    static LOCATIONS_CELL: OnceLock<[dto::Location; 3]> = OnceLock::new();
+    let locations = LOCATIONS_CELL.get_or_init(|| {
+        [
+            Location {
+                building: Some(dto::LocationPart {
+                    id: 1,
+                    name: "ICC".to_owned(),
+                }),
+                room: Some(dto::LocationPart {
+                    id: 1,
+                    name: "Room 212".to_owned(),
+                }),
+                section: None,
+                table_num: None,
+            },
+            Location {
+                building: Some(dto::LocationPart {
+                    id: 2,
+                    name: "Hyatt".to_owned(),
+                }),
+                room: Some(dto::LocationPart {
+                    id: 2,
+                    name: "Studio 5".to_owned(),
+                }),
+                section: None,
+                table_num: Some(3),
+            },
+            Location {
+                building: Some(dto::LocationPart {
+                    id: 3,
+                    name: "Stadium".to_owned(),
+                }),
+                room: Some(dto::LocationPart {
+                    id: 3,
+                    name: "Field".to_owned(),
+                }),
+                section: Some(dto::LocationPart {
+                    id: 1,
+                    name: "Rising Phoenix".to_owned(),
+                }),
+                table_num: None,
+            },
+        ]
+    });
+
+    locations
+}
+
+fn event_types() -> &'static [String] {
+    static EVT_TYPE_CELL: OnceLock<[String; 5]> = OnceLock::new();
+    let events = EVT_TYPE_CELL.get_or_init(|| {
+        [
+            "BGM".to_owned(),
+            "RPG".to_owned(),
+            "SPA".to_owned(),
+            "MHE".to_owned(),
+            "ENT".to_owned(),
+        ]
+    });
+
+    events
+}
+
 fn event_detail_cache() -> MutexGuard<'static, HashMap<u32, dto::EventDetailResponse>> {
     static DETAIL_MUTEX: OnceLock<Mutex<HashMap<u32, dto::EventDetailResponse>>> = OnceLock::new();
     let retrieved_mutex = DETAIL_MUTEX.get_or_init(|| Mutex::new(HashMap::new()));
@@ -376,6 +463,7 @@ async fn list_event_counts_by_day(
     filter: &EventListQueryParams,
     _: &mut impl ExternalConnectivity,
 ) -> Result<Json<dto::DaysResponse>, ErrorResponse> {
+    info!("Listing event counts across days.");
     filter.validate().map_err(ValidationErrorResponse)?;
 
     let mut event_data = event_data().clone();
@@ -404,6 +492,10 @@ async fn list_event_counts_by_day(
     days.sort_by(|day1, day2| day1.day_id.cmp(&day2.day_id));
     let dummy_resp_data = dto::DaysResponse { days };
 
+    info!(
+        "Retrieved event counts across {} days.",
+        dummy_resp_data.days.len()
+    );
     Ok(Json(dummy_resp_data))
 }
 
@@ -434,6 +526,7 @@ async fn retrieve_event_detail(
     event_id: u32,
     _: &mut impl ExternalConnectivity,
 ) -> Result<Json<EventDetailResponse>, ErrorResponse> {
+    info!("Getting details for event {event_id}.");
     // Find the event in the event blocks
     let evt_data = event_data();
     let mut retrieved_event: Option<(dto::DateDto, &EventSummary)> = None;
@@ -454,6 +547,7 @@ async fn retrieve_event_detail(
     let evt_ref = match retrieved_event {
         Some(evt) => evt,
         None => {
+            error!("Event with id {event_id} not found.");
             return Err((
                 StatusCode::NOT_FOUND,
                 Json(dto::BasicError {
@@ -463,7 +557,7 @@ async fn retrieve_event_detail(
                     extra_info: None,
                 }),
             )
-                .into())
+                .into());
         }
     };
 
@@ -474,55 +568,8 @@ async fn retrieve_event_detail(
             let newly_created_detail: EventDetailResponse = dto::DetailFromBlock {
                 event_date: evt_ref.0 .0,
                 summary: evt_ref.1,
-                game_systems: game_systems(),
-                event_types: &[
-                    "BGM".to_owned(),
-                    "RPG".to_owned(),
-                    "SPA".to_owned(),
-                    "MHE".to_owned(),
-                    "ENT".to_owned(),
-                ],
-                event_locations: &[
-                    Location {
-                        building: Some(dto::LocationPart {
-                            id: 1,
-                            name: "ICC".to_owned(),
-                        }),
-                        room: Some(dto::LocationPart {
-                            id: 1,
-                            name: "Room 212".to_owned(),
-                        }),
-                        section: None,
-                        table_num: None,
-                    },
-                    Location {
-                        building: Some(dto::LocationPart {
-                            id: 2,
-                            name: "Hyatt".to_owned(),
-                        }),
-                        room: Some(dto::LocationPart {
-                            id: 2,
-                            name: "Studio 5".to_owned(),
-                        }),
-                        section: None,
-                        table_num: Some(3),
-                    },
-                    Location {
-                        building: Some(dto::LocationPart {
-                            id: 3,
-                            name: "Stadium".to_owned(),
-                        }),
-                        room: Some(dto::LocationPart {
-                            id: 3,
-                            name: "Field".to_owned(),
-                        }),
-                        section: Some(dto::LocationPart {
-                            id: 1,
-                            name: "Rising Phoenix".to_owned(),
-                        }),
-                        table_num: None,
-                    },
-                ],
+                event_types: &[],
+                event_locations: locations(),
             }
             .fake();
             event_cache.insert(evt_ref.1.id, newly_created_detail.clone());
@@ -530,7 +577,64 @@ async fn retrieve_event_detail(
         }
     };
 
+    info!(
+        "Retrieved event {event_id} ({}) successfully.",
+        event_to_return.title
+    );
     Ok(Json(event_to_return))
+}
+
+#[utoipa::path(
+    get,
+    path = "/api/events/locations",
+    tag = EVENTS_API_GROUP,
+    responses(
+        (status = 200, description = "Successfully retrieved all known location buildings", body = Vec<LocationPart>),
+        (status = 500, response = dto::err_resps::BasicError500),
+    ),
+)]
+/// List the set of known buildings in the system
+async fn retrieve_locations(
+    _ext_cxn: &mut impl ExternalConnectivity,
+) -> Result<Json<Vec<dto::LocationPart>>, ErrorResponse> {
+    info!("Retrieving locations.");
+    let mut seen_ids: HashSet<u32> = HashSet::new();
+    let unique_buildings: Vec<dto::LocationPart> = locations()
+        .iter()
+        .filter_map(|location| {
+            let building = match location.building {
+                Some(ref building) => building,
+                None => return None,
+            };
+            if seen_ids.contains(&building.id) {
+                return None;
+            }
+
+            seen_ids.insert(building.id);
+            Some(building.clone())
+        })
+        .collect();
+
+    info!("{} buildings retrieved.", unique_buildings.len());
+    Ok(Json(unique_buildings))
+}
+
+#[utoipa::path(
+    get,
+    path = "/api/events/types",
+    tag = EVENTS_API_GROUP,
+    responses(
+        (status = 200, description = "Successfully retrieved all known game types", body = &[String]),
+        (status = 500, response = dto::err_resps::BasicError500),
+    ),
+)]
+/// List the set of known game types in the system
+async fn retrieve_event_types(
+    _ext_cxn: &mut impl ExternalConnectivity,
+) -> Result<Json<&'static [String]>, ErrorResponse> {
+    // TODO: These should have IDs
+    info!("Listing event types.");
+    Ok(Json(event_types()))
 }
 
 #[utoipa::path(

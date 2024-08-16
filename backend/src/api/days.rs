@@ -9,6 +9,7 @@ use axum::response::ErrorResponse;
 use axum::routing::get;
 use axum::Router;
 use chrono::NaiveTime;
+use log::*;
 
 use std::sync::Arc;
 use utoipa::OpenApi;
@@ -79,6 +80,7 @@ async fn list_events_by_day(
     pagination: &api::PaginationQueryParams,
     _ext_cxn: &mut impl ExternalConnectivity,
 ) -> Result<Json<TimeBlockedEventsResponse>, ErrorResponse> {
+    info!("Listing events for day {day_id}.");
     filter.validate().map_err(ValidationErrorResponse)?;
     pagination.validate().map_err(ValidationErrorResponse)?;
 
@@ -87,6 +89,7 @@ async fn list_events_by_day(
     let events_for_day = match events_for_day_opt {
         Some(event_list) => event_list,
         None => {
+            error!("Day {day_id} doesn't exist.");
             return Err((
                 StatusCode::NOT_FOUND,
                 Json(dto::BasicError {
@@ -95,7 +98,7 @@ async fn list_events_by_day(
                     extra_info: None,
                 }),
             )
-                .into())
+                .into());
         }
     };
 
@@ -119,6 +122,15 @@ async fn list_events_by_day(
         events_by_time: events_on_day,
     };
 
+    let total_events: usize = resp
+        .events_by_time
+        .iter()
+        .map(|time_block| time_block.events.len())
+        .sum();
+    info!(
+        "Returned {} events for day {day_id} (page {} of results).",
+        total_events, resp.pagination_info.page
+    );
     Ok(Json(resp))
 }
 
@@ -149,6 +161,7 @@ async fn day_time_info(
     day_id: u32,
     _: &mut impl ExternalConnectivity,
 ) -> Result<Json<dto::TimeInfoResponse>, ErrorResponse> {
+    info!("Retrieving time range for day {day_id}.");
     let dummy_resp_data = match day_id {
         20240731 | 20240801 | 20240802 | 20240803 => dto::TimeInfoResponse {
             earliest_time: dto::TimeDto(NaiveTime::from_hms_opt(10, 0, 0).unwrap()),
@@ -156,6 +169,7 @@ async fn day_time_info(
         },
 
         _ => {
+            error!("Day {day_id} doesn't exist.");
             return Err((
                 StatusCode::NOT_FOUND,
                 Json(dto::BasicError {
@@ -164,9 +178,10 @@ async fn day_time_info(
                     extra_info: None,
                 }),
             )
-                .into())
+                .into());
         }
     };
 
+    info!("Retrieved earliest and latest times on day {day_id}.");
     Ok(Json(dummy_resp_data))
 }
