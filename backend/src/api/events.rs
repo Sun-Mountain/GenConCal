@@ -568,8 +568,10 @@ async fn retrieve_event_detail(
             let newly_created_detail: EventDetailResponse = dto::DetailFromBlock {
                 event_date: evt_ref.0 .0,
                 summary: evt_ref.1,
-                event_types: &[],
+                event_types: event_types(),
                 event_locations: locations(),
+                game_systems: game_systems(),
+                organizer_groups: super::organizers::sample_organizer_groups(),
             }
             .fake();
             event_cache.insert(evt_ref.1.id, newly_created_detail.clone());
@@ -624,17 +626,25 @@ async fn retrieve_locations(
     path = "/api/events/types",
     tag = EVENTS_API_GROUP,
     responses(
-        (status = 200, description = "Successfully retrieved all known game types", body = &[String]),
+        (status = 200, description = "Successfully retrieved all known game types", body = Vec<EventType>),
         (status = 500, response = dto::err_resps::BasicError500),
     ),
 )]
 /// List the set of known game types in the system
 async fn retrieve_event_types(
     _ext_cxn: &mut impl ExternalConnectivity,
-) -> Result<Json<&'static [String]>, ErrorResponse> {
-    // TODO: These should have IDs
-    info!("Listing event types.");
-    Ok(Json(event_types()))
+) -> Result<Json<Vec<dto::EventType>>, ErrorResponse> {
+    info!("Retrieving known event types");
+    let evt_types: Vec<dto::EventType> = event_types()
+        .iter()
+        .enumerate()
+        .map(|(idx, evt_type)| dto::EventType {
+            id: (idx + 1) as u32,
+            type_name: evt_type.clone(),
+        }).collect();
+    
+    info!("{} event types retrieved.", evt_types.len());
+    Ok(Json(evt_types))
 }
 
 #[utoipa::path(
@@ -650,7 +660,9 @@ async fn retrieve_event_types(
 async fn retrieve_game_systems(
     _ext_cxn: &mut impl ExternalConnectivity,
 ) -> Result<Json<&'static [GameSystem]>, ErrorResponse> {
+    info!("Retrieving known game systems.");
     let systems = game_systems();
 
+    info!("{} game systems retrieved.", systems.len());
     Ok(Json(systems))
 }
