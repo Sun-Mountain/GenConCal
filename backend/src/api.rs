@@ -9,6 +9,7 @@ mod event_import;
 pub mod events;
 #[cfg(test)]
 pub mod test_util;
+pub mod organizers;
 
 struct PageRange {
     pub page_start: usize,

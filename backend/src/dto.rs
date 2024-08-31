@@ -39,6 +39,7 @@ use crate::dto::IngestEventConvertErr::{UnrecognizedAgeRequirement, Unrecognized
         CommaSeparated<u16>,
         CommaSeparated<i32>,
         CommaSeparated<String>,
+        EventType,
         EventDetailResponse,
         GameSystem,
         Location,
@@ -228,6 +229,14 @@ impl Dummy<DiscreteF32> for f32 {
     }
 }
 
+#[derive(Serialize, ToSchema)]
+pub struct EventType {
+    #[schema(example = 10)]
+    pub id: u32,
+    #[schema(example = "BGM - Board Game")]
+    pub type_name: String,
+}
+
 #[derive(Serialize, ToSchema, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct EventDetailResponse {
@@ -283,6 +292,7 @@ pub struct DetailFromBlock<'refdata> {
     pub event_types: &'refdata [String],
     pub event_locations: &'refdata [Location],
     pub game_systems: &'refdata [GameSystem],
+    pub organizer_groups: &'refdata [Group],
 }
 
 impl Dummy<DetailFromBlock<'_>> for EventDetailResponse {
@@ -336,9 +346,12 @@ impl Dummy<DetailFromBlock<'_>> for EventDetailResponse {
             None
         };
         let game_masters: Vec<GameMaster> = (Faker, 0..=6).fake_with_rng(&mut *rng);
-        let group: Option<Group> = Opt(Faker, 50)
-            .fake_with_rng::<Optional<Group>, _>(&mut *rng)
-            .into();
+        let group: Option<Group> = if Boolean(50).fake() {
+            Some(config.organizer_groups.choose(&mut *rng).unwrap().clone())
+        } else {
+            None
+        };
+            
         let tournament_info: Option<TournamentInfo> = Opt(Faker, 25)
             .fake_with_rng::<Optional<TournamentInfo>, _>(&mut *rng)
             .into();
