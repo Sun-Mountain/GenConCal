@@ -113,6 +113,7 @@ struct Count {
     count: Option<i64>,
 }
 
+#[expect(dead_code)]
 impl Count {
     /// Retrieve the count value, as it's typechecked to be optional but should always be present
     fn count(&self) -> i64 {
@@ -121,11 +122,13 @@ impl Count {
     }
 }
 
+#[expect(dead_code)]
 /// Utility DTO for retrieving the ID of a newly inserted record to PostgreSQL
 struct NewId {
     id: i32,
 }
 
+#[expect(dead_code)]
 /// Converts anything implementing Debug and Display into an [anyhow::Error]
 fn anyhowify<T: Debug + Display>(errorish: T) -> anyhow::Error {
     anyhow!(format!("{}", errorish))

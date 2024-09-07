@@ -4,7 +4,6 @@ use axum::response::ErrorResponse;
 use axum::Router;
 use axum::routing::get;
 use fake::{Fake, Faker};
-use rand::seq::index::sample;
 use utoipa::OpenApi;
 use crate::{dto, AppState, SharedData};
 use crate::external_connections::ExternalConnectivity;

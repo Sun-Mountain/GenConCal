@@ -5,12 +5,14 @@ use std::collections::HashMap;
 use crate::domain::event;
 use crate::domain::event::FullEvent;
 
+#[expect(dead_code)]
 pub struct Tournament {
     pub id: i32,
     pub name: String,
     pub total_rounds: u8,
 }
 
+#[expect(dead_code)]
 pub struct TournamentSegment {
     pub round: u8,
     pub segment_events: Vec<FullEvent>,
@@ -26,18 +28,23 @@ pub struct RoundInfoIngest {
 #[derive(Debug)]
 #[cfg_attr(test, derive(Serialize))]
 pub struct TournamentIngest<'evt> {
+    #[expect(dead_code)]
     pub total_rounds: u8,
+    #[expect(dead_code)]
     pub name: &'evt str,
+    #[expect(dead_code)]
     pub segment_events: Vec<TournamentSegmentIngest<'evt>>,
 }
 
 #[derive(Debug)]
 #[cfg_attr(test, derive(Serialize))]
+#[expect(dead_code)]
 pub struct TournamentSegmentIngest<'evt> {
     pub round: u8,
     pub round_members: Vec<&'evt event::IngestEvent>,
 }
 
+#[expect(dead_code)]
 /// Looks through the set of events in an event ingest and attempts to assemble tournaments
 /// based on similarly named events
 pub fn detect_tournaments<'evt>(events: &'evt [event::IngestEvent]) -> Vec<TournamentIngest<'evt>> {

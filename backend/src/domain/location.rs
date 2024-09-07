@@ -1,3 +1,5 @@
+#![expect(dead_code)]
+
 #[cfg(test)]
 use serde::Serialize;
 

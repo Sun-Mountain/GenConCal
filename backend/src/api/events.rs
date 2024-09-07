@@ -41,6 +41,7 @@ pub const EVENTS_API_GROUP: &str = "Events";
 #[into_params(parameter_in = Query)]
 #[validate(schema(function = "validate_eventlist_query"))]
 #[serde(rename_all = "kebab-case")]
+#[expect(dead_code)]
 pub struct EventListQueryParams {
     /// Lower bound for available tickets in returned events (default 0)
     pub min_available_tickets: Option<u16>,

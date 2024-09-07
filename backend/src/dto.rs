@@ -1,9 +1,10 @@
 use std::collections::HashMap;
-use std::fmt::{Debug, Display};
+use std::fmt::{Debug};
 use std::str::FromStr;
 
 use chrono::{Duration, NaiveDate, NaiveDateTime, NaiveTime, ParseError, TimeZone};
 use chrono_tz::Tz;
+use derive_more::{Display, Error};
 use fake::faker::boolean::en::Boolean;
 use fake::faker::internet::en::SafeEmail;
 use fake::faker::lorem::en::*;
@@ -11,7 +12,6 @@ use fake::faker::name::en::*;
 use fake::{Dummy, Fake, Faker, Opt, Optional};
 use rand::prelude::*;
 use serde::{Deserialize, Serialize};
-use thiserror::Error;
 use utoipa::openapi::{RefOr, Schema};
 use utoipa::{openapi, OpenApi, ToSchema};
 use validator::ValidationErrors;
@@ -59,9 +59,9 @@ use crate::dto::IngestEventConvertErr::{UnrecognizedAgeRequirement, Unrecognized
 /// Captures OpenAPI schemas and canned responses defined in the DTO module
 pub struct OpenApiSchemas;
 
-#[derive(Debug, Error)]
-#[error("Failed to parse comma separated value: {0}")]
-pub struct CommaSepParseErr(String);
+#[derive(Debug, Display, Error)]
+#[display("Failed to parse comma separated value: {_0}")]
+pub struct CommaSepParseErr(#[error(ignore)] String);
 
 #[derive(Clone, Deserialize, Serialize, ToSchema)]
 #[serde(try_from = "String", into = "String")]
@@ -511,6 +511,7 @@ pub struct LocationPart {
 
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
+#[expect(dead_code)]
 pub struct EventImportRequest {
     pub event_data: Vec<ImportedEvent>,
 }
@@ -595,6 +596,7 @@ impl From<TimeDto> for String {
 }
 
 #[derive(Debug)]
+#[expect(dead_code)]
 pub enum IngestEventConvertErr {
     BadStartTime,
     BadEndTime,
@@ -760,6 +762,8 @@ pub struct BasicError {
 /// Contains a set of generic OpenAPI error responses based on [BasicError] that can
 /// be easily reused in other requests
 pub mod err_resps {
+    #![expect(dead_code)]
+    
     use utoipa::ToResponse;
 
     use crate::dto::BasicError;
