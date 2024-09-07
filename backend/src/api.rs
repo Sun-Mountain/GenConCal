@@ -7,9 +7,9 @@ pub mod swagger_main;
 pub mod days;
 mod event_import;
 pub mod events;
+pub mod organizers;
 #[cfg(test)]
 pub mod test_util;
-pub mod organizers;
 
 struct PageRange {
     pub page_start: usize,

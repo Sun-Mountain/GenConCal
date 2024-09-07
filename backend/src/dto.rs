@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use std::fmt::{Debug};
+use std::fmt::Debug;
 use std::str::FromStr;
 
 use chrono::{Duration, NaiveDate, NaiveDateTime, NaiveTime, ParseError, TimeZone};
@@ -351,7 +351,7 @@ impl Dummy<DetailFromBlock<'_>> for EventDetailResponse {
         } else {
             None
         };
-            
+
         let tournament_info: Option<TournamentInfo> = Opt(Faker, 25)
             .fake_with_rng::<Optional<TournamentInfo>, _>(&mut *rng)
             .into();
@@ -763,7 +763,7 @@ pub struct BasicError {
 /// be easily reused in other requests
 pub mod err_resps {
     #![expect(dead_code)]
-    
+
     use utoipa::ToResponse;
 
     use crate::dto::BasicError;

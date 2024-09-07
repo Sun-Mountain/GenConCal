@@ -118,30 +118,24 @@ fn validate_eventlist_query(query_params: &EventListQueryParams) -> Result<(), V
     Ok(())
 }
 
-fn validate_experience_list(
-    type_list: &Option<CommaSeparated<String>>,
-) -> Result<(), ValidationError> {
-    if let Some(CommaSeparated(ref str_list)) = type_list {
-        for str_to_check in str_list.iter() {
-            match str_to_check.as_str() {
-                "none" | "some" | "expert" => {}
-                _ => return Err(ValidationError::new("invalid_experience_value")
-                    .with_message(Cow::Owned(format!("One or more experience values ({}) were not recognized. Valid values are: none, some, expert", str_to_check))))
-            }
+fn validate_experience_list(type_list: &CommaSeparated<String>) -> Result<(), ValidationError> {
+    for str_to_check in type_list.0.iter() {
+        match str_to_check.as_str() {
+            "none" | "some" | "expert" => {}
+            _ => return Err(ValidationError::new("invalid_experience_value")
+                .with_message(Cow::Owned(format!("One or more experience values ({}) were not recognized. Valid values are: none, some, expert", str_to_check))))
         }
     }
 
     Ok(())
 }
 
-fn validate_age_list(age_list: &Option<CommaSeparated<String>>) -> Result<(), ValidationError> {
-    if let Some(CommaSeparated(ref str_list)) = age_list {
-        for str_to_check in str_list.iter() {
-            match str_to_check.as_str() {
-                "everyone" | "kidsonly" | "teen" | "mature" | "adult" => {}
-                _ => return Err(ValidationError::new("invalid_age_value")
-                    .with_message(Cow::Owned(format!("One or more age range values ({}) were not recognized. Valid values are: everyone, kidsonly, teen, mature, adult", str_to_check))))
-            }
+fn validate_age_list(age_list: &CommaSeparated<String>) -> Result<(), ValidationError> {
+    for str_to_check in age_list.0.iter() {
+        match str_to_check.as_str() {
+            "everyone" | "kidsonly" | "teen" | "mature" | "adult" => {}
+            _ => return Err(ValidationError::new("invalid_age_value")
+                .with_message(Cow::Owned(format!("One or more age range values ({}) were not recognized. Valid values are: everyone, kidsonly, teen, mature, adult", str_to_check))))
         }
     }
 
@@ -642,8 +636,9 @@ async fn retrieve_event_types(
         .map(|(idx, evt_type)| dto::EventType {
             id: (idx + 1) as u32,
             type_name: evt_type.clone(),
-        }).collect();
-    
+        })
+        .collect();
+
     info!("{} event types retrieved.", evt_types.len());
     Ok(Json(evt_types))
 }

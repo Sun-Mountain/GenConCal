@@ -1,8 +1,8 @@
 use sqlx::PgConnection;
 
-use std::fmt::{Debug};
-use std::future::Future;
 use derive_more::{Display, Error};
+use std::fmt::Debug;
+use std::future::Future;
 
 #[expect(dead_code)]
 /// TransactableExternalConnectivity represents an [ExternalConnectivity] that can initiate
