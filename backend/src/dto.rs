@@ -63,12 +63,12 @@ pub struct OpenApiSchemas;
 #[display("Failed to parse comma separated value: {_0}")]
 pub struct CommaSepParseErr(#[error(ignore)] String);
 
-#[derive(Clone, Deserialize, Serialize, ToSchema)]
+#[derive(Clone, Debug, Deserialize, Serialize, ToSchema)]
 #[serde(try_from = "String", into = "String")]
 #[schema(value_type = String)]
-pub struct CommaSeparated<T: FromStr + Display + Clone>(pub Vec<T>);
+pub struct CommaSeparated<T: FromStr + Debug + Display + Clone>(pub Vec<T>);
 
-impl<T: FromStr + Display + Clone> TryFrom<String> for CommaSeparated<T> {
+impl<T: FromStr + Debug + Display + Clone> TryFrom<String> for CommaSeparated<T> {
     type Error = CommaSepParseErr;
 
     fn try_from(value: String) -> Result<Self, Self::Error> {
@@ -85,7 +85,7 @@ impl<T: FromStr + Display + Clone> TryFrom<String> for CommaSeparated<T> {
     }
 }
 
-impl<T: FromStr + Display + Clone> From<CommaSeparated<T>> for String {
+impl<T: FromStr + Display + Debug + Clone> From<CommaSeparated<T>> for String {
     fn from(value: CommaSeparated<T>) -> Self {
         value
             .0
@@ -152,7 +152,7 @@ pub struct EventBlock {
     pub events: Vec<EventSummary>,
 }
 
-#[derive(Clone, Serialize, ToSchema)]
+#[derive(Clone, Debug, Serialize, ToSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct EventSummary {
     pub id: u32,
@@ -190,7 +190,7 @@ impl Dummy<EventInTimeSlot> for EventSummary {
     }
 }
 
-#[derive(Clone, Serialize, ToSchema)]
+#[derive(Clone, Debug, Serialize, ToSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct TicketAvailability {
     #[schema(example = 10)]
@@ -576,7 +576,7 @@ impl DateDto {
     }
 }
 
-#[derive(Serialize, Deserialize, Clone, ToSchema)]
+#[derive(Serialize, Debug, Deserialize, Clone, ToSchema)]
 #[serde(try_from = "String", into = "String")]
 #[schema(value_type = String)]
 pub struct TimeDto(pub NaiveTime);

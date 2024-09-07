@@ -11,7 +11,7 @@ use axum::routing::get;
 use axum::Router;
 use chrono::NaiveTime;
 use fake::Fake;
-use log::*;
+use tracing::*;
 use serde::Deserialize;
 use utoipa::{IntoParams, OpenApi};
 use validator::{Validate, ValidationError};
@@ -80,6 +80,7 @@ pub struct EventListQueryParams {
     pub cost_max: Option<u16>,
 }
 
+#[instrument(skip(query_params))]
 fn validate_eventlist_query(query_params: &EventListQueryParams) -> Result<(), ValidationError> {
     // Validate start_time <= end_time
     if let (Some(TimeDto(start_time)), Some(TimeDto(end_time))) =
@@ -118,6 +119,7 @@ fn validate_eventlist_query(query_params: &EventListQueryParams) -> Result<(), V
     Ok(())
 }
 
+#[instrument]
 fn validate_experience_list(type_list: &CommaSeparated<String>) -> Result<(), ValidationError> {
     for str_to_check in type_list.0.iter() {
         match str_to_check.as_str() {
@@ -130,6 +132,7 @@ fn validate_experience_list(type_list: &CommaSeparated<String>) -> Result<(), Va
     Ok(())
 }
 
+#[instrument]
 fn validate_age_list(age_list: &CommaSeparated<String>) -> Result<(), ValidationError> {
     for str_to_check in age_list.0.iter() {
         match str_to_check.as_str() {
@@ -199,6 +202,7 @@ pub(super) fn matches_event_filter(
     true
 }
 
+#[instrument(skip(blocks))]
 pub(super) fn paginate_additional_events(
     blocks: &mut [EventBlock],
     page: u16,
@@ -250,6 +254,7 @@ pub(super) fn paginate_additional_events(
     processed_results
 }
 
+#[instrument(skip(blocks))]
 pub(super) fn paginate_events(
     blocks: &mut [EventBlock],
     page: u16,
@@ -331,20 +336,24 @@ fn gen_day_blocks() -> Vec<dto::EventBlock> {
     ]
 }
 
+#[instrument]
 pub(super) fn event_data() -> &'static dto::DailyTimeBlockedEventsResponse {
     static EVENTS_CELL: OnceLock<dto::DailyTimeBlockedEventsResponse> = OnceLock::new();
-    let events = EVENTS_CELL.get_or_init(|| dto::DailyTimeBlockedEventsResponse {
-        events_by_day: HashMap::from([
-            (20240731, gen_day_blocks()),
-            (20240801, gen_day_blocks()),
-            (20240802, gen_day_blocks()),
-            (20240803, gen_day_blocks()),
-        ]),
-    });
+    let events = EVENTS_CELL.get_or_init(|| info_span!("events_generation")
+        .in_scope(|| dto::DailyTimeBlockedEventsResponse {
+            events_by_day: HashMap::from([
+                (20240731, gen_day_blocks()),
+                (20240801, gen_day_blocks()),
+                (20240802, gen_day_blocks()),
+                (20240803, gen_day_blocks()),
+            ]),
+        }),
+    );
 
     events
 }
 
+#[instrument]
 fn game_systems() -> &'static [dto::GameSystem] {
     static SYSTEMS_CELL: OnceLock<Vec<dto::GameSystem>> = OnceLock::new();
     let game_systems = SYSTEMS_CELL.get_or_init(|| {
@@ -367,6 +376,7 @@ fn game_systems() -> &'static [dto::GameSystem] {
     game_systems
 }
 
+#[instrument]
 fn locations() -> &'static [dto::Location] {
     static LOCATIONS_CELL: OnceLock<[dto::Location; 3]> = OnceLock::new();
     let locations = LOCATIONS_CELL.get_or_init(|| {
@@ -416,6 +426,7 @@ fn locations() -> &'static [dto::Location] {
     locations
 }
 
+#[instrument]
 fn event_types() -> &'static [String] {
     static EVT_TYPE_CELL: OnceLock<[String; 5]> = OnceLock::new();
     let events = EVT_TYPE_CELL.get_or_init(|| {
@@ -431,6 +442,7 @@ fn event_types() -> &'static [String] {
     events
 }
 
+#[instrument]
 fn event_detail_cache() -> MutexGuard<'static, HashMap<u32, dto::EventDetailResponse>> {
     static DETAIL_MUTEX: OnceLock<Mutex<HashMap<u32, dto::EventDetailResponse>>> = OnceLock::new();
     let retrieved_mutex = DETAIL_MUTEX.get_or_init(|| Mutex::new(HashMap::new()));
@@ -450,6 +462,7 @@ fn event_detail_cache() -> MutexGuard<'static, HashMap<u32, dto::EventDetailResp
         (status = 500, response = dto::err_resps::BasicError500),
     )
 )]
+#[instrument(skip(filter))]
 /// Lists the number of events by day for the current GenCon year
 ///
 /// If filtering query parameters are supplied, the counts of events returned are the number
@@ -458,15 +471,16 @@ async fn list_event_counts_by_day(
     filter: &EventListQueryParams,
     _: &mut impl ExternalConnectivity,
 ) -> Result<Json<dto::DaysResponse>, ErrorResponse> {
-    info!("Listing event counts across days.");
     filter.validate().map_err(ValidationErrorResponse)?;
 
     let mut event_data = event_data().clone();
-    for (_, events_on_day) in event_data.events_by_day.iter_mut() {
-        for block in events_on_day.iter_mut() {
-            block.events.retain(|evt| matches_event_filter(evt, filter));
+    info_span!("filtering_events").in_scope(|| {
+        for (_, events_on_day) in event_data.events_by_day.iter_mut() {
+            for block in events_on_day.iter_mut() {
+                block.events.retain(|evt| matches_event_filter(evt, filter));
+            }
         }
-    }
+    });
 
     let mut days: Vec<EventDay> = event_data
         .events_by_day
@@ -488,8 +502,8 @@ async fn list_event_counts_by_day(
     let dummy_resp_data = dto::DaysResponse { days };
 
     info!(
-        "Retrieved event counts across {} days.",
-        dummy_resp_data.days.len()
+        total_day_count = dummy_resp_data.days.len(),
+        "Retrieved event counts.",
     );
     Ok(Json(dummy_resp_data))
 }
@@ -516,12 +530,12 @@ async fn list_event_counts_by_day(
         (status = 500, response = dto::err_resps::BasicError500),
     ),
 )]
+#[instrument]
 /// Retrieve detailed information about a single GenCon event
 async fn retrieve_event_detail(
     event_id: u32,
     _: &mut impl ExternalConnectivity,
 ) -> Result<Json<EventDetailResponse>, ErrorResponse> {
-    info!("Getting details for event {event_id}.");
     // Find the event in the event blocks
     let evt_data = event_data();
     let mut retrieved_event: Option<(dto::DateDto, &EventSummary)> = None;
@@ -542,7 +556,7 @@ async fn retrieve_event_detail(
     let evt_ref = match retrieved_event {
         Some(evt) => evt,
         None => {
-            error!("Event with id {event_id} not found.");
+            error!(event_id, "Event not found.");
             return Err((
                 StatusCode::NOT_FOUND,
                 Json(dto::BasicError {
@@ -575,8 +589,9 @@ async fn retrieve_event_detail(
     };
 
     info!(
-        "Retrieved event {event_id} ({}) successfully.",
-        event_to_return.title
+        %event_id,
+        title = %event_to_return.title,
+        "Retrieved event successfully.",
     );
     Ok(Json(event_to_return))
 }
@@ -590,11 +605,12 @@ async fn retrieve_event_detail(
         (status = 500, response = dto::err_resps::BasicError500),
     ),
 )]
+#[instrument(skip(_ext_cxn))]
 /// List the set of known buildings in the system
 async fn retrieve_locations(
     _ext_cxn: &mut impl ExternalConnectivity,
 ) -> Result<Json<Vec<dto::LocationPart>>, ErrorResponse> {
-    info!("Retrieving locations.");
+    ("Retrieving locations.");
     let mut seen_ids: HashSet<u32> = HashSet::new();
     let unique_buildings: Vec<dto::LocationPart> = locations()
         .iter()
@@ -612,7 +628,7 @@ async fn retrieve_locations(
         })
         .collect();
 
-    info!("{} buildings retrieved.", unique_buildings.len());
+    info!(total_retrieved = unique_buildings.len(), "Buildings retrieved.");
     Ok(Json(unique_buildings))
 }
 
@@ -625,11 +641,11 @@ async fn retrieve_locations(
         (status = 500, response = dto::err_resps::BasicError500),
     ),
 )]
+#[instrument(skip(_ext_cxn))]
 /// List the set of known game types in the system
 async fn retrieve_event_types(
     _ext_cxn: &mut impl ExternalConnectivity,
 ) -> Result<Json<Vec<dto::EventType>>, ErrorResponse> {
-    info!("Retrieving known event types");
     let evt_types: Vec<dto::EventType> = event_types()
         .iter()
         .enumerate()
@@ -639,7 +655,7 @@ async fn retrieve_event_types(
         })
         .collect();
 
-    info!("{} event types retrieved.", evt_types.len());
+    info!(total_retrieved = evt_types.len(), "Event types retrieved.");
     Ok(Json(evt_types))
 }
 
@@ -652,13 +668,13 @@ async fn retrieve_event_types(
         (status = 500, response = dto::err_resps::BasicError500)
     )
 )]
+#[instrument(skip(_ext_cxn))]
 /// Lists known game systems in the current GenCon year
 async fn retrieve_game_systems(
     _ext_cxn: &mut impl ExternalConnectivity,
 ) -> Result<Json<&'static [GameSystem]>, ErrorResponse> {
-    info!("Retrieving known game systems.");
     let systems = game_systems();
 
-    info!("{} game systems retrieved.", systems.len());
+    info!(total_systems = systems.len(), "Game systems retrieved.");
     Ok(Json(systems))
 }

@@ -5,8 +5,11 @@ use axum::extract::State;
 
 use axum::Router;
 use dotenv::dotenv;
-use log::*;
+use tracing::*;
 use tokio::net::TcpListener;
+use tracing::level_filters::LevelFilter;
+use tracing_subscriber::EnvFilter;
+use tracing_subscriber::fmt::format::FmtSpan;
 
 mod api;
 mod app_env;
@@ -25,11 +28,18 @@ mod integration_test;
 /// Configures the logging system for the application. Pulls configuration from the [LOG_LEVEL](app_env::LOG_LEVEL)
 /// environment variable. Sets log level to "INFO" for all modules and sqlx to "WARN" by default.
 pub fn configure_logger() {
-    env_logger::builder()
-        .filter_level(LevelFilter::Info)
-        .filter_module("sqlx", LevelFilter::Warn)
-        .parse_env(app_env::LOG_LEVEL)
-        .init();
+    let env_filter = EnvFilter::builder()
+        .with_default_directive(LevelFilter::INFO.into())
+        .with_env_var(app_env::LOG_LEVEL)
+        .from_env()
+        .expect("filter should construct correctly");
+    let subscriber = tracing_subscriber::fmt()
+        // .json()
+        .with_span_events(FmtSpan::NEW | FmtSpan::CLOSE)
+        .with_env_filter(env_filter)
+        .finish();
+
+    subscriber::set_global_default(subscriber).unwrap();
 }
 
 /// Global data store which is shared among HTTP routes
