@@ -7,9 +7,9 @@ use axum::Router;
 use dotenv::dotenv;
 use tracing::*;
 use tokio::net::TcpListener;
-use tracing::level_filters::LevelFilter;
+use tower::ServiceBuilder;
+use tower_http::trace::TraceLayer;
 use tracing_subscriber::EnvFilter;
-use tracing_subscriber::fmt::format::FmtSpan;
 
 mod api;
 mod app_env;
@@ -24,23 +24,7 @@ mod routing_utils;
 mod external_connections;
 #[cfg(test)]
 mod integration_test;
-
-/// Configures the logging system for the application. Pulls configuration from the [LOG_LEVEL](app_env::LOG_LEVEL)
-/// environment variable. Sets log level to "INFO" for all modules and sqlx to "WARN" by default.
-pub fn configure_logger() {
-    let env_filter = EnvFilter::builder()
-        .with_default_directive(LevelFilter::INFO.into())
-        .with_env_var(app_env::LOG_LEVEL)
-        .from_env()
-        .expect("filter should construct correctly");
-    let subscriber = tracing_subscriber::fmt()
-        // .json()
-        .with_span_events(FmtSpan::NEW | FmtSpan::CLOSE)
-        .with_env_filter(env_filter)
-        .finish();
-
-    subscriber::set_global_default(subscriber).unwrap();
-}
+mod logging;
 
 /// Global data store which is shared among HTTP routes
 pub struct SharedData {
@@ -55,7 +39,10 @@ async fn main() {
     if dotenv().is_err() {
         println!("Starting server without .env file.");
     }
-    configure_logger();
+    logging::setup_logging_and_tracing(
+        logging::init_env_filter(),
+        Some(logging::init_exporters("http://localhost:4317", "http://localhost:4317"))
+    );
     let db_url = env::var(app_env::DB_URL).expect("Could not get database URL from environment");
 
     let sqlx_db_connection = db::connect_sqlx(&db_url).await;
@@ -66,6 +53,7 @@ async fn main() {
         .nest("/api/events", api::events::events_routes())
         .nest("/api/organizers", api::organizers::organizers_routes())
         .merge(api::swagger_main::build_documentation())
+        .layer(ServiceBuilder::new().layer(TraceLayer::new_for_http()))
         .with_state(Arc::new(SharedData { ext_cxn }));
 
     info!("Starting server.");
