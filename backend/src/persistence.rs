@@ -73,7 +73,10 @@ pub struct TransactionHandle<'tx> {
 }
 
 impl<'tx> external_connections::ExternalConnectivity for ExternalConnectionsInTransaction<'tx> {
-    type Handle<'tx_borrow> = TransactionHandle<'tx_borrow> where Self: 'tx_borrow;
+    type Handle<'tx_borrow>
+        = TransactionHandle<'tx_borrow>
+    where
+        Self: 'tx_borrow;
     type Error = anyhow::Error;
 
     async fn database_cxn(&mut self) -> Result<TransactionHandle<'_>, Self::Error> {
@@ -89,7 +92,7 @@ impl<'tx> external_connections::ExternalConnectivity for ExternalConnectionsInTr
     }
 }
 
-impl<'tx> ConnectionHandle for TransactionHandle<'tx> {
+impl ConnectionHandle for TransactionHandle<'_> {
     fn borrow_connection(&mut self) -> &mut PgConnection {
         &mut *self.active_transaction
     }

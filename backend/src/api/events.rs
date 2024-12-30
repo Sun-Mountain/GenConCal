@@ -11,8 +11,8 @@ use axum::routing::get;
 use axum::Router;
 use chrono::NaiveTime;
 use fake::Fake;
-use tracing::*;
 use serde::Deserialize;
+use tracing::*;
 use utoipa::{IntoParams, OpenApi};
 use validator::{Validate, ValidationError};
 
@@ -339,16 +339,16 @@ fn gen_day_blocks() -> Vec<dto::EventBlock> {
 #[instrument]
 pub(super) fn event_data() -> &'static dto::DailyTimeBlockedEventsResponse {
     static EVENTS_CELL: OnceLock<dto::DailyTimeBlockedEventsResponse> = OnceLock::new();
-    let events = EVENTS_CELL.get_or_init(|| info_span!("events_generation")
-        .in_scope(|| dto::DailyTimeBlockedEventsResponse {
+    let events = EVENTS_CELL.get_or_init(|| {
+        info_span!("events_generation").in_scope(|| dto::DailyTimeBlockedEventsResponse {
             events_by_day: HashMap::from([
                 (20240731, gen_day_blocks()),
                 (20240801, gen_day_blocks()),
                 (20240802, gen_day_blocks()),
                 (20240803, gen_day_blocks()),
             ]),
-        }),
-    );
+        })
+    });
 
     events
 }
@@ -610,7 +610,7 @@ async fn retrieve_event_detail(
 async fn retrieve_locations(
     _ext_cxn: &mut impl ExternalConnectivity,
 ) -> Result<Json<Vec<dto::LocationPart>>, ErrorResponse> {
-    ("Retrieving locations.");
+    info!("Retrieving locations.");
     let mut seen_ids: HashSet<u32> = HashSet::new();
     let unique_buildings: Vec<dto::LocationPart> = locations()
         .iter()
@@ -628,7 +628,10 @@ async fn retrieve_locations(
         })
         .collect();
 
-    info!(total_retrieved = unique_buildings.len(), "Buildings retrieved.");
+    info!(
+        total_retrieved = unique_buildings.len(),
+        "Buildings retrieved."
+    );
     Ok(Json(unique_buildings))
 }
 

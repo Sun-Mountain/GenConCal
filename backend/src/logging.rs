@@ -1,3 +1,4 @@
+use crate::app_env;
 use opentelemetry::trace::TracerProvider;
 use opentelemetry::KeyValue;
 use opentelemetry_otlp::{MetricExporter, SpanExporter, WithExportConfig};
@@ -7,7 +8,6 @@ use opentelemetry_sdk::{runtime, Resource};
 use tracing::level_filters::LevelFilter;
 use tracing_opentelemetry::{MetricsLayer, OpenTelemetryLayer};
 use tracing_subscriber::{prelude::*, registry, EnvFilter};
-use crate::app_env;
 
 /// The name of the service as it should appear in OpenTelemetry collectors
 const SERVICE_NAME: &str = "genconcal_backend";
@@ -28,10 +28,9 @@ pub fn init_exporters(otlp_traces_endpoint: &str, otlp_metrics_endpoint: &str) -
         .with_endpoint(otlp_metrics_endpoint)
         .build()
         .expect("failed to build meter exporter");
-    
-    let metrics_reader = PeriodicReader::builder(meter_export, runtime::Tokio)
-        .build();
-    
+
+    let metrics_reader = PeriodicReader::builder(meter_export, runtime::Tokio).build();
+
     let trace_provider = opentelemetry_sdk::trace::TracerProvider::builder()
         .with_batch_exporter(span_export, runtime::Tokio)
         .with_resource(Resource::new([KeyValue::new("service.name", SERVICE_NAME)]))
@@ -62,12 +61,20 @@ pub fn setup_logging_and_tracing(env_filter: EnvFilter, otel_exporters: Option<O
             .with(LevelFilter::DEBUG)
             .with(OpenTelemetryLayer::new(exporters.tracer))
             .with(MetricsLayer::new(exporters.meter))
-            .with(tracing_subscriber::fmt::layer().json().with_filter(env_filter))
+            .with(
+                tracing_subscriber::fmt::layer()
+                    .json()
+                    .with_filter(env_filter),
+            )
             .init();
     } else {
         registry()
             .with(LevelFilter::DEBUG)
-            .with(tracing_subscriber::fmt::layer().json().with_filter(env_filter))
+            .with(
+                tracing_subscriber::fmt::layer()
+                    .json()
+                    .with_filter(env_filter),
+            )
             .init();
     }
 }

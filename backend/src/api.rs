@@ -1,7 +1,7 @@
 use serde::Deserialize;
+use tracing::*;
 use utoipa::IntoParams;
 use validator::Validate;
-use tracing::*;
 
 pub mod swagger_main;
 

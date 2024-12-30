@@ -6,8 +6,8 @@ use axum::response::ErrorResponse;
 use axum::routing::get;
 use axum::Router;
 use fake::{Fake, Faker};
-use tracing::*;
 use std::sync::{Arc, OnceLock};
+use tracing::*;
 use utoipa::OpenApi;
 
 #[derive(OpenApi)]
