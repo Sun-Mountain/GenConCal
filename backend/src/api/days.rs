@@ -105,7 +105,6 @@ async fn list_events_by_day(
     let mut events_on_day = events_for_day.clone();
     info_span!("event_filtering").in_scope(|| {
         for time_block in events_on_day.iter_mut() {
-            debug!(start_time=%time_block.represented_time.0, "Looking through time block.");
             time_block
                 .events
                 .retain(|event| super::events::matches_event_filter(event, filter));

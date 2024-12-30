@@ -90,3 +90,8 @@ cargo test --features integration_test
 ```
 
 More information on integration testing can be found in the [testing documentation](./doc/testing.md#writing-integration-tests).
+
+## Latency + Log Data
+
+The docker-compose file included with this repository runs a Jaeger instance which collects latency and log data
+from the running application. You can view the Jaeger UI at http://localhost:16686.
