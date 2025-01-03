@@ -1,9 +1,10 @@
 use std::collections::HashMap;
-use std::fmt::{Debug, Display};
+use std::fmt::Debug;
 use std::str::FromStr;
 
 use chrono::{Duration, NaiveDate, NaiveDateTime, NaiveTime, ParseError, TimeZone};
 use chrono_tz::Tz;
+use derive_more::{Display, Error};
 use fake::faker::boolean::en::Boolean;
 use fake::faker::internet::en::SafeEmail;
 use fake::faker::lorem::en::*;
@@ -11,7 +12,6 @@ use fake::faker::name::en::*;
 use fake::{Dummy, Fake, Faker, Opt, Optional};
 use rand::prelude::*;
 use serde::{Deserialize, Serialize};
-use thiserror::Error;
 use utoipa::openapi::{RefOr, Schema};
 use utoipa::{openapi, OpenApi, ToSchema};
 use validator::ValidationErrors;
@@ -59,16 +59,16 @@ use crate::dto::IngestEventConvertErr::{UnrecognizedAgeRequirement, Unrecognized
 /// Captures OpenAPI schemas and canned responses defined in the DTO module
 pub struct OpenApiSchemas;
 
-#[derive(Debug, Error)]
-#[error("Failed to parse comma separated value: {0}")]
-pub struct CommaSepParseErr(String);
+#[derive(Debug, Display, Error)]
+#[display("Failed to parse comma separated value: {_0}")]
+pub struct CommaSepParseErr(#[error(ignore)] String);
 
-#[derive(Clone, Deserialize, Serialize, ToSchema)]
+#[derive(Clone, Debug, Deserialize, Serialize, ToSchema)]
 #[serde(try_from = "String", into = "String")]
 #[schema(value_type = String)]
-pub struct CommaSeparated<T: FromStr + Display + Clone>(pub Vec<T>);
+pub struct CommaSeparated<T: FromStr + Debug + Display + Clone>(pub Vec<T>);
 
-impl<T: FromStr + Display + Clone> TryFrom<String> for CommaSeparated<T> {
+impl<T: FromStr + Debug + Display + Clone> TryFrom<String> for CommaSeparated<T> {
     type Error = CommaSepParseErr;
 
     fn try_from(value: String) -> Result<Self, Self::Error> {
@@ -85,7 +85,7 @@ impl<T: FromStr + Display + Clone> TryFrom<String> for CommaSeparated<T> {
     }
 }
 
-impl<T: FromStr + Display + Clone> From<CommaSeparated<T>> for String {
+impl<T: FromStr + Display + Debug + Clone> From<CommaSeparated<T>> for String {
     fn from(value: CommaSeparated<T>) -> Self {
         value
             .0
@@ -152,7 +152,7 @@ pub struct EventBlock {
     pub events: Vec<EventSummary>,
 }
 
-#[derive(Clone, Serialize, ToSchema)]
+#[derive(Clone, Debug, Serialize, ToSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct EventSummary {
     pub id: u32,
@@ -190,7 +190,7 @@ impl Dummy<EventInTimeSlot> for EventSummary {
     }
 }
 
-#[derive(Clone, Serialize, ToSchema)]
+#[derive(Clone, Debug, Serialize, ToSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct TicketAvailability {
     #[schema(example = 10)]
@@ -351,7 +351,7 @@ impl Dummy<DetailFromBlock<'_>> for EventDetailResponse {
         } else {
             None
         };
-            
+
         let tournament_info: Option<TournamentInfo> = Opt(Faker, 25)
             .fake_with_rng::<Optional<TournamentInfo>, _>(&mut *rng)
             .into();
@@ -511,6 +511,7 @@ pub struct LocationPart {
 
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
+#[expect(dead_code)]
 pub struct EventImportRequest {
     pub event_data: Vec<ImportedEvent>,
 }
@@ -575,7 +576,7 @@ impl DateDto {
     }
 }
 
-#[derive(Serialize, Deserialize, Clone, ToSchema)]
+#[derive(Serialize, Debug, Deserialize, Clone, ToSchema)]
 #[serde(try_from = "String", into = "String")]
 #[schema(value_type = String)]
 pub struct TimeDto(pub NaiveTime);
@@ -595,6 +596,7 @@ impl From<TimeDto> for String {
 }
 
 #[derive(Debug)]
+#[expect(dead_code)]
 pub enum IngestEventConvertErr {
     BadStartTime,
     BadEndTime,
@@ -760,6 +762,8 @@ pub struct BasicError {
 /// Contains a set of generic OpenAPI error responses based on [BasicError] that can
 /// be easily reused in other requests
 pub mod err_resps {
+    #![expect(dead_code)]
+
     use utoipa::ToResponse;
 
     use crate::dto::BasicError;

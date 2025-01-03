@@ -9,7 +9,7 @@ use axum::response::ErrorResponse;
 use axum::routing::get;
 use axum::Router;
 use chrono::NaiveTime;
-use log::*;
+use tracing::*;
 
 use std::sync::Arc;
 use utoipa::OpenApi;
@@ -73,6 +73,7 @@ pub fn day_routes() -> Router<Arc<SharedData>> {
         (status = 500, response = dto::err_resps::BasicError500),
     ),
 )]
+#[instrument(skip(filter, _ext_cxn))]
 /// List events that occur on a certain day
 async fn list_events_by_day(
     day_id: u32,
@@ -80,7 +81,6 @@ async fn list_events_by_day(
     pagination: &api::PaginationQueryParams,
     _ext_cxn: &mut impl ExternalConnectivity,
 ) -> Result<Json<TimeBlockedEventsResponse>, ErrorResponse> {
-    info!("Listing events for day {day_id}.");
     filter.validate().map_err(ValidationErrorResponse)?;
     pagination.validate().map_err(ValidationErrorResponse)?;
 
@@ -89,7 +89,7 @@ async fn list_events_by_day(
     let events_for_day = match events_for_day_opt {
         Some(event_list) => event_list,
         None => {
-            error!("Day {day_id} doesn't exist.");
+            error!(day_id, "Day doesn't exist.");
             return Err((
                 StatusCode::NOT_FOUND,
                 Json(dto::BasicError {
@@ -103,11 +103,13 @@ async fn list_events_by_day(
     };
 
     let mut events_on_day = events_for_day.clone();
-    for time_block in events_on_day.iter_mut() {
-        time_block
-            .events
-            .retain(|event| super::events::matches_event_filter(event, filter));
-    }
+    info_span!("event_filtering").in_scope(|| {
+        for time_block in events_on_day.iter_mut() {
+            time_block
+                .events
+                .retain(|event| super::events::matches_event_filter(event, filter));
+        }
+    });
     events_on_day.retain(|block| !block.events.is_empty());
 
     let page = pagination.page.unwrap_or(1);
@@ -128,8 +130,10 @@ async fn list_events_by_day(
         .map(|time_block| time_block.events.len())
         .sum();
     info!(
-        "Returned {} events for day {day_id} (page {} of results).",
-        total_events, resp.pagination_info.page
+        day_id,
+        total_events,
+        result_page = resp.pagination_info.page,
+        "Returned events for day.",
     );
     Ok(Json(resp))
 }
@@ -156,12 +160,12 @@ async fn list_events_by_day(
         (status = 500, response = dto::err_resps::BasicError500),
     ),
 )]
+#[instrument]
 /// Lists the earliest and latest start times for events on a given day
 async fn day_time_info(
     day_id: u32,
     _: &mut impl ExternalConnectivity,
 ) -> Result<Json<dto::TimeInfoResponse>, ErrorResponse> {
-    info!("Retrieving time range for day {day_id}.");
     let dummy_resp_data = match day_id {
         20240731 | 20240801 | 20240802 | 20240803 => dto::TimeInfoResponse {
             earliest_time: dto::TimeDto(NaiveTime::from_hms_opt(10, 0, 0).unwrap()),
@@ -169,7 +173,7 @@ async fn day_time_info(
         },
 
         _ => {
-            error!("Day {day_id} doesn't exist.");
+            error!(day_id, "Day doesn't exist.");
             return Err((
                 StatusCode::NOT_FOUND,
                 Json(dto::BasicError {
@@ -182,6 +186,6 @@ async fn day_time_info(
         }
     };
 
-    info!("Retrieved earliest and latest times on day {day_id}.");
+    info!(day_id, "Retrieved earliest and latest times.");
     Ok(Json(dummy_resp_data))
 }

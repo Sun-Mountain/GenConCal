@@ -1,15 +1,17 @@
 use sqlx::PgConnection;
 
-use std::fmt::{Debug, Display};
+use derive_more::{Display, Error};
+use std::fmt::Debug;
 use std::future::Future;
-use thiserror::Error;
 
+#[expect(dead_code)]
 /// TransactableExternalConnectivity represents an [ExternalConnectivity] that can initiate
 /// a database transaction
 pub trait TransactableExternalConnectivity: ExternalConnectivity + Transactable + Sync {}
 
 impl<T: ExternalConnectivity + Transactable + Sync> TransactableExternalConnectivity for T {}
 
+#[expect(dead_code)]
 /// ExternalConnectivity owns clients that are able to communicate with the outside world,
 /// such as database clients, HTTP clients, and more.
 pub trait ExternalConnectivity: Sync {
@@ -22,6 +24,7 @@ pub trait ExternalConnectivity: Sync {
     async fn database_cxn(&mut self) -> Result<Self::Handle<'_>, Self::Error>;
 }
 
+#[expect(dead_code)]
 /// ConnectionHandle is a handle borrowed from [ExternalConnectivity] which can be
 /// used to acquire a connection to the database
 pub trait ConnectionHandle {
@@ -52,7 +55,7 @@ pub trait TransactionHandle: Sync {
 }
 
 #[allow(dead_code)]
-#[derive(Debug, Error)]
+#[derive(Debug, Display, Error)]
 /// This error reports issues that occur during database transactions, allowing the
 /// original result of a [with_transaction]'s lambda to be retrieved even if the transaction
 /// commit fails.
@@ -62,15 +65,14 @@ where
     TxBeginErr: Debug + Display,
     TxCommitErr: Debug + Display,
 {
-    #[error(transparent)]
     /// Represents that the lambda failed, returning the error from the lambda
     Source(SourceErr),
 
-    #[error("Failed to start the transaction: {0}")]
+    #[display("Failed to start the transaction: {_0}")]
     /// Represents that the database failed to start the transaction, and the lambda did not execute.
     TxBegin(TxBeginErr),
 
-    #[error("Got a successful result, but the database transaction failed: {transaction_err}")]
+    #[display("Got a successful result, but the database transaction failed: {transaction_err}")]
     /// Represents that the lambda executed successfully, but the database transaction failed to commit.
     /// The original result of the lambda is provided in this error.
     TxCommit {
@@ -85,7 +87,6 @@ where
 // ErrBegin = "The error returned if we fail to start a transaction"
 // Handle = "The thing that can give you a database connection"
 // ErrCommit = "The error returned if we fail to commit the transaction"
-// Fn = "The function which contains code executed in a database transaction"
 // Fut = "The future returned from the function passed via transaction_context which may be awaited for the return value"
 // Ret = "The type Fut resolves to if the transaction was a success"
 // ErrSource = "The error Fut resolves to if the user returns an error from Fn"
@@ -94,17 +95,16 @@ where
 /// the transaction handle passed to it is committed as long as [transaction_context] does not return
 /// a [Result::Err].
 #[allow(dead_code)]
-pub async fn with_transaction<'tx, TxAble, ErrBegin, Handle, ErrCommit, Fn, Fut, Ret, ErrSource>(
+pub async fn with_transaction<'tx, TxAble, Handle, Fut, Ret, ErrBegin, ErrCommit, ErrSource>(
     tx_origin: &'tx TxAble,
-    transaction_context: Fn,
+    transaction_context: impl FnOnce(&mut Handle) -> Fut,
 ) -> Result<Ret, TxOrSourceError<Ret, ErrSource, TxAble::Error, Handle::Error>>
 where
     TxAble: Transactable<Handle<'tx> = Handle, Error = ErrBegin>,
-    ErrBegin: Debug + Display,
     Handle: TransactionHandle<Error = ErrCommit>,
-    ErrCommit: Debug + Display,
-    Fn: FnOnce(&mut Handle) -> Fut,
     Fut: Future<Output = Result<Ret, ErrSource>>,
+    ErrBegin: Debug + Display,
+    ErrCommit: Debug + Display,
     ErrSource: Debug + Display,
 {
     let mut tx_handle = tx_origin
@@ -132,11 +132,10 @@ where
 mod with_transaction_test {
     use super::*;
     use speculoos::prelude::*;
-    use thiserror::Error;
 
     // I need this to help provide a size for the error in the async block used in the following test
-    #[derive(Debug, Error)]
-    #[error("Abcde")]
+    #[derive(Debug, Display, Error)]
+    #[display("Abcde")]
     struct SampleErr;
 
     #[tokio::test]

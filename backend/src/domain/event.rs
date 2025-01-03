@@ -1,3 +1,4 @@
+#![expect(dead_code)]
 use chrono::DateTime;
 use chrono_tz::Tz;
 #[cfg(test)]
@@ -124,6 +125,7 @@ pub struct CreateParams<'items> {
 }
 
 pub mod driven_ports {
+    #![expect(dead_code)]
     use super::*;
     use crate::external_connections::ExternalConnectivity;
 
