@@ -12,11 +12,15 @@ use tracing_subscriber::{prelude::*, registry, EnvFilter};
 /// The name of the service as it should appear in OpenTelemetry collectors
 const SERVICE_NAME: &str = "genconcal_backend";
 
+/// Struct containing OpenTelemetry primitives which export data to a tracing server
 pub struct OtelExporters {
     pub tracer: Tracer,
     pub meter: SdkMeterProvider,
 }
 
+/// Instantiates OpenTelemetry exporters which run in the background and send tracing/logging/metrics
+/// data to an opentelemetry-compatible gRPC endpoint (typically http://localhost:4317 with a standard
+/// sidecar setup)
 pub fn init_exporters(otlp_traces_endpoint: &str, otlp_metrics_endpoint: &str) -> OtelExporters {
     let span_export = SpanExporter::builder()
         .with_tonic()
@@ -47,6 +51,8 @@ pub fn init_exporters(otlp_traces_endpoint: &str, otlp_metrics_endpoint: &str) -
     }
 }
 
+/// Constructs a filter which uses [app_env::LOG_LEVEL] to configure per-module logging. Filters
+/// to the "info" level by default.
 pub fn init_env_filter() -> EnvFilter {
     EnvFilter::builder()
         .with_default_directive(LevelFilter::INFO.into())
@@ -55,6 +61,10 @@ pub fn init_env_filter() -> EnvFilter {
         .expect("building the logging filter failed")
 }
 
+/// Sets up the global logging and tracing sinks. All logs and metrics at the "debug" level and above
+/// will automatically be sent to OpenTelemetry sinks if [otel_exporters] is provided. [env_filter] is
+/// applied specifically to the JSON logger printing to stdout. Though the logger is set up with the
+/// "tracing" crate, it also provides a bridge for libraries still using "log" for logging.
 pub fn setup_logging_and_tracing(env_filter: EnvFilter, otel_exporters: Option<OtelExporters>) {
     if let Some(exporters) = otel_exporters {
         registry()
