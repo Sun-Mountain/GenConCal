@@ -37,7 +37,6 @@ pub struct FullEvent {
 }
 
 #[derive(Debug)]
-#[cfg_attr(test, derive(Serialize))]
 pub struct IngestEvent {
     pub game_id: String,
 
@@ -69,7 +68,6 @@ pub struct IngestEvent {
 }
 
 #[derive(PartialEq, Eq, Ord, PartialOrd, Debug)]
-#[cfg_attr(test, derive(Serialize))]
 pub enum AgeRequirement {
     Everyone,
     KidsOnly,
@@ -89,7 +87,6 @@ pub struct EventType {
 }
 
 #[derive(PartialEq, Eq, Ord, PartialOrd, Debug)]
-#[cfg_attr(test, derive(Serialize))]
 pub enum ExperienceLevel {
     None,
     Some,
@@ -102,6 +99,7 @@ pub struct Identifier {
 }
 
 pub enum LocationRef {}
+
 pub struct CreateParams<'items> {
     pub game_id: &'items str,
     pub game_system_id: i32,
@@ -130,38 +128,41 @@ pub mod driven_ports {
     use crate::external_connections::ExternalConnectivity;
 
     pub trait TypeReader: Sync {
-        async fn all(
+        async fn read_by_names(
             &self,
+            names: &[String],
             ext_cxn: &mut impl ExternalConnectivity,
-        ) -> Result<Vec<EventType>, anyhow::Error>;
+        ) -> Result<Vec<Option<EventType>>, anyhow::Error>;
     }
 
     pub trait TypeWriter: Sync {
         async fn bulk_save(
             &self,
-            new_types: &[&str],
+            new_types: &[String],
             ext_cxn: &mut impl ExternalConnectivity,
         ) -> Result<Vec<i32>, anyhow::Error>;
     }
 
-    pub trait SystemReader: Sync {
-        async fn all(
+    pub trait SystemDetector: Sync {
+        async fn read_by_names(
             &self,
+            names: &[String],
             ext_cxn: &mut impl ExternalConnectivity,
-        ) -> Result<Vec<GameSystem>, anyhow::Error>;
+        ) -> Result<Vec<Option<GameSystem>>, anyhow::Error>;
     }
 
     pub trait SystemWriter: Sync {
         async fn bulk_save(
             &self,
-            new_systems: &[&str],
+            new_systems: &[String],
             ext_cxn: &mut impl ExternalConnectivity,
         ) -> Result<Vec<i32>, anyhow::Error>;
     }
 
     pub trait Reader: Sync {
-        async fn existing_events(
+        async fn read_by_game_ids(
             &self,
+            game_ids: &[String],
             ext_cxn: &mut impl ExternalConnectivity,
         ) -> Result<Vec<Identifier>, anyhow::Error>;
     }
