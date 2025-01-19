@@ -19,14 +19,12 @@ pub struct TournamentSegment {
 }
 
 #[derive(Debug)]
-#[cfg_attr(test, derive(Serialize))]
 pub struct RoundInfoIngest {
     pub round: u8,
     pub total_rounds: u8,
 }
 
 #[derive(Debug)]
-#[cfg_attr(test, derive(Serialize))]
 pub struct TournamentIngest<'evt> {
     #[expect(dead_code)]
     pub total_rounds: u8,
@@ -37,7 +35,6 @@ pub struct TournamentIngest<'evt> {
 }
 
 #[derive(Debug)]
-#[cfg_attr(test, derive(Serialize))]
 #[expect(dead_code)]
 pub struct TournamentSegmentIngest<'evt> {
     pub round: u8,
@@ -381,21 +378,5 @@ mod tests {
 
     use super::*;
 
-    #[test]
-    fn try_out_tourney_detection() {
-        let sample_json_reader = BufReader::new(File::open("./example_events.json").unwrap());
-        let file_data: dto::EventImportRequest =
-            serde_json::from_reader(sample_json_reader).unwrap();
-
-        let domain_objects: Vec<event::IngestEvent> = file_data
-            .event_data
-            .into_iter()
-            .map(|evt| event::IngestEvent::try_from(evt).unwrap())
-            .collect();
-
-        let detected_tournaments = detect_tournaments(&domain_objects);
-        let mut detected_groups_json =
-            BufWriter::new(File::create("./detected_tournaments.json").unwrap());
-        serde_json::to_writer_pretty(&mut detected_groups_json, &detected_tournaments).unwrap();
-    }
+    // TODO write unit tests for tournament detection
 }
