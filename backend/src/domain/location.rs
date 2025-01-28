@@ -145,7 +145,7 @@ pub mod driven_ports {
 
         async fn bulk_save_rooms(
             &self,
-            room_refs: &[RoomOnlyRef<'_>],
+            room_refs: &[&RoomOnlyRef<'_>],
             ext_cxn: &mut impl ExternalConnectivity,
         ) -> Result<Vec<i32>, anyhow::Error>;
 
@@ -200,7 +200,7 @@ pub(super) async fn save_locations(
     let location_id_by_name: HashMap<&str, i32> = full_locations.iter().map(|location| (location.name.as_str(), location.id)).collect();
     
     // Assemble the list of rooms, affiliating them with the list of locations
-    let rooms: Vec<RoomOnlyRef> = incoming_locations.iter().filter_map(|location| {
+    let incoming_rooms: Vec<RoomOnlyRef> = incoming_locations.iter().filter_map(|location| {
         match location {
             LocationIngest::Location{ .. } => None,
             LocationIngest::Room { location_name, room_name} => Some(RoomOnlyRef {
@@ -215,9 +215,26 @@ pub(super) async fn save_locations(
     }).collect();
     
     // Read the set of rooms
-    // TODO continue from here!
+    let mut maybe_rooms = reader.read_matching_rooms(&incoming_rooms, ext_cxn).await.context("reading existing rooms")?;
+    let (missing_rooms, write_targets): (Vec<&RoomOnlyRef>, Vec<&mut Option<RoomOnly>>) = incoming_rooms.iter().zip(maybe_rooms.iter_mut())
+        .filter_map(|(room, maybe_existing_room)| {
+            if maybe_existing_room.is_none() {
+                Some((room, maybe_existing_room))
+            } else {
+                None
+            }
+        }).collect();
     
     // Write the missing rooms & collect IDs
+    let missing_room_ids = writer.bulk_save_rooms(&missing_rooms, &mut *ext_cxn).await.context("saving missing rooms")?;
+    for ((missing_room_id, missing_room), room_save_dest) in missing_room_ids.into_iter().zip(missing_rooms.into_iter()).zip(write_targets.into_iter()) {
+        *room_save_dest = Some(RoomOnly {
+            id: missing_room_id,
+            location_id: missing_room.location_id,
+            name: missing_room.name.to_owned(),
+        })
+    }
+    // TODO continue from here
     
     // Assemble the list of sections, affiliating them with the list of rooms
     
