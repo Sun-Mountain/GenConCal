@@ -234,11 +234,28 @@ pub(super) async fn save_locations(
             name: missing_room.name.to_owned(),
         })
     }
-    // TODO continue from here
+    
+    // This is safe because the last loop turned all the optionals into the "some" variant
+    let all_rooms = maybe_rooms.into_iter().collect::<Option<Vec<_>>>().unwrap();
+    let room_id_by_name_and_loc: HashMap<(i32, &str), i32> = all_rooms.iter().map(|room| ((room.location_id, room.name.as_str()), room.id)).collect();
     
     // Assemble the list of sections, affiliating them with the list of rooms
+    let incoming_sections: Vec<SectionOnlyRef> = incoming_locations.iter().filter_map(|location| {
+        if let LocationIngest::Section { location_name, room_name, section_name } = location {
+            let location_id = location_id_by_name[location_name.as_str()];
+            let room_id = room_id_by_name_and_loc[&(location_id, section_name.as_str())];
+            Some(SectionOnlyRef {
+                room_id,
+                name: room_name.as_str(),
+            })
+        } else {
+            None
+        }
+    }).collect();
     
     // Read the set of sections
+    let maybe_sections = reader.read_matching_sections(&incoming_sections, ext_cxn).await.context("reading existing sections")?;
+    // TODO continue from here
     
     // Write the missing sections & collect IDs
     
