@@ -55,22 +55,22 @@ impl Connectivity {
 /// }
 /// ```
 ///
-pub struct FakeImplementation<Args, Ret> {
+pub struct FakeImpl<Args, Ret> {
     saved_arguments: Vec<Args>,
     return_value: Option<Ret>,
 }
 
-impl<Args, Ret> FakeImplementation<Args, Ret> {
+impl<Args, Ret> FakeImpl<Args, Ret> {
     /// Creates a new FakeImplementation
-    pub fn new() -> FakeImplementation<Args, Ret> {
-        FakeImplementation {
+    pub fn new() -> FakeImpl<Args, Ret> {
+        FakeImpl {
             saved_arguments: Vec::new(),
             return_value: None,
         }
     }
 }
 
-impl<Args, Ret> FakeImplementation<Args, Ret> {
+impl<Args, Ret> FakeImpl<Args, Ret> {
     /// Saves arguments from a single invocation of the FakeImplementation
     pub fn save_arguments(&mut self, arguments: Args) {
         self.saved_arguments.push(arguments)
@@ -80,10 +80,15 @@ impl<Args, Ret> FakeImplementation<Args, Ret> {
     pub fn calls(&self) -> &[Args] {
         self.saved_arguments.as_slice()
     }
+
+    /// Returns true if a return value has been set
+    pub fn has_return_value(&self) -> bool {
+        self.return_value.is_some()
+    }
 }
 
-#[allow(dead_code)]
-impl<Args, Ret> FakeImplementation<Args, Ret>
+#[expect(dead_code)]
+impl<Args, Ret> FakeImpl<Args, Ret>
 where
     Ret: Clone,
 {
@@ -92,16 +97,22 @@ where
         self.return_value = Some(return_value)
     }
 
-    /// Retrieve the configured return value for this FakeImplementation
+    /// Retrieve the configured return value for this FakeImplementation. Panics if a value wasn't set.
     pub fn return_value(&self) -> Ret {
         match self.return_value {
             None => panic!("Tried to return from a function where the return value wasn't set!"),
             Some(ref ret_val) => ret_val.clone(),
         }
     }
+
+    /// Retrieve the configured return value for this FakeImplementation, returning [None] if a value
+    /// wasn't set.
+    pub fn try_return_value(&self) -> Option<Ret> {
+        self.return_value.clone()
+    }
 }
 
-impl<Args, Success, Fail> FakeImplementation<Args, Result<Success, Fail>>
+impl<Args, Success, Fail> FakeImpl<Args, Result<Success, Fail>>
 where
     Success: Clone,
     Fail: Clone,
@@ -116,17 +127,21 @@ where
         }
     }
 
-    /// Retrieve the result that should be returned when this FakeImplementation is invoked (for [Result]s)
+    /// Retrieve the result that should be returned when this FakeImplementation is invoked (for [Result]s).
+    /// If a return value wasn't set, this function will panic.
     pub fn return_value_result(&self) -> Result<Success, Fail> {
-        match self.return_value {
-            Some(Ok(ref ok_result)) => Ok(ok_result.clone()),
-            Some(Err(ref err)) => Err(err.clone()),
-            None => panic!("Tried to return from a function where the return value wasn't set!"),
-        }
+        self.try_return_value_result()
+            .expect("Tried to return from a function where the return value wasn't set!")
+    }
+
+    /// Attempt to retrieve the result that should be returned when this FakeImplementation is invoked,
+    /// returning [None] if the return value was never set (for [Result]s)
+    pub fn try_return_value_result(&self) -> Option<Result<Success, Fail>> {
+        self.return_value.as_ref().map(Result::clone)
     }
 }
 
-impl<Args, Success> FakeImplementation<Args, anyhow::Result<Success>>
+impl<Args, Success> FakeImpl<Args, anyhow::Result<Success>>
 where
     Success: Clone,
 {
@@ -142,10 +157,17 @@ where
 
     /// Retrieve the result that should be returned when this FakeImplementation is invoked (for [anyhow::Result]s)
     pub fn return_value_anyhow(&self) -> anyhow::Result<Success> {
+        self.try_return_value_anyhow()
+            .expect("Tried to return from a function where the return value wasn't set!")
+    }
+
+    /// Attempt to retrieve the result that should be returned from this FakeImplementation, returning [None]
+    /// if a return value isn't set. (for [anyhow::Result]s)
+    pub fn try_return_value_anyhow(&self) -> Option<anyhow::Result<Success>> {
         match self.return_value {
-            None => panic!("Tried to return from a function where the value wasn't set!"),
-            Some(Ok(ref ok_result)) => Ok(ok_result.clone()),
-            Some(Err(ref err)) => Err(anyhow!(format!("{}", err))),
+            None => None,
+            Some(Ok(ref ok_result)) => Some(Ok(ok_result.clone())),
+            Some(Err(ref err)) => Some(Err(anyhow!(format!("{}", err)))),
         }
     }
 }

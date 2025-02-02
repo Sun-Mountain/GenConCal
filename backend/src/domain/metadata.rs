@@ -1,9 +1,8 @@
 #![expect(dead_code)]
 
-use anyhow::Context;
-use tracing::Event;
 use crate::domain::metadata::driven_ports::UniqueStringSaver;
 use crate::external_connections::ExternalConnectivity;
+use anyhow::Context;
 
 pub struct EventType {
     pub id: i32,
@@ -12,10 +11,7 @@ pub struct EventType {
 
 impl ConstructUniqueStr<i32> for EventType {
     fn new_with_id(id: i32, value: String) -> Self {
-        Self {
-            id,
-            name: value,
-        }
+        Self { id, name: value }
     }
 }
 
@@ -40,10 +36,7 @@ pub struct Contact {
 
 impl ConstructUniqueStr<i32> for Contact {
     fn new_with_id(id: i32, value: String) -> Self {
-        Self {
-            id,
-            email: value,
-        }
+        Self { id, email: value }
     }
 }
 
@@ -54,10 +47,7 @@ pub struct Group {
 
 impl ConstructUniqueStr<i32> for Group {
     fn new_with_id(id: i32, value: String) -> Self {
-        Self {
-            id,
-            name: value,
-        }
+        Self { id, name: value }
     }
 }
 
@@ -68,10 +58,7 @@ pub struct Website {
 
 impl ConstructUniqueStr<i32> for Website {
     fn new_with_id(id: i32, value: String) -> Self {
-        Self {
-            id,
-            url: value,
-        }
+        Self { id, url: value }
     }
 }
 
@@ -82,10 +69,7 @@ pub struct Materials {
 
 impl ConstructUniqueStr<i32> for Materials {
     fn new_with_id(id: i32, value: String) -> Self {
-        Self {
-            id,
-            summary: value,
-        }
+        Self { id, summary: value }
     }
 }
 
@@ -139,53 +123,72 @@ trait ConstructUniqueStr<IDType> {
 }
 
 async fn save_or_get_unique_str<IDType: Copy, DomainType: ConstructUniqueStr<IDType>>(
-    values: &[&str], 
-    saver: &impl UniqueStringSaver<IDType, DomainType>, 
-    ext_cxn: &mut impl ExternalConnectivity) -> Result<Vec<DomainType>, anyhow::Error> {
+    values: &[&str],
+    saver: &impl UniqueStringSaver<IDType, DomainType>,
+    ext_cxn: &mut impl ExternalConnectivity,
+) -> Result<Vec<DomainType>, anyhow::Error> {
     let mut domain_structs = saver.read_matching(values, &mut *ext_cxn).await?;
-    let empty_indexes: Vec<usize> = domain_structs.iter()
+    let empty_indexes: Vec<usize> = domain_structs
+        .iter()
         .enumerate()
-        .filter_map(|(idx, opt)| {
-            if opt.is_none() {
-                Some(idx)
-            } else {
-                None
-            }
-        })
+        .filter_map(|(idx, opt)| if opt.is_none() { Some(idx) } else { None })
         .collect();
 
     let values_need_saving: Vec<&str> = empty_indexes.iter().map(|idx| values[*idx]).collect();
-    let new_ids = saver.bulk_save(values_need_saving.as_ref(), &mut *ext_cxn).await?;
+    let new_ids = saver
+        .bulk_save(values_need_saving.as_ref(), &mut *ext_cxn)
+        .await?;
 
     for (value_idx, created_id) in empty_indexes.into_iter().zip(new_ids.into_iter()) {
-        domain_structs[value_idx] = Some(DomainType::new_with_id(created_id, values[value_idx].to_owned()));
+        domain_structs[value_idx] = Some(DomainType::new_with_id(
+            created_id,
+            values[value_idx].to_owned(),
+        ));
     }
 
     // The previous loop should have filled all the Option::None entries, so this is safe
-    let all_systems = domain_structs.into_iter().collect::<Option<Vec<DomainType>>>().unwrap();
-    
+    let all_systems = domain_structs
+        .into_iter()
+        .collect::<Option<Vec<DomainType>>>()
+        .unwrap();
+
     Ok(all_systems)
 }
 
-    
 #[allow(clippy::too_many_arguments)]
 pub(super) async fn save_metadata(
-    metadata: MetadataToSave<'_>, 
+    metadata: MetadataToSave<'_>,
     evt_type_saver: &impl UniqueStringSaver<i32, EventType>,
-    gamesys_saver: &impl UniqueStringSaver<i32, GameSystem>, 
+    gamesys_saver: &impl UniqueStringSaver<i32, GameSystem>,
     contact_saver: &impl UniqueStringSaver<i32, Contact>,
     group_saver: &impl UniqueStringSaver<i32, Group>,
     websites_saver: &impl UniqueStringSaver<i32, Website>,
     materials_saver: &impl UniqueStringSaver<i32, Materials>,
     ext_cxn: &mut impl ExternalConnectivity,
 ) -> Result<SavedMetadata, anyhow::Error> {
-    let event_types = save_or_get_unique_str(metadata.event_types.as_ref(), evt_type_saver, &mut *ext_cxn).await.context("saving event types")?;
-    let game_systems = save_or_get_unique_str(metadata.game_systems.as_ref(), gamesys_saver, &mut *ext_cxn).await.context("saving game systems")?;
-    let contacts = save_or_get_unique_str(metadata.contacts.as_ref(), contact_saver, &mut *ext_cxn).await.context("saving contacts")?;
-    let groups = save_or_get_unique_str(metadata.groups.as_ref(), group_saver, &mut *ext_cxn).await.context("saving groups")?;
-    let websites = save_or_get_unique_str(metadata.websites.as_ref(), websites_saver, &mut *ext_cxn).await.context("saving websites")?;
-    let materials = save_or_get_unique_str(metadata.materials.as_ref(), materials_saver, &mut *ext_cxn).await.context("saving materials")?;
-    
+    let event_types =
+        save_or_get_unique_str(metadata.event_types.as_ref(), evt_type_saver, &mut *ext_cxn)
+            .await
+            .context("saving event types")?;
+    let game_systems =
+        save_or_get_unique_str(metadata.game_systems.as_ref(), gamesys_saver, &mut *ext_cxn)
+            .await
+            .context("saving game systems")?;
+    let contacts = save_or_get_unique_str(metadata.contacts.as_ref(), contact_saver, &mut *ext_cxn)
+        .await
+        .context("saving contacts")?;
+    let groups = save_or_get_unique_str(metadata.groups.as_ref(), group_saver, &mut *ext_cxn)
+        .await
+        .context("saving groups")?;
+    let websites =
+        save_or_get_unique_str(metadata.websites.as_ref(), websites_saver, &mut *ext_cxn)
+            .await
+            .context("saving websites")?;
+    let materials =
+        save_or_get_unique_str(metadata.materials.as_ref(), materials_saver, &mut *ext_cxn)
+            .await
+            .context("saving materials")?;
+
     Ok(SavedMetadata {
         event_types,
         game_systems,

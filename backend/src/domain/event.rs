@@ -5,8 +5,7 @@ use chrono_tz::Tz;
 use serde::Serialize;
 
 use crate::domain::location::{Location, LocationIngest};
-use crate::domain::metadata;
-use crate::domain::metadata::{Contact, Group, Materials, Metadata, Website};
+use crate::domain::metadata::Metadata;
 use crate::domain::tournament::RoundInfoIngest;
 
 pub struct FullEvent {
@@ -124,7 +123,4 @@ pub struct UpdateParams<'items> {
     pub group: Option<i32>,
 }
 
-pub mod driven_ports {
-
-
-}
+pub mod driven_ports {}

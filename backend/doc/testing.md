@@ -192,10 +192,10 @@ request logic in error cases. Typically, it is sufficient to just mock the busin
 convert to expected HTTP responses.
 
 As mentioned previously, `mockall::automock` doesn't work particularly well with traits containing async functions.
-Instead, `domain::test_util` contains a composable `FakeImplementation` type that can be used to easily implement mocks
+Instead, `domain::test_util` contains a composable `FakeImpl` type that can be used to easily implement mocks
 for both sync and async trait implementations.
 
-### Defining a mock with FakeImplementation
+### Defining a mock with FakeImpl
 
 Similar to fake implementations, trait implementations for mocks should be done inside a synchronization primitive to
 allow for interior mutability while using immutable references to pass around the driving port.
@@ -227,14 +227,14 @@ pub mod test_util {
         // 3. Be a result which returns a cloneable type for the Ok variant but an anyhow::Error for the error
         //
         // These traits can be conditionally derived on a type specifically during tests via #[cfg_attr(test, derive(...))]
-        pub new_player_response: FakeImplementation<PlayerCreate, Result<i32, PlayerCreateError>>,
+        pub new_player_response: FakeImpl<PlayerCreate, Result<i32, PlayerCreateError>>,
     }
 
     impl MockPlayerService {
         // We'll need a constructor for the mock
         pub fn new() -> MockPlayerService {
             Self {
-                new_player_response: FakeImplementation::new(),
+                new_player_response: FakeImpl::new(),
             }
         }
 
@@ -266,10 +266,10 @@ pub mod test_util {
             // First, lock the sync primitive
             let mut locked_self = self.lock().unwrap();
             
-            // Next, use FakeImplementation to record the call
+            // Next, use FakeImpl to record the call
             locked_self.new_player_response.save_arguments(player_create.clone());
             
-            // Then, use FakeImplementation to return the mock result. The available functions
+            // Then, use FakeImpl to return the mock result. The available functions
             // to return with are varied based on return type, so keep an eye on your autocomplete.
             locked_self.new_player_response.return_value_result()
         }
@@ -350,7 +350,7 @@ mod tests {
             // Using the builder function we defined earlier, we can set mock responses via the mutable reference in the
             // closure before the mock service gets wrapped in a mutex - no locking necessary!
             let player_service = domain::player::test_util::MockPlayerService::build_locked(|svc| {
-                // We can use the FakeImplementation property to set the mock return value
+                // We can use the FakeImpl property to set the mock return value
                 svc.new_player_response.set_returned_result(Ok(5));
             });
 
