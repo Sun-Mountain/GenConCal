@@ -90,17 +90,20 @@ pub struct LocationOnly {
     pub name: String,
 }
 
+#[derive(Clone)]
 pub struct RoomOnly {
     pub id: i32,
     pub location_id: i32,
     pub name: String,
 }
 
+#[derive(PartialEq, Eq, Hash)]
 pub struct RoomOnlyRef<'room> {
     pub location_id: i32,
     pub name: &'room str,
 }
 
+#[derive(Clone)]
 pub struct SectionOnly {
     pub id: i32,
     pub room_id: i32,
@@ -446,6 +449,16 @@ mod test_util {
         >,
     }
 
+    impl Default for LocationStorageFuncs {
+        fn default() -> Self {
+            Self {
+                location_read_err: domain::test_util::FakeImpl::new(),
+                room_read_err: domain::test_util::FakeImpl::new(),
+                section_read_err: domain::test_util::FakeImpl::new(),
+            }
+        }
+    }
+
     pub struct FakeLocationStorage {
         pub locations: Vec<Location>,
         pub location_storage_failures: LocationStorageFuncs,
@@ -475,10 +488,10 @@ mod test_util {
             }
 
             // Fallback "fake" logic
-            let names_to_search_for: HashSet<&str> = location_names.iter().copied().collect();
-            if names_to_search_for.is_empty() {
-                return (0..location_names.len()).map(|_| Ok(None)).collect();
+            if location_names.is_empty() {
+                return Ok(Vec::new());
             }
+            let names_to_search_for: HashSet<&str> = location_names.iter().copied().collect();
 
             let matching_locations: Vec<Option<LocationOnly>> = locked_self
                 .locations
@@ -503,7 +516,60 @@ mod test_util {
             room_refs: &[RoomOnlyRef<'_>],
             _ext_cxn: &mut impl ExternalConnectivity,
         ) -> Result<Vec<Option<RoomOnly>>, anyhow::Error> {
-            todo!()
+            let mut locked_self = self
+                .lock()
+                .expect("could not lock location storage for reading rooms");
+
+            // Attempt the mock first
+            let this_fake = &mut locked_self.location_storage_failures.room_read_err;
+            this_fake.save_arguments(
+                room_refs
+                    .iter()
+                    .map(|RoomOnlyRef { location_id, name }| (*location_id, (*name).to_owned()))
+                    .collect(),
+            );
+            if let Some(ret_val) = this_fake.try_return_value_anyhow() {
+                return ret_val;
+            }
+
+            // Fallback fake logic
+            if room_refs.is_empty() {
+                return Ok(Vec::new());
+            }
+            let names_to_search_for: HashSet<&RoomOnlyRef<'_>> = room_refs.iter().collect();
+
+            let detection_results: Vec<Option<RoomOnly>> = locked_self
+                .locations
+                .iter()
+                .map(|location| {
+                    if let Location {
+                        id: location_id,
+                        room:
+                            Some(Room {
+                                id: room_id, name, ..
+                            }),
+                        ..
+                    } = location
+                    {
+                        if names_to_search_for.contains(&RoomOnlyRef {
+                            location_id: *location_id,
+                            name,
+                        }) {
+                            Some(RoomOnly {
+                                location_id: *location_id,
+                                id: *room_id,
+                                name: name.clone(),
+                            })
+                        } else {
+                            None
+                        }
+                    } else {
+                        None
+                    }
+                })
+                .collect();
+
+            Ok(detection_results)
         }
 
         async fn read_matching_sections(
