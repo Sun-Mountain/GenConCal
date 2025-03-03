@@ -26,7 +26,7 @@ pub fn day_routes() -> Router<Arc<SharedData>> {
         .route(
             "/:day_id/time-info",
             get(
-                |State(app_data): AppState, Path(day_id): Path<u32>| async move {
+                async |State(app_data): AppState, Path(day_id): Path<u32>| {
                     let mut ext_cxn = app_data.ext_cxn.clone();
 
                     day_time_info(day_id, &mut ext_cxn).await
@@ -36,10 +36,10 @@ pub fn day_routes() -> Router<Arc<SharedData>> {
         .route(
             "/:day_id/events",
             get(
-                |State(app_data): AppState,
+                async |State(app_data): AppState,
                  Path(day_id): Path<u32>,
                  Query(filter): Query<events::EventListQueryParams>,
-                 Query(pagination): Query<api::PaginationQueryParams>| async move {
+                 Query(pagination): Query<api::PaginationQueryParams>| {
                     let mut ext_cxn = app_data.ext_cxn.clone();
 
                     list_events_by_day(day_id, &filter, &pagination, &mut ext_cxn).await

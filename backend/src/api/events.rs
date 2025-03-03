@@ -268,7 +268,7 @@ pub fn events_routes() -> Router<Arc<SharedData>> {
         .route(
             "/counts/daily",
             get(
-                |State(app_data): AppState, Query(filter): Query<EventListQueryParams>| async move {
+                async |State(app_data): AppState, Query(filter): Query<EventListQueryParams>| {
                     let mut ext_cxn = app_data.ext_cxn.clone();
 
                     list_event_counts_by_day(&filter, &mut ext_cxn).await
@@ -278,7 +278,7 @@ pub fn events_routes() -> Router<Arc<SharedData>> {
         .route(
             "/:event_id",
             get(
-                |State(app_data): AppState, Path(event_id): Path<u32>| async move {
+                async |State(app_data): AppState, Path(event_id): Path<u32>| {
                     let mut ext_cxn = app_data.ext_cxn.clone();
 
                     retrieve_event_detail(event_id, &mut ext_cxn).await
@@ -287,7 +287,7 @@ pub fn events_routes() -> Router<Arc<SharedData>> {
         )
         .route(
             "/game-systems",
-            get(|State(app_data): AppState| async move {
+            get(async |State(app_data): AppState| {
                 let mut ext_cxn = app_data.ext_cxn.clone();
 
                 retrieve_game_systems(&mut ext_cxn).await
@@ -295,7 +295,7 @@ pub fn events_routes() -> Router<Arc<SharedData>> {
         )
         .route(
             "/locations",
-            get(|State(app_data): AppState| async move {
+            get(async |State(app_data): AppState| {
                 let mut ext_cxn = app_data.ext_cxn.clone();
 
                 retrieve_locations(&mut ext_cxn).await
@@ -303,7 +303,7 @@ pub fn events_routes() -> Router<Arc<SharedData>> {
         )
         .route(
             "/types",
-            get(|State(app_data): AppState| async move {
+            get(async |State(app_data): AppState| {
                 let mut ext_cxn = app_data.ext_cxn.clone();
 
                 retrieve_event_types(&mut ext_cxn).await

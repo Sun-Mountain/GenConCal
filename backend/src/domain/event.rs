@@ -5,8 +5,10 @@ use chrono_tz::Tz;
 use serde::Serialize;
 
 use crate::domain::location::{Location, LocationIngest};
-use crate::domain::metadata::Metadata;
+use crate::domain::{location, metadata};
+use crate::domain::metadata::{Metadata, UniqueMetadataToSave};
 use crate::domain::tournament::RoundInfoIngest;
+use crate::external_connections::ExternalConnectivity;
 
 pub struct FullEvent {
     pub event: Event,
@@ -123,4 +125,41 @@ pub struct UpdateParams<'items> {
     pub group: Option<i32>,
 }
 
-pub mod driven_ports {}
+pub mod driven_ports {
+    use super::*;
+    
+    pub trait EventDetector {
+        async fn event_id_exists(&self, gencon_event_id: &str) -> Result<bool, anyhow::Error>;
+    }
+    
+    pub trait EventWriter {
+        async fn bulk_save_events(&self, create_params: &[CreateParams<'_>]) -> Result<Vec<i32>, anyhow::Error>;
+        async fn bulk_update_events(&self, update_params: &[(i32, UpdateParams<'_>)]) -> Result<(), anyhow::Error>;
+    }
+}
+
+pub struct EventService;
+
+impl EventService {
+    
+    #[allow(clippy::too_many_arguments)]
+    async fn import_events(
+        &self,
+        events_to_import: &[IngestEvent],
+        
+        evt_type_saver: &impl metadata::driven_ports::UniqueStringSaver<i32, metadata::EventType>,
+        gamesys_saver: &impl metadata::driven_ports::UniqueStringSaver<i32, metadata::GameSystem>,
+        contact_saver: &impl metadata::driven_ports::UniqueStringSaver<i32, metadata::Contact>,
+        group_saver: &impl metadata::driven_ports::UniqueStringSaver<i32, metadata::Group>,
+        websites_saver: &impl metadata::driven_ports::UniqueStringSaver<i32, metadata::Website>,
+        materials_saver: &impl metadata::driven_ports::UniqueStringSaver<i32, metadata::Materials>,
+        location_reader: &impl location::driven_ports::LocationReader,
+        location_writer: &impl location::driven_ports::LocationWriter,
+        event_detector: &impl driven_ports::EventDetector,
+        event_writer: &impl driven_ports::EventWriter,
+        ext_cxn: &mut impl ExternalConnectivity,
+    ) -> Result<Vec<i32>, anyhow::Error> {
+        let unique_metadata = UniqueMetadataToSave::from(events_to_import);
+        metadata::save_metadata()
+    }
+}

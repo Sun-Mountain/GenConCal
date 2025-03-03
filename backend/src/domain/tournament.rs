@@ -18,6 +18,12 @@ pub struct TournamentSegment {
     pub segment_events: Vec<FullEvent>,
 }
 
+#[expect(dead_code)]
+pub struct TournamentSegmentRef {
+    pub round: u8,
+    pub segment_events: Vec<i32>,
+}
+
 #[derive(Debug)]
 pub struct RoundInfoIngest {
     pub round: u8,
@@ -39,6 +45,10 @@ pub struct TournamentIngest<'evt> {
 pub struct TournamentSegmentIngest<'evt> {
     pub round: u8,
     pub round_members: Vec<&'evt event::IngestEvent>,
+}
+
+pub mod driven_ports {
+    
 }
 
 #[expect(dead_code)]

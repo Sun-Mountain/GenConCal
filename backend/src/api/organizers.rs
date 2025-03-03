@@ -19,7 +19,7 @@ pub const ORGANIZERS_API_GROUP: &str = "Organizers";
 pub fn organizers_routes() -> Router<Arc<SharedData>> {
     Router::new().route(
         "/groups",
-        get(|State(app_data): AppState| async move {
+        get(async |State(app_data): AppState| {
             let mut ext_cxn = app_data.ext_cxn.clone();
 
             list_organizer_groups(&mut ext_cxn).await

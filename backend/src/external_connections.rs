@@ -18,10 +18,9 @@ pub trait ExternalConnectivity: Sync {
     type Handle<'handle>: ConnectionHandle + 'handle
     where
         Self: 'handle;
-    type Error: Debug + Display;
 
     /// Acquire a handle which allows borrowing a connection from the database pool
-    async fn database_cxn(&mut self) -> Result<Self::Handle<'_>, Self::Error>;
+    async fn database_cxn(&mut self) -> Result<Self::Handle<'_>, anyhow::Error>;
 }
 
 #[expect(dead_code)]
@@ -37,10 +36,9 @@ pub trait Transactable: Sync {
     type Handle<'handle>: TransactionHandle + 'handle
     where
         Self: 'handle;
-    type Error: Debug + Display;
 
     /// Retrieve a handle which contains a database connection in an active transaction
-    async fn start_transaction(&self) -> Result<Self::Handle<'_>, Self::Error>;
+    async fn start_transaction(&self) -> Result<Self::Handle<'_>, anyhow::Error>;
 }
 
 /// TransactionHandle is a handle borrowed from [Transactable] which represents
@@ -48,10 +46,8 @@ pub trait Transactable: Sync {
 /// that dropping the handle without invoking `TransactionHandle::commit` will
 /// roll back the transaction
 pub trait TransactionHandle: Sync {
-    type Error: Debug + Display;
-
     /// Commit the changes to the database
-    async fn commit(self) -> Result<(), Self::Error>;
+    async fn commit(self) -> Result<(), anyhow::Error>;
 }
 
 #[allow(dead_code)]
@@ -59,18 +55,16 @@ pub trait TransactionHandle: Sync {
 /// This error reports issues that occur during database transactions, allowing the
 /// original result of a [with_transaction]'s lambda to be retrieved even if the transaction
 /// commit fails.
-pub enum TxOrSourceError<SourceValue, SourceErr, TxBeginErr, TxCommitErr>
+pub enum TxOrSourceError<SourceValue, SourceErr>
 where
     SourceErr: Debug + Display,
-    TxBeginErr: Debug + Display,
-    TxCommitErr: Debug + Display,
 {
     /// Represents that the lambda failed, returning the error from the lambda
     Source(SourceErr),
 
     #[display("Failed to start the transaction: {_0}")]
     /// Represents that the database failed to start the transaction, and the lambda did not execute.
-    TxBegin(TxBeginErr),
+    TxBegin(anyhow::Error),
 
     #[display("Got a successful result, but the database transaction failed: {transaction_err}")]
     /// Represents that the lambda executed successfully, but the database transaction failed to commit.
@@ -79,33 +73,27 @@ where
         /// The success value returned from the lambda
         successful_result: SourceValue,
         /// The database error that occurred when the commit failed
-        transaction_err: TxCommitErr,
+        transaction_err: anyhow::Error,
     },
 }
 
 // TxAble = "The thing that can begin a transaction"
-// ErrBegin = "The error returned if we fail to start a transaction"
 // Handle = "The thing that can give you a database connection"
-// ErrCommit = "The error returned if we fail to commit the transaction"
-// Fut = "The future returned from the function passed via transaction_context which may be awaited for the return value"
-// Ret = "The type Fut resolves to if the transaction was a success"
-// ErrSource = "The error Fut resolves to if the user returns an error from Fn"
+// Ret = "The success type returned from the passed async function"
+// Err = "The error type returned from the passed async function"
 /// Accepts [tx_origin] which can start a database transaction. It then starts a transaction and
 /// invokes [transaction_context] with the started transaction. When [transaction_context] completes,
 /// the transaction handle passed to it is committed as long as [transaction_context] does not return
 /// a [Result::Err].
 #[allow(dead_code)]
-pub async fn with_transaction<'tx, TxAble, Handle, Fut, Ret, ErrBegin, ErrCommit, ErrSource>(
+pub async fn with_transaction<'tx, TxAble, Handle, Ret, Err>(
     tx_origin: &'tx TxAble,
-    transaction_context: impl FnOnce(&mut Handle) -> Fut,
-) -> Result<Ret, TxOrSourceError<Ret, ErrSource, TxAble::Error, Handle::Error>>
+    transaction_context: impl AsyncFnOnce(&mut Handle) -> Result<Ret, Err>,
+) -> Result<Ret, TxOrSourceError<Ret, Err>>
 where
-    TxAble: Transactable<Handle<'tx> = Handle, Error = ErrBegin>,
-    Handle: TransactionHandle<Error = ErrCommit>,
-    Fut: Future<Output = Result<Ret, ErrSource>>,
-    ErrBegin: Debug + Display,
-    ErrCommit: Debug + Display,
-    ErrSource: Debug + Display,
+    TxAble: Transactable<Handle<'tx> = Handle>,
+    Handle: TransactionHandle,
+    Err: Debug + Display,
 {
     let mut tx_handle = tx_origin
         .start_transaction()
@@ -141,7 +129,7 @@ mod with_transaction_test {
     #[tokio::test]
     async fn commits_on_success() {
         let ext_cxn = test_util::FakeExternalConnectivity::new();
-        let tx_result = with_transaction(&ext_cxn, |_tx_cxn| async {
+        let tx_result = with_transaction(&ext_cxn, async |_tx_cxn| {
             println!("Woohoo!");
             Ok::<(), SampleErr>(())
         })
@@ -154,7 +142,7 @@ mod with_transaction_test {
     #[tokio::test]
     async fn does_not_commit_on_failure() {
         let ext_cxn = test_util::FakeExternalConnectivity::new();
-        let tx_result = with_transaction(&ext_cxn, |_tx_cxn| async {
+        let tx_result = with_transaction(&ext_cxn, async |_tx_cxn| {
             println!("Whoopsie!");
             Err::<(), SampleErr>(SampleErr)
         })
@@ -218,18 +206,15 @@ pub mod test_util {
 
     impl ExternalConnectivity for FakeExternalConnectivity {
         type Handle<'cxn> = MockHandle;
-        type Error = Infallible;
 
         #[allow(clippy::diverging_sub_expression)]
-        async fn database_cxn(&mut self) -> Result<Self::Handle<'_>, Self::Error> {
+        async fn database_cxn(&mut self) -> Result<Self::Handle<'_>, anyhow::Error> {
             Ok(MockHandle {})
         }
     }
 
     impl TransactionHandle for FakeExternalConnectivity {
-        type Error = Infallible;
-
-        async fn commit(self) -> Result<(), Self::Error> {
+        async fn commit(self) -> Result<(), anyhow::Error> {
             if !self.is_transacting {
                 panic!("Tried to commit when we weren't in a transaction!")
             }
@@ -242,9 +227,8 @@ pub mod test_util {
 
     impl Transactable for FakeExternalConnectivity {
         type Handle<'handle> = FakeExternalConnectivity;
-        type Error = Infallible;
 
-        async fn start_transaction(&self) -> Result<FakeExternalConnectivity, Self::Error> {
+        async fn start_transaction(&self) -> Result<FakeExternalConnectivity, anyhow::Error> {
             Ok(FakeExternalConnectivity {
                 is_transacting: true,
                 downstream_transaction_committed: Arc::clone(

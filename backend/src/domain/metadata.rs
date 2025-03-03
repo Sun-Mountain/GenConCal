@@ -1,8 +1,12 @@
 #![expect(dead_code)]
 
+use std::collections::HashSet;
+use std::hash::Hash;
 use crate::domain::metadata::driven_ports::UniqueStringSaver;
 use crate::external_connections::ExternalConnectivity;
 use anyhow::Context;
+use crate::domain::event;
+use crate::domain::event::IngestEvent;
 
 pub struct EventType {
     pub id: i32,
@@ -74,7 +78,7 @@ impl ConstructUniqueStr<i32> for Materials {
 }
 
 #[derive(Clone)]
-pub struct MetadataToSave<'incoming_data> {
+pub struct UniqueMetadataToSave<'incoming_data> {
     event_types: Vec<&'incoming_data str>,
     game_systems: Vec<&'incoming_data str>,
     contacts: Vec<&'incoming_data str>,
@@ -83,22 +87,54 @@ pub struct MetadataToSave<'incoming_data> {
     materials: Vec<&'incoming_data str>,
 }
 
+impl <'ie> From<&'ie [IngestEvent]> for UniqueMetadataToSave<'ie> {
+    fn from(events: &'ie[IngestEvent]) -> Self {
+        let event_types: HashSet<&str> = events.iter()
+            .map(|evt| evt.event_type.as_str())
+            .collect();
+        let game_systems: HashSet<&str> = events.iter()
+            .filter_map(|evt| evt.game_system.as_ref().map(String::as_str))
+            .collect();
+        let contacts: HashSet<&str> = events.iter()
+            .filter_map(|evt| evt.contact.as_ref().map(String::as_str))
+            .collect();
+        let groups: HashSet<&str> = events.iter()
+            .filter_map(|evt| evt.group.as_ref().map(String::as_str))
+            .collect();
+        let websites: HashSet<&str> = events.iter()
+            .filter_map(|evt| evt.website.as_ref().map(String::as_str))
+            .collect();
+        let materials: HashSet<&str> = events.iter()
+            .filter_map(|evt| evt.materials.as_ref().map(String::as_str))
+            .collect();
+        
+        Self {
+            event_types: Vec::from_iter(event_types),
+            game_systems: Vec::from_iter(game_systems),
+            contacts: Vec::from_iter(contacts),
+            groups: Vec::from_iter(groups),
+            websites: Vec::from_iter(websites),
+            materials: Vec::from_iter(materials),
+        }
+    }
+}
+
 pub struct SavedMetadata {
-    event_types: Vec<EventType>,
-    game_systems: Vec<GameSystem>,
-    contacts: Vec<Contact>,
-    groups: Vec<Group>,
-    websites: Vec<Website>,
-    materials: Vec<Materials>,
+    pub event_types: Vec<EventType>,
+    pub game_systems: Vec<GameSystem>,
+    pub contacts: Vec<Contact>,
+    pub groups: Vec<Group>,
+    pub websites: Vec<Website>,
+    pub materials: Vec<Materials>,
 }
 
 pub struct Metadata {
-    game_system: Option<GameSystem>,
-    event_type: Option<EventType>,
-    materials: Option<Materials>,
-    contact: Option<Contact>,
-    website: Option<Website>,
-    group: Option<Group>,
+    pub event_type: EventType,
+    pub game_system: Option<GameSystem>,
+    pub materials: Option<Materials>,
+    pub contact: Option<Contact>,
+    pub website: Option<Website>,
+    pub group: Option<Group>,
 }
 
 pub mod driven_ports {
@@ -157,7 +193,7 @@ async fn save_or_get_unique_str<IDType: Copy, DomainType: ConstructUniqueStr<IDT
 
 #[allow(clippy::too_many_arguments)]
 pub(super) async fn save_metadata(
-    metadata: MetadataToSave<'_>,
+    metadata: UniqueMetadataToSave<'_>,
     evt_type_saver: &impl UniqueStringSaver<i32, EventType>,
     gamesys_saver: &impl UniqueStringSaver<i32, GameSystem>,
     contact_saver: &impl UniqueStringSaver<i32, Contact>,

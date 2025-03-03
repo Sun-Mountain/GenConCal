@@ -2,7 +2,7 @@
 name = "genconcal_backend"
 version = "0.1.0"
 authors = ["Evan Rittenhouse"]
-edition = "2021"
+edition = "2024"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -17,7 +17,6 @@ axum = "0.7"
 axum-macros = "0.4"
 tokio = { version = "1.19", features = ["full"] }
 anyhow = "1.0"
-futures = "0.3"
 utoipa = { version = "4.2", features = ["chrono"] }
 utoipa-swagger-ui = { version = "7.1", features = ["axum"] }
 chrono = { version = "0.4", features = ["serde"] }
