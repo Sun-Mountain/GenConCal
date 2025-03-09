@@ -27,6 +27,7 @@ impl Location {
                 id: *id,
                 ref_type: RefType::Section,
             },
+            
             Location {
                 room: Some(Room {
                     id, section: None, ..
@@ -36,6 +37,7 @@ impl Location {
                 id: *id,
                 ref_type: RefType::Room,
             },
+            
             Location { room: None, .. } => Ref {
                 id: self.id,
                 ref_type: RefType::Location,
@@ -66,7 +68,7 @@ pub enum RefType {
     Section,
 }
 
-#[derive(Debug, PartialEq, Eq, Clone)]
+#[derive(Debug, PartialEq, Eq, Clone, Hash)]
 pub enum LocationIngest {
     Location {
         name: String,

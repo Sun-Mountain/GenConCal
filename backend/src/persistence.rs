@@ -35,9 +35,8 @@ impl ConnectionHandle for PoolConnectionHandle {
 
 impl external_connections::ExternalConnectivity for ExternalConnectivity {
     type Handle<'cxn_borrow> = PoolConnectionHandle;
-    type Error = anyhow::Error;
 
-    async fn database_cxn(&mut self) -> Result<Self::Handle<'_>, Self::Error> {
+    async fn database_cxn(&mut self) -> Result<Self::Handle<'_>, anyhow::Error> {
         let handle = PoolConnectionHandle {
             active_connection: self.db.acquire().await?,
         };
@@ -48,9 +47,8 @@ impl external_connections::ExternalConnectivity for ExternalConnectivity {
 
 impl external_connections::Transactable for ExternalConnectivity {
     type Handle<'handle> = ExternalConnectionsInTransaction<'handle>;
-    type Error = anyhow::Error;
 
-    async fn start_transaction(&self) -> Result<Self::Handle<'_>, Self::Error> {
+    async fn start_transaction(&self) -> Result<Self::Handle<'_>, anyhow::Error> {
         let transaction = self
             .db
             .begin()
@@ -77,9 +75,8 @@ impl external_connections::ExternalConnectivity for ExternalConnectionsInTransac
         = TransactionHandle<'tx_borrow>
     where
         Self: 'tx_borrow;
-    type Error = anyhow::Error;
 
-    async fn database_cxn(&mut self) -> Result<TransactionHandle<'_>, Self::Error> {
+    async fn database_cxn(&mut self) -> Result<TransactionHandle<'_>, anyhow::Error> {
         let handle = self
             .txn
             .acquire()
@@ -99,9 +96,7 @@ impl ConnectionHandle for TransactionHandle<'_> {
 }
 
 impl external_connections::TransactionHandle for ExternalConnectionsInTransaction<'_> {
-    type Error = anyhow::Error;
-
-    async fn commit(self) -> Result<(), Self::Error> {
+    async fn commit(self) -> Result<(), anyhow::Error> {
         self.txn
             .commit()
             .await
