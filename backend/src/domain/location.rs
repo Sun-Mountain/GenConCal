@@ -7,6 +7,7 @@ use anyhow::Context;
 use serde::Serialize;
 use std::collections::HashMap;
 
+#[derive(Debug, PartialEq, Eq)]
 pub struct Location {
     pub id: i32,
     pub name: String,
@@ -27,7 +28,7 @@ impl Location {
                 id: *id,
                 ref_type: RefType::Section,
             },
-            
+
             Location {
                 room: Some(Room {
                     id, section: None, ..
@@ -37,7 +38,7 @@ impl Location {
                 id: *id,
                 ref_type: RefType::Room,
             },
-            
+
             Location { room: None, .. } => Ref {
                 id: self.id,
                 ref_type: RefType::Location,
@@ -46,12 +47,14 @@ impl Location {
     }
 }
 
+#[derive(Debug, PartialEq, Eq)]
 pub struct Room {
     pub id: i32,
     pub name: String,
     pub section: Option<Section>,
 }
 
+#[derive(Debug, PartialEq, Eq)]
 pub struct Section {
     pub id: i32,
     pub name: String,
@@ -86,13 +89,13 @@ pub enum LocationIngest {
     },
 }
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq, Eq, Debug)]
 pub struct LocationOnly {
     pub id: i32,
     pub name: String,
 }
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq, Eq, Debug)]
 pub struct RoomOnly {
     pub id: i32,
     pub location_id: i32,
@@ -105,13 +108,14 @@ pub struct RoomOnlyRef<'room> {
     pub name: &'room str,
 }
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq, Eq, Debug)]
 pub struct SectionOnly {
     pub id: i32,
     pub room_id: i32,
     pub name: String,
 }
 
+#[derive(PartialEq, Eq, Hash)]
 pub struct SectionOnlyRef<'section> {
     pub room_id: i32,
     pub name: &'section str,
@@ -300,10 +304,10 @@ pub(super) async fn save_locations(
             } = location
             {
                 let location_id = location_id_by_name[location_name.as_str()];
-                let room_id = room_id_by_name_and_loc[&(location_id, section_name.as_str())];
+                let room_id = room_id_by_name_and_loc[&(location_id, room_name.as_str())];
                 Some(SectionOnlyRef {
                     room_id,
-                    name: room_name.as_str(),
+                    name: section_name.as_str(),
                 })
             } else {
                 None
@@ -408,7 +412,7 @@ fn location_from_ingest(
             section_name,
         } => {
             let location_id = location_id_by_name[location_name.as_str()];
-            let room_id = room_id_by_name_and_loc[&(location_id, section_name.as_str())];
+            let room_id = room_id_by_name_and_loc[&(location_id, room_name.as_str())];
 
             Location {
                 id: location_id,
@@ -427,14 +431,273 @@ fn location_from_ingest(
 }
 
 #[cfg(test)]
-mod tests {}
+mod tests {
+    use super::*;
+
+    mod save_locations {
+        use super::*;
+        use crate::external_connections;
+        use std::default::Default;
+        use std::sync::Mutex;
+
+        #[tokio::test]
+        async fn saves_locations_properly() {
+            let existing_locations = vec![
+                LocationOnly {
+                    id: 1,
+                    name: "Hyatt".to_owned(),
+                }
+            ];
+            let existing_rooms = vec![
+                RoomOnly {
+                    id: 3,
+                    location_id: 1,
+                    name: "Ballroom A".to_owned(),
+                }
+            ];
+            let existing_sections = vec![
+                SectionOnly {
+                    id: 7,
+                    room_id: 3,
+                    name: "Left Half".to_owned(),
+                }
+            ];
+            
+            let location_storage = Mutex::new(test_util::FakeLocationStorage {
+                locations: existing_locations,
+                rooms: existing_rooms,
+                sections: existing_sections,
+                location_storage_failures: Default::default(),
+            });
+            let mut fake_connectivity = external_connections::test_util::FakeExternalConnectivity::new();
+            
+            let ingested_locations = [
+                LocationIngest::Location {
+                    name: "Westin".to_owned(),
+                },
+                LocationIngest::Location {
+                    name: "Hyatt".to_owned(),
+                },
+                
+                LocationIngest::Room {
+                    location_name: "Hyatt".to_owned(),
+                    room_name: "Ballroom B".to_owned(),
+                },
+                LocationIngest::Room {
+                    location_name: "Hyatt".to_owned(),
+                    room_name: "Ballroom A".to_owned(),
+                },
+                LocationIngest::Room {
+                    location_name: "Westin".to_owned(),
+                    room_name: "Ballroom A".to_owned(),
+                },
+                
+                LocationIngest::Section {
+                    location_name: "Hyatt".to_owned(),
+                    room_name: "Ballroom A".to_owned(),
+                    section_name: "Left Half".to_owned(),
+                },
+                LocationIngest::Section {
+                    location_name: "Hyatt".to_owned(),
+                    room_name: "Ballroom A".to_owned(),
+                    section_name: "Right Half".to_owned(),
+                },
+                LocationIngest::Section {
+                    location_name: "Hyatt".to_owned(),
+                    room_name: "Ballroom B".to_owned(),
+                    section_name: "Left Half".to_owned(),
+                },
+                LocationIngest::Section {
+                    location_name: "Westin".to_owned(),
+                    room_name: "Ballroom A".to_owned(),
+                    section_name: "Left Half".to_owned(),
+                },
+                LocationIngest::Section {
+                    location_name: "Westin".to_owned(),
+                    room_name: "Ballroom B".to_owned(),
+                    section_name: "Left Half".to_owned(),
+                }
+            ];
+            
+            let expected_locations = [LocationOnly {
+                    id: 1,
+                    name: "Hyatt".to_owned(),
+                },
+                LocationOnly {
+                    id: 2,
+                    name: "Westin".to_owned(),
+                }];
+            
+            let expected_rooms = [RoomOnly {
+                    id: 3,
+                    location_id: 1,
+                    name: "Ballroom A".to_owned(),
+                },
+                RoomOnly {
+                    id: 4,
+                    location_id: 1,
+                    name: "Ballroom B".to_owned(),
+                },
+                RoomOnly {
+                    id: 5,
+                    location_id: 2,
+                    name: "Ballroom A".to_owned(),
+                },
+                RoomOnly {
+                    id: 6,
+                    location_id: 2,
+                    name: "Ballroom B".to_owned(),
+                }];
+            
+            let expected_sections = [SectionOnly {
+                    id: 7,
+                    room_id: 3,
+                    name: "Left Half".to_owned(),
+                },
+                SectionOnly {
+                    id: 8,
+                    room_id: 3,
+                    name: "Right Half".to_owned(),
+                },
+                SectionOnly {
+                    id: 9,
+                    room_id: 4,
+                    name: "Left Half".to_owned(),
+                },
+                SectionOnly {
+                    id: 10,
+                    room_id: 5,
+                    name: "Left Half".to_owned(),
+                },
+                SectionOnly {
+                    id: 11,
+                    room_id: 6,
+                    name: "Left Half".to_owned(),
+                }];
+            
+            let expected_result = [
+                Location {
+                    id: 2,
+                    name: "Westin".to_owned(),
+                    room: None,
+                },
+                Location {
+                    id: 1,
+                    name: "Hyatt".to_owned(),
+                    room: None,
+                },
+                
+                Location {
+                    id: 1,
+                    name: "Hyatt".to_owned(),
+                    room: Some(Room{
+                        id: 4,
+                        name: "Ballroom B".to_owned(),
+                        section: None,
+                    })
+                },
+                Location {
+                    id: 1,
+                    name: "Hyatt".to_owned(),
+                    room: Some(Room{
+                        id: 3,
+                        name: "Ballroom A".to_owned(),
+                        section: None,
+                    })
+                },
+                Location {
+                    id: 2,
+                    name: "Westin".to_owned(),
+                    room: Some(Room {
+                        id: 5,
+                        name: "Ballroom A".to_owned(),
+                        section: None,
+                    })
+                },
+                
+                Location {
+                    id: 1,
+                    name: "Hyatt".to_owned(),
+                    room: Some(Room {
+                        id: 3,
+                        name: "Ballroom A".to_owned(),
+                        section: Some(Section {
+                            id: 7,
+                            name: "Left Half".to_owned(),
+                        })
+                    })
+                },
+                Location {
+                    id: 1,
+                    name: "Hyatt".to_owned(),
+                    room: Some(Room {
+                        id: 3,
+                        name: "Ballroom A".to_owned(),
+                        section: Some(Section {
+                            id: 8,
+                            name: "Right Half".to_owned(),
+                        })
+                    })
+                },
+                Location {
+                    id: 1,
+                    name: "Hyatt".to_owned(),
+                    room: Some(Room {
+                        id: 4,
+                        name: "Ballroom B".to_owned(),
+                        section: Some(Section {
+                            id: 9,
+                            name: "Left Half".to_owned(),
+                        })
+                    })
+                },
+                Location {
+                    id: 2,
+                    name: "Westin".to_owned(),
+                    room: Some(Room {
+                        id: 5,
+                        name: "Ballroom A".to_owned(),
+                        section: Some(Section {
+                            id: 10,
+                            name: "Left Half".to_owned(),
+                        })
+                    })
+                },
+                Location {
+                    id: 2,
+                    name: "Westin".to_owned(),
+                    room: Some(Room {
+                        id: 6,
+                        name: "Ballroom B".to_owned(),
+                        section: Some(Section {
+                            id: 11,
+                            name: "Left Half".to_owned(),
+                        })
+                    })
+                }
+            ];
+            
+            let save_result = save_locations(&ingested_locations, &location_storage, &location_storage, &mut fake_connectivity).await;
+            let Ok(location_results) = save_result else {
+                let err = save_result.unwrap_err();
+                panic!("Failed to save locations: {err}");
+            };
+            
+            assert_eq!(expected_result, location_results.as_slice());
+            
+            let locked_storage = location_storage.lock().expect("Failed to lock location storage during assertions");
+            assert_eq!(expected_locations, locked_storage.locations.as_slice());
+            assert_eq!(expected_rooms, locked_storage.rooms.as_slice());
+            assert_eq!(expected_sections, locked_storage.sections.as_slice());
+        }
+    }
+}
 
 #[cfg(test)]
 mod test_util {
     use super::*;
     use crate::domain;
     use crate::domain::BulkLookupResult;
-    use std::collections::HashSet;
     use std::ops::Deref;
     use std::sync::Mutex;
 
@@ -449,6 +712,12 @@ mod test_util {
             Vec<(i32, String)>,
             BulkLookupResult<SectionOnly, anyhow::Error>,
         >,
+
+        pub location_write_err: domain::test_util::FakeImpl<Vec<String>, anyhow::Result<Vec<i32>>>,
+        pub room_write_err:
+            domain::test_util::FakeImpl<Vec<(i32, String)>, anyhow::Result<Vec<i32>>>,
+        pub section_write_err:
+            domain::test_util::FakeImpl<Vec<(i32, String)>, anyhow::Result<Vec<i32>>>,
     }
 
     impl Default for LocationStorageFuncs {
@@ -457,12 +726,18 @@ mod test_util {
                 location_read_err: domain::test_util::FakeImpl::new(),
                 room_read_err: domain::test_util::FakeImpl::new(),
                 section_read_err: domain::test_util::FakeImpl::new(),
+                
+                location_write_err: domain::test_util::FakeImpl::new(),
+                room_write_err: domain::test_util::FakeImpl::new(),
+                section_write_err: domain::test_util::FakeImpl::new(),
             }
         }
     }
 
     pub struct FakeLocationStorage {
-        pub locations: Vec<Location>,
+        pub locations: Vec<LocationOnly>,
+        pub rooms: Vec<RoomOnly>,
+        pub sections: Vec<SectionOnly>,
         pub location_storage_failures: LocationStorageFuncs,
     }
 
@@ -493,23 +768,17 @@ mod test_util {
             if location_names.is_empty() {
                 return Ok(Vec::new());
             }
-            let names_to_search_for: HashSet<&str> = location_names.iter().copied().collect();
+            let location_name_to_id: HashMap<&str, i32> = locked_self.locations.iter().map(|location| (location.name.as_str(), location.id)).collect();
 
-            let matching_locations: Vec<Option<LocationOnly>> = locked_self
-                .locations
-                .iter()
-                .map(|location| {
-                    if names_to_search_for.contains(location.name.as_str()) {
-                        Some(LocationOnly {
-                            id: location.id,
-                            name: location.name.clone(),
-                        })
-                    } else {
-                        None
+            let matching_locations: Vec<Option<LocationOnly>> = location_names.iter().map(|name| {
+                location_name_to_id.get(name).map(|id| {
+                    LocationOnly {
+                        id: *id,
+                        name: name.to_string(),
                     }
                 })
-                .collect();
-
+            }).collect();
+            
             Ok(matching_locations)
         }
 
@@ -538,40 +807,32 @@ mod test_util {
             if room_refs.is_empty() {
                 return Ok(Vec::new());
             }
-            let names_to_search_for: HashSet<&RoomOnlyRef<'_>> = room_refs.iter().collect();
-
-            let detection_results: Vec<Option<RoomOnly>> = locked_self
-                .locations
+            let room_ref_to_id: HashMap<RoomOnlyRef, i32> = locked_self
+                .rooms
                 .iter()
-                .map(|location| {
-                    if let Location {
-                        id: location_id,
-                        room:
-                            Some(Room {
-                                id: room_id, name, ..
-                            }),
-                        ..
-                    } = location
-                    {
-                        if names_to_search_for.contains(&RoomOnlyRef {
-                            location_id: *location_id,
-                            name,
-                        }) {
-                            Some(RoomOnly {
-                                location_id: *location_id,
-                                id: *room_id,
-                                name: name.clone(),
-                            })
-                        } else {
-                            None
-                        }
-                    } else {
-                        None
-                    }
+                .map(|room| {
+                    (
+                        RoomOnlyRef {
+                            location_id: room.location_id,
+                            name: room.name.as_str(),
+                        },
+                        room.id,
+                    )
                 })
                 .collect();
 
-            Ok(detection_results)
+            let detected_rooms: Vec<Option<RoomOnly>> = room_refs
+                .iter()
+                .map(|room_ref| {
+                    room_ref_to_id.get(room_ref).map(|room_id| RoomOnly {
+                        id: *room_id,
+                        location_id: room_ref.location_id,
+                        name: room_ref.name.to_owned(),
+                    })
+                })
+                .collect();
+
+            Ok(detected_rooms)
         }
 
         async fn read_matching_sections(
@@ -579,7 +840,212 @@ mod test_util {
             section_refs: &[SectionOnlyRef<'_>],
             _ext_cxn: &mut impl ExternalConnectivity,
         ) -> Result<Vec<Option<SectionOnly>>, anyhow::Error> {
-            todo!()
+            let mut locked_self = self
+                .lock()
+                .expect("could not lock location storage for reading sections");
+
+            // Attempt the mock first
+            let this_fake = &mut locked_self.location_storage_failures.section_read_err;
+            let mapped_args: Vec<(i32, String)> = section_refs
+                .iter()
+                .map(|sec_ref| (sec_ref.room_id, sec_ref.name.to_owned()))
+                .collect();
+            this_fake.save_arguments(mapped_args);
+
+            if let Some(ret_val) = this_fake.try_return_value_anyhow() {
+                return ret_val;
+            }
+
+            // Fallback fake logic
+            if section_refs.is_empty() {
+                return Ok(Vec::new());
+            }
+            let section_ref_to_id: HashMap<SectionOnlyRef, i32> = locked_self
+                .sections
+                .iter()
+                .map(|section| {
+                    (
+                        SectionOnlyRef {
+                            room_id: section.room_id,
+                            name: section.name.as_str(),
+                        },
+                        section.id,
+                    )
+                })
+                .collect();
+
+            let detected_sections: Vec<Option<SectionOnly>> = section_refs
+                .iter()
+                .map(|sec_ref| {
+                    section_ref_to_id.get(sec_ref).map(|sec_id| SectionOnly {
+                        id: *sec_id,
+                        room_id: sec_ref.room_id,
+                        name: sec_ref.name.to_owned(),
+                    })
+                })
+                .collect();
+
+            Ok(detected_sections)
+        }
+    }
+
+    impl LocationWriter for Mutex<FakeLocationStorage> {
+        async fn bulk_save_locations(
+            &self,
+            location_names: &[&str],
+            _ext_cxn: &mut impl ExternalConnectivity,
+        ) -> Result<Vec<i32>, anyhow::Error> {
+            let mut locked_self = self
+                .lock()
+                .expect("could not lock location storage for writing locations");
+
+            // Try mock first
+            let this_fake = &mut locked_self.location_storage_failures.location_write_err;
+            this_fake.save_arguments(
+                location_names
+                    .iter()
+                    .map(|name| (*name).to_owned())
+                    .collect(),
+            );
+
+            if let Some(ret_val) = this_fake.try_return_value_anyhow() {
+                return ret_val;
+            }
+
+            // Backup fake logic
+            let mut next_loc_id = locked_self
+                .locations
+                .iter()
+                .map(|location| location.id)
+                .max()
+                .unwrap_or(0)
+                + 1;
+            let mut saved_ids: Vec<i32> = Vec::with_capacity(location_names.len());
+            let mut already_saved_names: HashMap<&str, i32> = HashMap::new();
+
+            for location_name in location_names.iter() {
+                if let Some(id) = already_saved_names.get(location_name) {
+                    saved_ids.push(*id);
+                    continue;
+                }
+                
+                saved_ids.push(next_loc_id);
+                locked_self.locations.push(LocationOnly {
+                    id: next_loc_id,
+                    name: location_name.to_string(),
+                });
+                already_saved_names.insert(location_name, next_loc_id);
+
+                next_loc_id += 1;
+            }
+
+            Ok(saved_ids)
+        }
+
+        async fn bulk_save_rooms(
+            &self,
+            room_refs: &[&RoomOnlyRef<'_>],
+            _ext_cxn: &mut impl ExternalConnectivity,
+        ) -> Result<Vec<i32>, anyhow::Error> {
+            let mut locked_self = self
+                .lock()
+                .expect("could not lock location storage for writing rooms");
+
+            // Try mock first
+            let this_fake = &mut locked_self.location_storage_failures.room_write_err;
+            this_fake.save_arguments(
+                room_refs
+                    .iter()
+                    .map(|RoomOnlyRef { location_id, name }| (*location_id, name.to_string()))
+                    .collect(),
+            );
+
+            if let Some(ret_val) = this_fake.try_return_value_anyhow() {
+                return ret_val;
+            }
+
+            // Backup fake logic
+            let mut next_room_id = locked_self
+                .rooms
+                .iter()
+                .map(|room| room.id)
+                .max()
+                .unwrap_or(0)
+                + 1;
+            let mut saved_ids: Vec<i32> = Vec::with_capacity(room_refs.len());
+            let mut already_saved_refs: HashMap<&RoomOnlyRef, i32> = HashMap::new();
+
+            for room_ref in room_refs.iter() {
+                if let Some(id) = already_saved_refs.get(room_ref) {
+                    saved_ids.push(*id);
+                    continue;
+                }
+                
+                saved_ids.push(next_room_id);
+                locked_self.rooms.push(RoomOnly {
+                    id: next_room_id,
+                    location_id: room_ref.location_id,
+                    name: room_ref.name.to_owned(),
+                });
+                already_saved_refs.insert(room_ref, next_room_id);
+
+                next_room_id += 1;
+            }
+
+            Ok(saved_ids)
+        }
+
+        async fn bulk_save_sections(
+            &self,
+            section_refs: &[&SectionOnlyRef<'_>],
+            _ext_cxn: &mut impl ExternalConnectivity,
+        ) -> Result<Vec<i32>, anyhow::Error> {
+            let mut locked_self = self
+                .lock()
+                .expect("could not lock location storage for writing sections");
+
+            // Try mock first
+            let this_fake = &mut locked_self.location_storage_failures.section_write_err;
+            this_fake.save_arguments(
+                section_refs
+                    .iter()
+                    .map(|SectionOnlyRef { room_id, name }| (*room_id, name.to_string()))
+                    .collect(),
+            );
+
+            if let Some(ret_val) = this_fake.try_return_value_anyhow() {
+                return ret_val;
+            }
+
+            // Backup fake logic
+            let mut next_section_id = locked_self
+                .sections
+                .iter()
+                .map(|section| section.id)
+                .max()
+                .unwrap_or(0)
+                + 1;
+            let mut saved_ids: Vec<i32> = Vec::with_capacity(section_refs.len());
+            let mut already_saved_refs: HashMap<&SectionOnlyRef, i32> = HashMap::new();
+
+            for section_ref in section_refs.iter() {
+                if let Some(id) = already_saved_refs.get(section_ref) {
+                    saved_ids.push(*id);
+                    continue;
+                }
+                
+                saved_ids.push(next_section_id);
+                locked_self.sections.push(SectionOnly {
+                    id: next_section_id,
+                    room_id: section_ref.room_id,
+                    name: section_ref.name.to_owned(),
+                });
+                already_saved_refs.insert(section_ref, next_section_id);
+
+                next_section_id += 1;
+            }
+
+            Ok(saved_ids)
         }
     }
 }

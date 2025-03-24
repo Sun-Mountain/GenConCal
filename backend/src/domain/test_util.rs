@@ -29,7 +29,7 @@ impl Connectivity {
 /// This data structure can be used in mock trait implementations like so:
 ///
 /// ```
-/// use domain::test_util::FakeImplementation;
+/// use domain::test_util::FakeImpl;
 /// use std::sync::Mutex;
 ///
 /// trait MyAsyncTrait {
@@ -38,7 +38,7 @@ impl Connectivity {
 ///
 /// struct FakeTraitImplementation {
 ///   // The generics are (i32, i32) for captured arguments and String for the return value
-///   some_cool_function_result: FakeImplementation<(i32, i32), String>;
+///   some_cool_function_result: FakeImpl<(i32, i32), String>;
 /// }
 ///
 /// impl MyAsyncTrait for Mutex<FakeTraitImplementation> {
