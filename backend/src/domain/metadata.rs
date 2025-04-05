@@ -32,6 +32,7 @@ impl ConstructUniqueStr<i32> for GameSystem {
     }
 }
 
+#[cfg_attr(test, derive(PartialEq, Eq, Debug))]
 pub struct Contact {
     pub id: i32,
     pub email: String,
@@ -240,7 +241,10 @@ mod tests {
     
     mod get_or_save_unique_str {
         use std::sync::Mutex;
+        use crate::{external_connections, persistence};
+        use crate::domain::test_util::Connectivity;
         use super::*;
+        use speculoos::prelude::*;
         
         #[tokio::test]
         async fn properly_saves_data() {
@@ -251,8 +255,46 @@ mod tests {
                     (3, "ghi".to_owned()),
                 ];
             });
+            let mut ext_cxn = external_connections::test_util::FakeExternalConnectivity::new();
+            let new_strs = ["def", "jkl", "abc"];
+            let expected_result = [
+                Contact {
+                    id: 2,
+                    email: "def".to_owned(),
+                },
+                Contact {
+                    id: 4,
+                    email: "jkl".to_owned(),
+                },
+                Contact {
+                    id: 1,
+                    email: "abc".to_owned(),
+                }
+            ];
+            let expected_state = [
+                (1, "abc".to_owned()),
+                (2, "def".to_owned()),
+                (3, "ghi".to_owned()),
+                (4, "jkl".to_owned()),
+            ];
+            let new_contacts_result: Result<Vec<Contact>, _> = save_or_get_unique_str(&new_strs, &saver, &mut ext_cxn).await;
             
-            todo!();
+            let data_state = saver.lock().unwrap();
+            assert_eq!(&expected_result, new_contacts_result.expect("Saving unique strings failed").as_slice());
+            assert_eq!(expected_state, data_state.saved_strings.as_slice());
+        }
+        
+        #[tokio::test]
+        async fn reports_error_properly() {
+            let saver: Mutex<test_util::FakeStringSaver<i32>> = test_util::FakeStringSaver::new_locked(|saver| {
+                saver.connectivity = Connectivity::Disconnected;
+            });
+            let mut ext_cxn = external_connections::test_util::FakeExternalConnectivity::new();
+            let new_strs = ["def", "jkl", "abc"];
+            
+            let new_contacts_result: Result<Vec<Contact>, _> = save_or_get_unique_str(&new_strs, &saver, &mut ext_cxn).await;
+            
+            assert_that!(new_contacts_result).is_err();
         }
     }
 }

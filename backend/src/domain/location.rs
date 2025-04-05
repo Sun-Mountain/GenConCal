@@ -7,7 +7,7 @@ use anyhow::Context;
 use serde::Serialize;
 use std::collections::HashMap;
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub struct Location {
     pub id: i32,
     pub name: String,
@@ -15,7 +15,7 @@ pub struct Location {
 }
 
 impl Location {
-    pub fn to_location_ref(&self) -> Ref {
+    pub fn as_location_ref(&self) -> Ref {
         match self {
             Location {
                 room:
@@ -47,24 +47,26 @@ impl Location {
     }
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub struct Room {
     pub id: i32,
     pub name: String,
     pub section: Option<Section>,
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub struct Section {
     pub id: i32,
     pub name: String,
 }
 
+#[derive(Clone)]
 pub struct Ref {
     pub id: i32,
     pub ref_type: RefType,
 }
 
+#[derive(Clone, Copy)]
 pub enum RefType {
     Location,
     Room,
