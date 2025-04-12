@@ -1,3 +1,7 @@
+mod metadata;
+mod event;
+mod location;
+
 use crate::external_connections;
 use crate::external_connections::ConnectionHandle;
 use anyhow::{anyhow, Context};

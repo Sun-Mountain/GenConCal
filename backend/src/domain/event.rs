@@ -110,7 +110,6 @@ pub struct CreateParams<'items> {
 }
 
 pub struct UpdateParams<'items> {
-    
     pub event_type_id: i32,
     pub game_system_id: Option<i32>,
     pub title: &'items str,
@@ -153,9 +152,34 @@ pub mod driven_ports {
     }
 }
 
+pub mod driving_ports {
+    use super::*;
+    
+    pub trait EventPort {
+        #[allow(clippy::too_many_arguments)]
+        async fn import_events(
+            &self,
+            events_to_import: &[IngestEvent],
+
+            evt_type_saver: &impl UniqueStringSaver<i32, metadata::EventType>,
+            gamesys_saver: &impl UniqueStringSaver<i32, metadata::GameSystem>,
+            contact_saver: &impl UniqueStringSaver<i32, metadata::Contact>,
+            group_saver: &impl UniqueStringSaver<i32, metadata::Group>,
+            websites_saver: &impl UniqueStringSaver<i32, metadata::Website>,
+            materials_saver: &impl UniqueStringSaver<i32, metadata::Materials>,
+            location_reader: &impl LocationReader,
+            location_writer: &impl LocationWriter,
+            event_detector: &impl driven_ports::EventDetector,
+            event_writer: &impl driven_ports::EventWriter,
+            ext_cxn: &mut impl ExternalConnectivity,
+            
+        ) -> Result<Vec<i32>, anyhow::Error>;
+    }
+}
+
 pub struct EventService;
 
-impl EventService {
+impl driving_ports::EventPort for EventService {
     #[allow(clippy::too_many_arguments)]
     async fn import_events(
         &self,
@@ -255,7 +279,7 @@ impl EventService {
         let mut event_creates: Vec<CreateParams<'_>> = Vec::new();
         let mut event_updates: Vec<(i32, UpdateParams<'_>)> = Vec::new();
 
-        for (found_event_id, event_ingest) in event_existence.into_iter().zip(events_to_import.iter())
+        for (found_event_id, event_ingest) in event_existence.iter().cloned().zip(events_to_import.iter())
         {
             let Some(&event_type_id) = type_ids_by_name.get(event_ingest.event_type.as_str())
             else {
@@ -321,16 +345,48 @@ impl EventService {
                 };
                 event_updates.push((id, event_update_data));
             } else {
-                // let event_create_data = CreateParams {
-                //     event_type_id,
-                //     game_system_id,
-                //     
-                // }
-                // TODO continue from here!
+                let event_create_data = CreateParams {
+                    game_id: event_ingest.game_id.as_str(),
+                    event_type_id,
+                    game_system_id,
+                    title: event_ingest.title.as_str(),
+                    description: event_ingest.description.as_str(),
+                    start: event_ingest.start,
+                    end: event_ingest.end,
+                    cost: event_ingest.cost,
+                    tickets_available: event_ingest.tickets_available,
+                    min_players: event_ingest.min_players,
+                    max_players: event_ingest.max_players,
+                    age_requirement: event_ingest.age_requirement,
+                    experience_level: event_ingest.experience_requirement,
+                    location: location_ref,
+                    table_number: event_ingest.table_number,
+                    materials: materials_id,
+                    contact: contact_id,
+                    website: website_id,
+                    group: group_id,
+                };
+                event_creates.push(event_create_data);
+            }
+        }
+        
+        let created_ids = event_writer.bulk_save_events(&event_creates).await.context("Creating events")?;
+        event_writer.bulk_update_events(&event_updates).await.context("Updating events")?;
+        
+        let mut all_event_ids: Vec<i32> = Vec::new();
+        let mut create_idx = 0;
+        
+        for existing_event_id in event_existence.iter().cloned() {
+            match existing_event_id {
+                None => {
+                    all_event_ids.push(created_ids[create_idx]);
+                    create_idx += 1;
+                }
+                Some(existing_event_id) => all_event_ids.push(existing_event_id),
             }
         }
 
-        Ok(Vec::new())
+        Ok(all_event_ids)
     }
 }
 
