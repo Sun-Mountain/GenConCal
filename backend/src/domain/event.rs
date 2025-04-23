@@ -90,7 +90,7 @@ pub enum ExperienceLevel {
 pub struct CreateParams<'items> {
     pub game_id: &'items str,
     pub event_type_id: i32,
-    pub game_system_id: Option<i32>,
+    pub game_system_id: Option<i64>,
     pub title: &'items str,
     pub description: &'items str,
     pub start: DateTime<Tz>,
@@ -103,15 +103,15 @@ pub struct CreateParams<'items> {
     pub experience_level: ExperienceLevel,
     pub location: Option<location::Ref>,
     pub table_number: Option<u16>,
-    pub materials: Option<i32>,
-    pub contact: Option<i32>,
-    pub website: Option<i32>,
-    pub group: Option<i32>,
+    pub materials: Option<i64>,
+    pub contact: Option<i64>,
+    pub website: Option<i64>,
+    pub group: Option<i64>,
 }
 
 pub struct UpdateParams<'items> {
     pub event_type_id: i32,
-    pub game_system_id: Option<i32>,
+    pub game_system_id: Option<i64>,
     pub title: &'items str,
     pub description: &'items str,
     pub start: DateTime<Tz>,
@@ -124,10 +124,10 @@ pub struct UpdateParams<'items> {
     pub experience_requirement: ExperienceLevel,
     pub location: Option<location::Ref>,
     pub table_number: Option<u16>,
-    pub materials: Option<i32>,
-    pub contact: Option<i32>,
-    pub website: Option<i32>,
-    pub group: Option<i32>,
+    pub materials: Option<i64>,
+    pub contact: Option<i64>,
+    pub website: Option<i64>,
+    pub group: Option<i64>,
 }
 
 pub mod driven_ports {
@@ -162,11 +162,11 @@ pub mod driving_ports {
             events_to_import: &[IngestEvent],
 
             evt_type_saver: &impl UniqueStringSaver<i32, metadata::EventType>,
-            gamesys_saver: &impl UniqueStringSaver<i32, metadata::GameSystem>,
-            contact_saver: &impl UniqueStringSaver<i32, metadata::Contact>,
-            group_saver: &impl UniqueStringSaver<i32, metadata::Group>,
-            websites_saver: &impl UniqueStringSaver<i32, metadata::Website>,
-            materials_saver: &impl UniqueStringSaver<i32, metadata::Materials>,
+            gamesys_saver: &impl UniqueStringSaver<i64, metadata::GameSystem>,
+            contact_saver: &impl UniqueStringSaver<i64, metadata::Contact>,
+            group_saver: &impl UniqueStringSaver<i64, metadata::Group>,
+            websites_saver: &impl UniqueStringSaver<i64, metadata::Website>,
+            materials_saver: &impl UniqueStringSaver<i64, metadata::Materials>,
             location_reader: &impl LocationReader,
             location_writer: &impl LocationWriter,
             event_detector: &impl driven_ports::EventDetector,
@@ -186,11 +186,11 @@ impl driving_ports::EventPort for EventService {
         events_to_import: &[IngestEvent],
 
         evt_type_saver: &impl UniqueStringSaver<i32, metadata::EventType>,
-        gamesys_saver: &impl UniqueStringSaver<i32, metadata::GameSystem>,
-        contact_saver: &impl UniqueStringSaver<i32, metadata::Contact>,
-        group_saver: &impl UniqueStringSaver<i32, metadata::Group>,
-        websites_saver: &impl UniqueStringSaver<i32, metadata::Website>,
-        materials_saver: &impl UniqueStringSaver<i32, metadata::Materials>,
+        gamesys_saver: &impl UniqueStringSaver<i64, metadata::GameSystem>,
+        contact_saver: &impl UniqueStringSaver<i64, metadata::Contact>,
+        group_saver: &impl UniqueStringSaver<i64, metadata::Group>,
+        websites_saver: &impl UniqueStringSaver<i64, metadata::Website>,
+        materials_saver: &impl UniqueStringSaver<i64, metadata::Materials>,
         location_reader: &impl LocationReader,
         location_writer: &impl LocationWriter,
         event_detector: &impl driven_ports::EventDetector,
@@ -216,27 +216,27 @@ impl driving_ports::EventPort for EventService {
             .iter()
             .map(|evt_type| (evt_type.name.as_str(), evt_type.id))
             .collect();
-        let game_system_ids_by_name: HashMap<&str, i32> = saved_metadata
+        let game_system_ids_by_name: HashMap<&str, i64> = saved_metadata
             .game_systems
             .iter()
             .map(|system| (system.system_name.as_str(), system.id))
             .collect();
-        let contact_ids_by_name: HashMap<&str, i32> = saved_metadata
+        let contact_ids_by_name: HashMap<&str, i64> = saved_metadata
             .contacts
             .iter()
             .map(|contact| (contact.email.as_str(), contact.id))
             .collect();
-        let group_ids_by_name: HashMap<&str, i32> = saved_metadata
+        let group_ids_by_name: HashMap<&str, i64> = saved_metadata
             .groups
             .iter()
             .map(|group| (group.name.as_str(), group.id))
             .collect();
-        let website_ids_by_name: HashMap<&str, i32> = saved_metadata
+        let website_ids_by_name: HashMap<&str, i64> = saved_metadata
             .websites
             .iter()
             .map(|website| (website.url.as_str(), website.id))
             .collect();
-        let materials_ids_by_name: HashMap<&str, i32> = saved_metadata
+        let materials_ids_by_name: HashMap<&str, i64> = saved_metadata
             .materials
             .iter()
             .map(|materials| (materials.summary.as_str(), materials.id))
@@ -440,11 +440,11 @@ fn incoming_locations_to_refs(
         .collect()
 }
 
-fn find_id_for_optional_str(
+fn find_id_for_optional_str<T: Copy>(
     maybe_name: Option<&str>,
-    name_to_id: &HashMap<&str, i32>,
+    name_to_id: &HashMap<&str, T>,
     resource_name: &str,
-) -> Result<Option<i32>, anyhow::Error> {
+) -> Result<Option<T>, anyhow::Error> {
     if let Some(name) = maybe_name {
         let Some(&associated_id) = name_to_id.get(name) else {
             return Err(anyhow!(

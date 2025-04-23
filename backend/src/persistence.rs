@@ -1,6 +1,6 @@
-mod metadata;
-mod event;
-mod location;
+pub mod metadata;
+pub mod event;
+pub mod location;
 
 use crate::external_connections;
 use crate::external_connections::ConnectionHandle;

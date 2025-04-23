@@ -33,7 +33,7 @@ pub trait ConnectionHandle {
 
 /// Anything that can initiate a database transaction
 pub trait Transactable: Sync {
-    type Handle<'handle>: TransactionHandle + 'handle
+    type Handle<'handle>: TransactionHandle + ExternalConnectivity + 'handle
     where
         Self: 'handle;
 
@@ -92,7 +92,7 @@ pub async fn with_transaction<'tx, TxAble, Handle, Ret, Err>(
 ) -> Result<Ret, TxOrSourceError<Ret, Err>>
 where
     TxAble: Transactable<Handle<'tx> = Handle>,
-    Handle: TransactionHandle,
+    Handle: TransactionHandle + ExternalConnectivity,
     Err: Debug + Display,
 {
     let mut tx_handle = tx_origin

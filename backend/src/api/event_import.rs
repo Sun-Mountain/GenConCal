@@ -1,6 +1,6 @@
 use crate::dto::IngestEventConvertErr;
-use crate::external_connections::{with_transaction, ExternalConnectivity};
-use crate::{domain, dto, SharedData};
+use crate::external_connections::{with_transaction, ExternalConnectivity, TransactableExternalConnectivity};
+use crate::{domain, dto, persistence, SharedData};
 use axum::http::StatusCode;
 use axum::response::ErrorResponse;
 use axum::{Json, Router};
@@ -20,7 +20,7 @@ pub fn event_import_routes() -> Router<Arc<SharedData>> {
 async fn import_events(
     import_request: dto::EventImportRequest,
     event_port: &impl domain::event::driving_ports::EventPort,
-    ext_cxn: &mut impl ExternalConnectivity,
+    ext_cxn: &mut impl TransactableExternalConnectivity,
 ) -> Result<StatusCode, ErrorResponse> {
     let mut ingest_vec: Vec<domain::event::IngestEvent>= Vec::with_capacity(import_request.event_data.len());
     
@@ -63,8 +63,21 @@ async fn import_events(
         event_port.import_events(
             &ingest_vec, 
             
-            &
-        )
-    })
+            &persistence::metadata::DbEventTypeSaver,
+            &persistence::metadata::DbGameSystemSaver,
+            &persistence::metadata::DbContactSaver,
+            &persistence::metadata::DbGroupSaver,
+            &persistence::metadata::DbWebsiteSaver,
+            &persistence::metadata::DbMaterialsSaver,
+            
+            &persistence::location::DbLocationReader,
+            &persistence::location::DbLocationWriter,
+            
+            &persistence::event::DbEventDetector,
+            &persistence::event::DbEventWriter,
+            
+            tx_handle,
+        ).await
+    }).await;
     Ok(StatusCode::CREATED)
 }

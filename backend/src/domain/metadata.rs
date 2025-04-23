@@ -19,12 +19,12 @@ impl ConstructUniqueStr<i32> for EventType {
 }
 
 pub struct GameSystem {
-    pub id: i32,
+    pub id: i64,
     pub system_name: String,
 }
 
-impl ConstructUniqueStr<i32> for GameSystem {
-    fn new_with_id(id: i32, value: String) -> Self {
+impl ConstructUniqueStr<i64> for GameSystem {
+    fn new_with_id(id: i64, value: String) -> Self {
         Self {
             id,
             system_name: value,
@@ -34,45 +34,45 @@ impl ConstructUniqueStr<i32> for GameSystem {
 
 #[cfg_attr(test, derive(PartialEq, Eq, Debug))]
 pub struct Contact {
-    pub id: i32,
+    pub id: i64,
     pub email: String,
 }
 
-impl ConstructUniqueStr<i32> for Contact {
-    fn new_with_id(id: i32, value: String) -> Self {
+impl ConstructUniqueStr<i64> for Contact {
+    fn new_with_id(id: i64, value: String) -> Self {
         Self { id, email: value }
     }
 }
 
 pub struct Group {
-    pub id: i32,
+    pub id: i64,
     pub name: String,
 }
 
-impl ConstructUniqueStr<i32> for Group {
-    fn new_with_id(id: i32, value: String) -> Self {
+impl ConstructUniqueStr<i64> for Group {
+    fn new_with_id(id: i64, value: String) -> Self {
         Self { id, name: value }
     }
 }
 
 pub struct Website {
-    pub id: i32,
+    pub id: i64,
     pub url: String,
 }
 
-impl ConstructUniqueStr<i32> for Website {
-    fn new_with_id(id: i32, value: String) -> Self {
+impl ConstructUniqueStr<i64> for Website {
+    fn new_with_id(id: i64, value: String) -> Self {
         Self { id, url: value }
     }
 }
 
 pub struct Materials {
-    pub id: i32,
+    pub id: i64,
     pub summary: String,
 }
 
-impl ConstructUniqueStr<i32> for Materials {
-    fn new_with_id(id: i32, value: String) -> Self {
+impl ConstructUniqueStr<i64> for Materials {
+    fn new_with_id(id: i64, value: String) -> Self {
         Self { id, summary: value }
     }
 }
@@ -195,11 +195,11 @@ async fn save_or_get_unique_str<IDType: Copy, DomainType: ConstructUniqueStr<IDT
 pub(super) async fn save_metadata(
     metadata: UniqueMetadataToSave<'_>,
     evt_type_saver: &impl UniqueStringSaver<i32, EventType>,
-    gamesys_saver: &impl UniqueStringSaver<i32, GameSystem>,
-    contact_saver: &impl UniqueStringSaver<i32, Contact>,
-    group_saver: &impl UniqueStringSaver<i32, Group>,
-    websites_saver: &impl UniqueStringSaver<i32, Website>,
-    materials_saver: &impl UniqueStringSaver<i32, Materials>,
+    gamesys_saver: &impl UniqueStringSaver<i64, GameSystem>,
+    contact_saver: &impl UniqueStringSaver<i64, Contact>,
+    group_saver: &impl UniqueStringSaver<i64, Group>,
+    websites_saver: &impl UniqueStringSaver<i64, Website>,
+    materials_saver: &impl UniqueStringSaver<i64, Materials>,
     ext_cxn: &mut impl ExternalConnectivity,
 ) -> Result<SavedMetadata, anyhow::Error> {
     let event_types =
@@ -248,7 +248,7 @@ mod tests {
         
         #[tokio::test]
         async fn properly_saves_data() {
-            let saver: Mutex<test_util::FakeStringSaver<i32>> = test_util::FakeStringSaver::new_locked(|saver| {
+            let saver: Mutex<test_util::FakeStringSaver<i64>> = test_util::FakeStringSaver::new_locked(|saver| {
                 saver.saved_strings = vec![
                     (1, "abc".to_owned()),
                     (2, "def".to_owned()),
@@ -286,7 +286,7 @@ mod tests {
         
         #[tokio::test]
         async fn reports_error_properly() {
-            let saver: Mutex<test_util::FakeStringSaver<i32>> = test_util::FakeStringSaver::new_locked(|saver| {
+            let saver: Mutex<test_util::FakeStringSaver<i64>> = test_util::FakeStringSaver::new_locked(|saver| {
                 saver.connectivity = Connectivity::Disconnected;
             });
             let mut ext_cxn = external_connections::test_util::FakeExternalConnectivity::new();
@@ -331,6 +331,12 @@ pub mod test_util {
     }
     
     impl NextValue for i32 {
+        fn next_val(&self) -> Self {
+            *self + 1
+        }
+    }
+    
+    impl NextValue for i64 {
         fn next_val(&self) -> Self {
             *self + 1
         }

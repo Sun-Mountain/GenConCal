@@ -1,5 +1,5 @@
 use crate::domain;
-use crate::domain::metadata::{Contact, EventType, GameSystem, Group, Website};
+use crate::domain::metadata::{Contact, EventType, GameSystem, Group, Materials, Website};
 use crate::external_connections::{ConnectionHandle, ExternalConnectivity};
 use anyhow::{Context, Error};
 use sqlx::{Postgres, Row};
@@ -54,60 +54,230 @@ impl domain::metadata::driven_ports::UniqueStringSaver<i32, EventType> for DbEve
 
 pub struct DbGameSystemSaver;
 
-impl domain::metadata::driven_ports::UniqueStringSaver<i32, GameSystem> for DbGameSystemSaver {
+impl domain::metadata::driven_ports::UniqueStringSaver<i64, GameSystem> for DbGameSystemSaver {
     async fn read_matching(&self, names: &[&str], ext_cxn: &mut impl ExternalConnectivity) -> Result<Vec<Option<GameSystem>>, Error> {
-        todo!()
+        let mut cxn_handle = ext_cxn.database_cxn()
+            .await.context("Fetching connection for reading game systems")?;
+
+        let mut fetched_rows: Vec<Option<GameSystem>> = Vec::with_capacity(names.len());
+
+        for name in names.iter().cloned() {
+            let name_id = sqlx::query!("SELECT id FROM game_systems WHERE system_name = $1", name)
+                .fetch_optional(cxn_handle.borrow_connection())
+                .await?;
+
+            fetched_rows.push(name_id.map(|row| GameSystem {
+                id: row.id,
+                system_name: name.to_string(),
+            }));
+        }
+
+        Ok(fetched_rows)
     }
 
-    async fn bulk_save(&self, new_names: &[&str], ext_cxn: &mut impl ExternalConnectivity) -> Result<Vec<i32>, Error> {
-        todo!()
+    async fn bulk_save(&self, new_names: &[&str], ext_cxn: &mut impl ExternalConnectivity) -> Result<Vec<i64>, Error> {
+        let mut cxn = ext_cxn.database_cxn()
+            .await.context("Fetching connection for saving game systems")?;
+
+        let mut saved_ids: Vec<i64> = Vec::with_capacity(new_names.len());
+
+        for name_chunk in new_names.chunks(PG_PARAM_LIMIT) {
+            let mut query_builder: sqlx::QueryBuilder<Postgres> = sqlx::QueryBuilder::new("INSERT INTO game_systems(system_name) VALUES ");
+
+            query_builder.push_values(name_chunk, |mut builder, name| {
+                builder.push_bind(name);
+            });
+
+            query_builder.push(" RETURNING id");
+
+            let fetched_ids = query_builder.build().fetch_all(cxn.borrow_connection()).await.context("Bulk save game systems")?;
+            saved_ids.extend(fetched_ids.into_iter().map(|fetched_id| -> i64 { fetched_id.get("id") }));
+        }
+
+        Ok(saved_ids)
     }
 }
 
 pub struct DbContactSaver;
 
-impl domain::metadata::driven_ports::UniqueStringSaver<i32, Contact> for DbContactSaver {
+impl domain::metadata::driven_ports::UniqueStringSaver<i64, Contact> for DbContactSaver {
     async fn read_matching(&self, names: &[&str], ext_cxn: &mut impl ExternalConnectivity) -> Result<Vec<Option<Contact>>, Error> {
-        todo!()
+        let mut cxn_handle = ext_cxn.database_cxn()
+            .await.context("Fetching connection for reading contacts")?;
+
+        let mut fetched_rows: Vec<Option<Contact>> = Vec::with_capacity(names.len());
+
+        for name in names.iter().cloned() {
+            let name_id = sqlx::query!("SELECT id FROM contacts WHERE contact_email = $1", name)
+                .fetch_optional(cxn_handle.borrow_connection())
+                .await?;
+
+            fetched_rows.push(name_id.map(|row| Contact {
+                id: row.id,
+                email: name.to_string(),
+            }));
+        }
+
+        Ok(fetched_rows)
     }
 
-    async fn bulk_save(&self, new_names: &[&str], ext_cxn: &mut impl ExternalConnectivity) -> Result<Vec<i32>, Error> {
-        todo!()
+    async fn bulk_save(&self, new_names: &[&str], ext_cxn: &mut impl ExternalConnectivity) -> Result<Vec<i64>, Error> {
+        let mut cxn = ext_cxn.database_cxn()
+            .await.context("Fetching connection for saving contacts")?;
+
+        let mut saved_ids: Vec<i64> = Vec::with_capacity(new_names.len());
+
+        for name_chunk in new_names.chunks(PG_PARAM_LIMIT) {
+            let mut query_builder: sqlx::QueryBuilder<Postgres> = sqlx::QueryBuilder::new("INSERT INTO contacts(contact_email) VALUES ");
+
+            query_builder.push_values(name_chunk, |mut builder, name| {
+                builder.push_bind(name);
+            });
+
+            query_builder.push(" RETURNING id");
+
+            let fetched_ids = query_builder.build().fetch_all(cxn.borrow_connection()).await.context("Bulk save contacts")?;
+            saved_ids.extend(fetched_ids.into_iter().map(|fetched_id| -> i64 { fetched_id.get("id") }));
+        }
+
+        Ok(saved_ids)
     }
 }
 
 pub struct DbGroupSaver;
 
-impl domain::metadata::driven_ports::UniqueStringSaver<i32, Group> for DbGroupSaver {
+impl domain::metadata::driven_ports::UniqueStringSaver<i64, Group> for DbGroupSaver {
     async fn read_matching(&self, names: &[&str], ext_cxn: &mut impl ExternalConnectivity) -> Result<Vec<Option<Group>>, Error> {
-        todo!()
+        let mut cxn_handle = ext_cxn.database_cxn()
+            .await.context("Fetching connection for reading groups")?;
+
+        let mut fetched_rows: Vec<Option<Group>> = Vec::with_capacity(names.len());
+
+        for name in names.iter().cloned() {
+            let name_id = sqlx::query!("SELECT id FROM groups WHERE group_name = $1", name)
+                .fetch_optional(cxn_handle.borrow_connection())
+                .await?;
+
+            fetched_rows.push(name_id.map(|row| Group {
+                id: row.id,
+                name: name.to_string(),
+            }));
+        }
+
+        Ok(fetched_rows)
     }
 
-    async fn bulk_save(&self, new_names: &[&str], ext_cxn: &mut impl ExternalConnectivity) -> Result<Vec<i32>, Error> {
-        todo!()
+    async fn bulk_save(&self, new_names: &[&str], ext_cxn: &mut impl ExternalConnectivity) -> Result<Vec<i64>, Error> {
+        let mut cxn = ext_cxn.database_cxn()
+            .await.context("Fetching connection for saving groups")?;
+
+        let mut saved_ids: Vec<i64> = Vec::with_capacity(new_names.len());
+
+        for name_chunk in new_names.chunks(PG_PARAM_LIMIT) {
+            let mut query_builder: sqlx::QueryBuilder<Postgres> = sqlx::QueryBuilder::new("INSERT INTO groups(group_name) VALUES ");
+
+            query_builder.push_values(name_chunk, |mut builder, name| {
+                builder.push_bind(name);
+            });
+
+            query_builder.push(" RETURNING id");
+
+            let fetched_ids = query_builder.build().fetch_all(cxn.borrow_connection()).await.context("Bulk save groups")?;
+            saved_ids.extend(fetched_ids.into_iter().map(|fetched_id| -> i64 { fetched_id.get("id") }));
+        }
+
+        Ok(saved_ids)
     }
 }
 
 pub struct DbWebsiteSaver;
 
-impl domain::metadata::driven_ports::UniqueStringSaver<i32, Website> for DbWebsiteSaver {
+impl domain::metadata::driven_ports::UniqueStringSaver<i64, Website> for DbWebsiteSaver {
     async fn read_matching(&self, names: &[&str], ext_cxn: &mut impl ExternalConnectivity) -> Result<Vec<Option<Website>>, Error> {
-        todo!()
+        let mut cxn_handle = ext_cxn.database_cxn()
+            .await.context("Fetching connection for reading websites")?;
+
+        let mut fetched_rows: Vec<Option<Website>> = Vec::with_capacity(names.len());
+
+        for name in names.iter().cloned() {
+            let name_id = sqlx::query!("SELECT id FROM websites WHERE url = $1", name)
+                .fetch_optional(cxn_handle.borrow_connection())
+                .await?;
+
+            fetched_rows.push(name_id.map(|row| Website {
+                id: row.id,
+                url: name.to_string(),
+            }));
+        }
+
+        Ok(fetched_rows)
     }
 
-    async fn bulk_save(&self, new_names: &[&str], ext_cxn: &mut impl ExternalConnectivity) -> Result<Vec<i32>, Error> {
-        todo!()
+    async fn bulk_save(&self, new_names: &[&str], ext_cxn: &mut impl ExternalConnectivity) -> Result<Vec<i64>, Error> {
+        let mut cxn = ext_cxn.database_cxn()
+            .await.context("Fetching connection for saving websites")?;
+
+        let mut saved_ids: Vec<i64> = Vec::with_capacity(new_names.len());
+
+        for name_chunk in new_names.chunks(PG_PARAM_LIMIT) {
+            let mut query_builder: sqlx::QueryBuilder<Postgres> = sqlx::QueryBuilder::new("INSERT INTO websites(url) VALUES ");
+
+            query_builder.push_values(name_chunk, |mut builder, name| {
+                builder.push_bind(name);
+            });
+
+            query_builder.push(" RETURNING id");
+
+            let fetched_ids = query_builder.build().fetch_all(cxn.borrow_connection()).await.context("Bulk save websites")?;
+            saved_ids.extend(fetched_ids.into_iter().map(|fetched_id| -> i64 { fetched_id.get("id") }));
+        }
+
+        Ok(saved_ids)
     }
 }
 
 pub struct DbMaterialsSaver;
 
-impl domain::metadata::driven_ports::UniqueStringSaver<i32, Website> for DbMaterialsSaver {
-    async fn read_matching(&self, names: &[&str], ext_cxn: &mut impl ExternalConnectivity) -> Result<Vec<Option<Website>>, Error> {
-        todo!()
+impl domain::metadata::driven_ports::UniqueStringSaver<i64, Materials> for DbMaterialsSaver {
+    async fn read_matching(&self, names: &[&str], ext_cxn: &mut impl ExternalConnectivity) -> Result<Vec<Option<Materials>>, Error> {
+        let mut cxn_handle = ext_cxn.database_cxn()
+            .await.context("Fetching connection for reading materials")?;
+
+        let mut fetched_rows: Vec<Option<Materials>> = Vec::with_capacity(names.len());
+
+        for name in names.iter().cloned() {
+            let name_id = sqlx::query!("SELECT id FROM materials WHERE summary = $1", name)
+                .fetch_optional(cxn_handle.borrow_connection())
+                .await?;
+
+            fetched_rows.push(name_id.map(|row| Materials {
+                id: row.id,
+                summary: name.to_string(),
+            }));
+        }
+
+        Ok(fetched_rows)
     }
 
-    async fn bulk_save(&self, new_names: &[&str], ext_cxn: &mut impl ExternalConnectivity) -> Result<Vec<i32>, Error> {
-        todo!()
+    async fn bulk_save(&self, new_names: &[&str], ext_cxn: &mut impl ExternalConnectivity) -> Result<Vec<i64>, Error> {
+        let mut cxn = ext_cxn.database_cxn()
+            .await.context("Fetching connection for saving materials")?;
+
+        let mut saved_ids: Vec<i64> = Vec::with_capacity(new_names.len());
+
+        for name_chunk in new_names.chunks(PG_PARAM_LIMIT) {
+            let mut query_builder: sqlx::QueryBuilder<Postgres> = sqlx::QueryBuilder::new("INSERT INTO materials(summary) VALUES ");
+
+            query_builder.push_values(name_chunk, |mut builder, name| {
+                builder.push_bind(name);
+            });
+
+            query_builder.push(" RETURNING id");
+
+            let fetched_ids = query_builder.build().fetch_all(cxn.borrow_connection()).await.context("Bulk save materials")?;
+            saved_ids.extend(fetched_ids.into_iter().map(|fetched_id| -> i64 { fetched_id.get("id") }));
+        }
+
+        Ok(saved_ids)
     }
 }
