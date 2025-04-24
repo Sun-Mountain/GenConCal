@@ -3,8 +3,7 @@ use crate::domain::metadata::{Contact, EventType, GameSystem, Group, Materials, 
 use crate::external_connections::{ConnectionHandle, ExternalConnectivity};
 use anyhow::{Context, Error};
 use sqlx::{Postgres, Row};
-
-const PG_PARAM_LIMIT: usize = 65535;
+use crate::persistence::PG_PARAM_LIMIT;
 
 pub struct DbEventTypeSaver;
 

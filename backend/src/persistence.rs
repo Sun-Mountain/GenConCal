@@ -10,6 +10,9 @@ use std::fmt::{Debug, Display};
 use sqlx::pool::PoolConnection;
 use sqlx::{Acquire, PgConnection, PgPool, Postgres, Transaction};
 
+
+const PG_PARAM_LIMIT: usize = 65535;
+
 /// Data structure which owns clients for connecting to external systems.
 /// Allows business logic to be agnostic of the external systems it communicates with
 /// so driven adapters can easily be swapped out for other implementations
