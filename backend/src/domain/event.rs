@@ -137,17 +137,20 @@ pub mod driven_ports {
         async fn bulk_event_id_exists(
             &self,
             gencon_event_id: &[&str],
-        ) -> Result<Vec<Option<i32>>, anyhow::Error>;
+            ext_cxn: &mut impl ExternalConnectivity,
+        ) -> Result<Vec<Option<i64>>, anyhow::Error>;
     }
 
     pub trait EventWriter {
         async fn bulk_save_events(
             &self,
             create_params: &[CreateParams<'_>],
-        ) -> Result<Vec<i32>, anyhow::Error>;
+            ext_cxn: &mut impl ExternalConnectivity,
+        ) -> Result<Vec<i64>, anyhow::Error>;
         async fn bulk_update_events(
             &self,
-            update_params: &[(i32, UpdateParams<'_>)],
+            update_params: &[(i64, UpdateParams<'_>)],
+            ext_cxn: &mut impl ExternalConnectivity,
         ) -> Result<(), anyhow::Error>;
     }
 }
@@ -173,7 +176,7 @@ pub mod driving_ports {
             event_writer: &impl driven_ports::EventWriter,
             ext_cxn: &mut impl ExternalConnectivity,
             
-        ) -> Result<Vec<i32>, anyhow::Error>;
+        ) -> Result<Vec<i64>, anyhow::Error>;
     }
 }
 
@@ -196,7 +199,7 @@ impl driving_ports::EventPort for EventService {
         event_detector: &impl driven_ports::EventDetector,
         event_writer: &impl driven_ports::EventWriter,
         ext_cxn: &mut impl ExternalConnectivity,
-    ) -> Result<Vec<i32>, anyhow::Error> {
+    ) -> Result<Vec<i64>, anyhow::Error> {
         let unique_metadata = UniqueMetadataToSave::from(events_to_import);
         let saved_metadata = metadata::save_metadata(
             unique_metadata,
@@ -272,12 +275,12 @@ impl driving_ports::EventPort for EventService {
             .map(|event| event.game_id.as_str())
             .collect();
         let event_existence = event_detector
-            .bulk_event_id_exists(&event_ids)
+            .bulk_event_id_exists(&event_ids, &mut *ext_cxn)
             .await
             .context("Detecting event presence before insert")?;
 
         let mut event_creates: Vec<CreateParams<'_>> = Vec::new();
-        let mut event_updates: Vec<(i32, UpdateParams<'_>)> = Vec::new();
+        let mut event_updates: Vec<(i64, UpdateParams<'_>)> = Vec::new();
 
         for (found_event_id, event_ingest) in event_existence.iter().cloned().zip(events_to_import.iter())
         {
@@ -370,10 +373,10 @@ impl driving_ports::EventPort for EventService {
             }
         }
         
-        let created_ids = event_writer.bulk_save_events(&event_creates).await.context("Creating events")?;
-        event_writer.bulk_update_events(&event_updates).await.context("Updating events")?;
+        let created_ids = event_writer.bulk_save_events(&event_creates, &mut *ext_cxn).await.context("Creating events")?;
+        event_writer.bulk_update_events(&event_updates, &mut *ext_cxn).await.context("Updating events")?;
         
-        let mut all_event_ids: Vec<i32> = Vec::new();
+        let mut all_event_ids: Vec<i64> = Vec::new();
         let mut create_idx = 0;
         
         for existing_event_id in event_existence.iter().cloned() {

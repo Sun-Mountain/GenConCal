@@ -119,7 +119,7 @@ CREATE TYPE EXPERIENCEREQUIREMENT AS ENUM ('None', 'Some', 'Expert');
 
 CREATE TABLE events (
     id BIGSERIAL PRIMARY KEY,
-    game_id varchar(128),
+    game_id varchar(128) NOT NULL,
 
     game_system_id BIGINT NOT NULL,
     event_type_id INT NOT NULL,
