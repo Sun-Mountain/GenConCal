@@ -40,6 +40,47 @@ impl domain::event::driven_ports::EventDetector for DbEventDetector {
     }
 }
 
+#[derive(sqlx::Type)]
+#[sqlx(type_name = "agerequirement")]
+enum AgeRequirementDTO {
+    Everyone,
+    KidsOnly,
+    Teen,
+    Mature,
+    Adult,
+}
+
+impl From<AgeRequirement> for AgeRequirementDTO {
+    fn from(age_req: AgeRequirement) -> Self {
+        match age_req {
+            AgeRequirement::Everyone => AgeRequirementDTO::Everyone,
+            AgeRequirement::KidsOnly => AgeRequirementDTO::KidsOnly,
+            AgeRequirement::Teen => AgeRequirementDTO::Teen,
+            AgeRequirement::Mature => AgeRequirementDTO::Mature,
+            AgeRequirement::Adult => AgeRequirementDTO::Adult,
+        }
+    }
+}
+
+#[derive(sqlx::Type)]
+#[sqlx(type_name = "experiencerequirement")]
+enum ExperienceLevelDTO {
+    Some,
+    None,
+    Expert,
+}
+
+impl From<ExperienceLevel> for ExperienceLevelDTO {
+    fn from(exp_req: ExperienceLevel) -> Self {
+        match exp_req {
+            ExperienceLevel::None => ExperienceLevelDTO::None,
+            ExperienceLevel::Some => ExperienceLevelDTO::Some,
+            ExperienceLevel::Expert => ExperienceLevelDTO::Expert,
+        }
+    }
+}
+
+// TODO use the DTO enums above instead
 fn experience_level_to_db_enum(experience_level: ExperienceLevel) -> &'static str {
     match experience_level {
         ExperienceLevel::Some => "Some",
@@ -48,6 +89,7 @@ fn experience_level_to_db_enum(experience_level: ExperienceLevel) -> &'static st
     }
 }
 
+// TODO use the DTO enums above instead
 fn age_reqt_to_db_enum(age_requirement: AgeRequirement) -> &'static str {
     match age_requirement {
         AgeRequirement::Everyone => "Everyone",
@@ -71,8 +113,8 @@ struct GameLocation {
 impl domain::event::driven_ports::EventWriter for DbEventWriter {
     async fn bulk_save_events(&self, create_params: &[CreateParams<'_>], ext_cxn: &mut impl ExternalConnectivity) -> Result<Vec<i64>, Error> {
         let mut cxn = ext_cxn.database_cxn().await.context("Trying to acquire connection to bulk insert events")?;
-        
-        
+
+
         for insert_chunk in create_params.chunks(EVENT_INSERT_CHUNK_SIZE) {
             let mut insert_query_builder: sqlx::QueryBuilder<Postgres> = sqlx::QueryBuilder::new(r#"
                 INSERT INTO events(
@@ -80,9 +122,9 @@ impl domain::event::driven_ports::EventWriter for DbEventWriter {
                     description, start, end, cost, tickets_available,
                     min_players, max_players, experience_levelage_requirement,
                     table_number, materials, contact, website, group
-                ) VALUES 
+                ) VALUES
             "#);
-            
+
             insert_query_builder.push_values(insert_chunk, |mut builder, event_create| {
                 builder.push_bind(event_create.game_id)
                     .push_bind(event_create.event_type_id)
@@ -104,16 +146,16 @@ impl domain::event::driven_ports::EventWriter for DbEventWriter {
                     .push_bind(event_create.website)
                     .push_bind(event_create.group);
             });
-            
+
             insert_query_builder.push(" RETURNING events.id");
-            
+
             let inserted_id_rows = insert_query_builder.build().fetch_all(cxn.borrow_connection()).await.context("Inserting events into database")?;
             let inserted_ids: Vec<i64> = inserted_id_rows.into_iter().map(|row| row.get("id")).collect();
 
             let mut buildings_to_insert: Vec<GameLocation> = Vec::new();
             let mut rooms_to_insert: Vec<GameLocation> = Vec::new();
             let mut sections_to_insert: Vec<GameLocation> = Vec::new();
-            
+
             for (idx, id) in inserted_ids.iter().cloned().enumerate() {
                 match insert_chunk[idx].location {
                     Some(domain::location::Ref { id: loc_id, ref_type: RefType::Location}) => buildings_to_insert.push(GameLocation { id, loc_id }),
@@ -122,20 +164,20 @@ impl domain::event::driven_ports::EventWriter for DbEventWriter {
                     None => {/* Do nothing */}
                 }
             }
-            
+
             if !buildings_to_insert.is_empty() {
                 todo!();
             }
-            
+
             if !rooms_to_insert.is_empty() {
                 todo!();
             }
-            
+
             if !sections_to_insert.is_empty() {
                 todo!();
             }
         }
-        
+
         Ok(Vec::new())
     }
 
