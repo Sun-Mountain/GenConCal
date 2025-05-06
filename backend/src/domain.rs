@@ -7,4 +7,4 @@ mod test_util;
 pub mod tournament;
 
 /// Alias for the result of a "bulk read" operation
-type BulkLookupResult<T, E> = Result<Vec<Option<T>>, E>;
+pub type BulkLookupResult<T, E> = Result<Vec<Option<T>>, E>;

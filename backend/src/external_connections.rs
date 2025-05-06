@@ -11,7 +11,6 @@ pub trait TransactableExternalConnectivity: ExternalConnectivity + Transactable 
 
 impl<T: ExternalConnectivity + Transactable + Sync> TransactableExternalConnectivity for T {}
 
-#[expect(dead_code)]
 /// ExternalConnectivity owns clients that are able to communicate with the outside world,
 /// such as database clients, HTTP clients, and more.
 pub trait ExternalConnectivity: Sync {
@@ -23,7 +22,6 @@ pub trait ExternalConnectivity: Sync {
     async fn database_cxn(&mut self) -> Result<Self::Handle<'_>, anyhow::Error>;
 }
 
-#[expect(dead_code)]
 /// ConnectionHandle is a handle borrowed from [ExternalConnectivity] which can be
 /// used to acquire a connection to the database
 pub trait ConnectionHandle {

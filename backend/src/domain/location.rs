@@ -1,5 +1,3 @@
-#![expect(dead_code)]
-
 use crate::domain::location::driven_ports::{LocationReader, LocationWriter};
 use crate::external_connections::ExternalConnectivity;
 use anyhow::Context;
@@ -66,7 +64,7 @@ pub struct Ref {
     pub ref_type: RefType,
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq, Eq)]
 pub enum RefType {
     Location,
     Room,

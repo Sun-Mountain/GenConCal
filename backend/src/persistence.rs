@@ -138,3 +138,18 @@ struct NewId {
 fn anyhowify<T: Debug + Display>(errorish: T) -> anyhow::Error {
     anyhow!(format!("{}", errorish))
 }
+
+macro_rules! num_conv_func {
+    ($from:ty, $to:ty) => {
+        paste::item! {
+            fn [<$from _as_ $to>](original: $from) -> $to {
+                original as $to
+            }
+        }
+    };
+}
+
+// Generates u16_as_i16
+num_conv_func!(u16, i16);
+// Generates u32_as_i32
+num_conv_func!(u32, i32);
