@@ -80,26 +80,6 @@ impl From<ExperienceLevel> for ExperienceLevelDTO {
     }
 }
 
-// TODO use the DTO enums above instead
-fn experience_level_to_db_enum(experience_level: ExperienceLevel) -> &'static str {
-    match experience_level {
-        ExperienceLevel::Some => "Some",
-        ExperienceLevel::None => "None",
-        ExperienceLevel::Expert => "Expert",
-    }
-}
-
-// TODO use the DTO enums above instead
-fn age_reqt_to_db_enum(age_requirement: AgeRequirement) -> &'static str {
-    match age_requirement {
-        AgeRequirement::Everyone => "Everyone",
-        AgeRequirement::KidsOnly => "KidsOnly",
-        AgeRequirement::Teen => "Teen",
-        AgeRequirement::Mature => "Mature",
-        AgeRequirement::Adult => "Adult",
-    }
-}
-
 pub struct DbEventWriter;
 
 const SINGLE_EVENT_INSERT_PARAMS_LEN: usize = 18;
@@ -107,7 +87,7 @@ const EVENT_INSERT_CHUNK_SIZE: usize = super::PG_PARAM_LIMIT / SINGLE_EVENT_INSE
 
 struct GameLocation {
     id: i64,
-    loc_id: i32,
+    loc_ref: domain::location::Ref,
 }
 
 impl domain::event::driven_ports::EventWriter for DbEventWriter {
@@ -120,7 +100,7 @@ impl domain::event::driven_ports::EventWriter for DbEventWriter {
                 INSERT INTO events(
                     game_id, event_type_id, game_system_id, title,
                     description, start, end, cost, tickets_available,
-                    min_players, max_players, experience_levelage_requirement,
+                    min_players, max_players, experience_level, age_requirement,
                     table_number, materials, contact, website, group
                 ) VALUES
             "#);
@@ -138,8 +118,8 @@ impl domain::event::driven_ports::EventWriter for DbEventWriter {
                     .push_bind(event_create.min_players as i16)
                     .push_bind(event_create.max_players as i16)
                     .push_bind(event_create.age_requirement as i16)
-                    .push_bind(experience_level_to_db_enum(event_create.experience_level))
-                    .push_bind(age_reqt_to_db_enum(event_create.age_requirement))
+                    .push_bind(ExperienceLevelDTO::from(event_create.experience_level))
+                    .push_bind(AgeRequirementDTO::from(event_create.age_requirement))
                     .push_bind(event_create.table_number.map(u16_as_i16))
                     .push_bind(event_create.materials)
                     .push_bind(event_create.contact)
@@ -157,20 +137,50 @@ impl domain::event::driven_ports::EventWriter for DbEventWriter {
             let mut sections_to_insert: Vec<GameLocation> = Vec::new();
 
             for (idx, id) in inserted_ids.iter().cloned().enumerate() {
-                match insert_chunk[idx].location {
-                    Some(domain::location::Ref { id: loc_id, ref_type: RefType::Location}) => buildings_to_insert.push(GameLocation { id, loc_id }),
-                    Some(domain::location::Ref { id: loc_id, ref_type: RefType::Room}) => rooms_to_insert.push(GameLocation { id, loc_id }),
-                    Some(domain::location::Ref { id: loc_id, ref_type: RefType::Section}) => sections_to_insert.push(GameLocation { id, loc_id }),
-                    None => {/* Do nothing */}
+                // TODO we don't need to include the entire location in the insert query, just the id
+                if let Some(ref loc_ref) = create_params[idx].location {
+                    let location_to_add = GameLocation {
+                        id: inserted_ids[idx],
+                        loc_ref: loc_ref.clone(),
+                    };
+                    match loc_ref.ref_type {
+                        RefType::Location => buildings_to_insert.push(location_to_add),
+                        RefType::Room => rooms_to_insert.push(location_to_add),
+                        RefType::Section => sections_to_insert.push(location_to_add),
+                    }
                 }
             }
 
+            // We don't need to chunk these inserts since they're guaranteed to have fewer inputs
+            // than the larger query to insert the events
+            
+            // TODO use insert_location_refs here
             if !buildings_to_insert.is_empty() {
-                todo!();
+                let mut building_insert_builder: sqlx::QueryBuilder<Postgres> = sqlx::QueryBuilder::new(r#"
+                    INSERT INTO event_location(event_id, location_id) VALUES
+                "#);
+                
+                building_insert_builder.push_values(&buildings_to_insert, |mut builder, game_location| {
+                    builder.push_bind(game_location.id)
+                        .push_bind(game_location.loc_ref.id);
+                });
+                
+                building_insert_builder.build().execute(cxn.borrow_connection()).await
+                    .context("Inserting event building locations into database")?;
             }
 
             if !rooms_to_insert.is_empty() {
-                todo!();
+                let mut room_insert_builder: sqlx::QueryBuilder<Postgres> = sqlx::QueryBuilder::new(r#"
+                    INSERT INTO event_room(event_id, room_id) VALUES
+                "#);
+                
+                room_insert_builder.push_values(&rooms_to_insert, |mut builder, game_location| {
+                    builder.push_bind(game_location.id)
+                        .push_bind(game_location.loc_ref.id);
+                });
+                
+                room_insert_builder.build().execute(cxn.borrow_connection()).await
+                    .context("Inserting event room locations into database")?;
             }
 
             if !sections_to_insert.is_empty() {
@@ -184,4 +194,9 @@ impl domain::event::driven_ports::EventWriter for DbEventWriter {
     async fn bulk_update_events(&self, update_params: &[(i64, UpdateParams<'_>)], ext_cxn: &mut impl ExternalConnectivity) -> Result<(), Error> {
         todo!()
     }
+}
+
+// TODO move this to the location module
+async fn insert_location_refs(ext_cxn_handle: &mut impl ConnectionHandle) {
+    todo!()
 }
