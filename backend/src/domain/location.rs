@@ -4,6 +4,7 @@ use anyhow::Context;
 #[cfg(test)]
 use serde::Serialize;
 use std::collections::HashMap;
+use derive_more::Display;
 
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub struct Location {
@@ -64,7 +65,7 @@ pub struct Ref {
     pub ref_type: RefType,
 }
 
-#[derive(Clone, Copy, PartialEq, Eq)]
+#[derive(Clone, Copy, PartialEq, Eq, Display)]
 pub enum RefType {
     Location,
     Room,

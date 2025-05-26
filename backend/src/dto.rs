@@ -521,7 +521,7 @@ pub struct EventImportRequest {
 pub struct ImportedEvent {
     pub age_requirement: String,
     pub contact: String,
-    pub cost: u16,
+    pub cost: u32,
     pub description_short: String,
     pub end_date: DateDto,
     pub end_time: TimeDto,
