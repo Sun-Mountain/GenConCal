@@ -158,7 +158,7 @@ pub mod driven_ports {
 pub mod driving_ports {
     use super::*;
     
-    pub trait EventPort {
+    pub trait EventPort: Sync {
         #[allow(clippy::too_many_arguments)]
         async fn import_events(
             &self,

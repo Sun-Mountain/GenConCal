@@ -1,11 +1,16 @@
 use crate::dto::IngestEventConvertErr;
 use crate::external_connections::{with_transaction, ExternalConnectivity, TransactableExternalConnectivity};
-use crate::{domain, dto, persistence, SharedData};
+use crate::{domain, dto, persistence, AppState, SharedData};
 use axum::http::StatusCode;
 use axum::response::ErrorResponse;
 use axum::{Json, Router};
 use std::sync::Arc;
+use anyhow::anyhow;
+use axum::extract::State;
+use axum::routing::post;
+use tracing::error;
 use utoipa::OpenApi;
+use crate::routing_utils::GenericErrorResponse;
 
 #[derive(OpenApi)]
 #[openapi()]
@@ -15,6 +20,12 @@ pub const EVENT_IMPORT_GROUP: &str = "EventImport";
 
 pub fn event_import_routes() -> Router<Arc<SharedData>> {
     Router::new()
+        .route("/", post(|State(app_state): AppState, Json(import_request): Json<dto::EventImportRequest>| async move {
+            let evt_svc = domain::event::EventService;
+            let mut ext_cxn = app_state.ext_cxn.clone();
+            
+            import_events(import_request, &evt_svc, &mut ext_cxn).await
+        }))
 }
 
 async fn import_events(
@@ -59,7 +70,7 @@ async fn import_events(
         }
     }
 
-    with_transaction(ext_cxn, async |tx_handle| {
+    with_transaction(ext_cxn, async move |tx_handle| {
         event_port.import_events(
             &ingest_vec, 
             
@@ -78,6 +89,11 @@ async fn import_events(
             
             tx_handle,
         ).await
-    }).await;
+    }).await
+        .map_err(|err| {
+            error!("Event import failed: {}", err);
+            GenericErrorResponse(anyhow!("Could not import events."))
+        })?;
+    
     Ok(StatusCode::CREATED)
 }
