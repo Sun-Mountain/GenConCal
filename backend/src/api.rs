@@ -6,7 +6,7 @@ use validator::Validate;
 pub mod swagger_main;
 
 pub mod days;
-mod event_import;
+pub mod event_import;
 pub mod events;
 pub mod organizers;
 #[cfg(test)]
@@ -52,3 +52,5 @@ pub struct PaginationQueryParams {
     /// The number of results to return per page
     pub limit: Option<u16>,
 }
+
+static MEBIBYTE: usize = 1024 * 1024;

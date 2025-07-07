@@ -53,9 +53,9 @@ impl external_connections::ExternalConnectivity for ExternalConnectivity {
 }
 
 impl external_connections::Transactable for ExternalConnectivity {
-    type Handle<'handle> = ExternalConnectionsInTransaction<'handle>;
+    type Handle = ExternalConnectionsInTransaction;
 
-    async fn start_transaction(&self) -> Result<Self::Handle<'_>, anyhow::Error> {
+    async fn start_transaction(&self) -> Result<Self::Handle, anyhow::Error> {
         let transaction = self
             .db
             .begin()
@@ -68,8 +68,8 @@ impl external_connections::Transactable for ExternalConnectivity {
 
 /// A variant of ExternalConnectivity where the database client has an active database transaction
 /// which can later be committed
-pub struct ExternalConnectionsInTransaction<'tx> {
-    txn: Transaction<'tx, Postgres>,
+pub struct ExternalConnectionsInTransaction {
+    txn: Transaction<'static, Postgres>,
 }
 
 /// A handle from ExternalConnectionsInTransaction which can connect to a database
@@ -77,7 +77,7 @@ pub struct TransactionHandle<'tx> {
     active_transaction: &'tx mut PgConnection,
 }
 
-impl external_connections::ExternalConnectivity for ExternalConnectionsInTransaction<'_> {
+impl external_connections::ExternalConnectivity for ExternalConnectionsInTransaction {
     type Handle<'tx_borrow>
         = TransactionHandle<'tx_borrow>
     where
@@ -102,7 +102,7 @@ impl ConnectionHandle for TransactionHandle<'_> {
     }
 }
 
-impl external_connections::TransactionHandle for ExternalConnectionsInTransaction<'_> {
+impl external_connections::TransactionHandle for ExternalConnectionsInTransaction {
     async fn commit(self) -> Result<(), anyhow::Error> {
         self.txn
             .commit()

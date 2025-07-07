@@ -31,12 +31,10 @@ pub trait ConnectionHandle {
 
 /// Anything that can initiate a database transaction
 pub trait Transactable: Sync {
-    type Handle<'handle>: TransactionHandle + ExternalConnectivity + 'handle
-    where
-        Self: 'handle;
+    type Handle: TransactionHandle + ExternalConnectivity;
 
     /// Retrieve a handle which contains a database connection in an active transaction
-    async fn start_transaction(&self) -> Result<Self::Handle<'_>, anyhow::Error>;
+    async fn start_transaction(&self) -> Result<Self::Handle, anyhow::Error>;
 }
 
 /// TransactionHandle is a handle borrowed from [Transactable] which represents
@@ -79,17 +77,17 @@ where
 // Handle = "The thing that can give you a database connection"
 // Ret = "The success type returned from the passed async function"
 // Err = "The error type returned from the passed async function"
+#[tracing::instrument(name = "DB Transaction", skip(tx_origin, transaction_context))]
 /// Accepts [tx_origin] which can start a database transaction. It then starts a transaction and
 /// invokes [transaction_context] with the started transaction. When [transaction_context] completes,
 /// the transaction handle passed to it is committed as long as [transaction_context] does not return
 /// a [Result::Err].
-#[allow(dead_code)]
-pub async fn with_transaction<'tx, TxAble, Handle, Ret, Err>(
-    tx_origin: &'tx TxAble,
+pub async fn with_transaction<TxAble, Handle, Ret, Err>(
+    tx_origin: &TxAble,
     transaction_context: impl AsyncFnOnce(&mut Handle) -> Result<Ret, Err>,
 ) -> Result<Ret, TxOrSourceError<Ret, Err>>
 where
-    TxAble: Transactable<Handle<'tx> = Handle>,
+    TxAble: Transactable<Handle = Handle>,
     Handle: TransactionHandle + ExternalConnectivity,
     Err: Debug + Display,
 {
@@ -224,7 +222,7 @@ pub mod test_util {
     }
 
     impl Transactable for FakeExternalConnectivity {
-        type Handle<'handle> = FakeExternalConnectivity;
+        type Handle = FakeExternalConnectivity;
 
         async fn start_transaction(&self) -> Result<FakeExternalConnectivity, anyhow::Error> {
             Ok(FakeExternalConnectivity {

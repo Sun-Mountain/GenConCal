@@ -1,7 +1,8 @@
 use std::collections::HashMap;
-use anyhow::{Context, Error};
+use anyhow::Context;
 use chrono::Datelike;
 use sqlx::{Postgres, Row};
+use tracing::*;
 use crate::domain;
 use crate::domain::event::{AgeRequirement, CreateParams, ExperienceLevel, UpdateParams};
 use crate::domain::location;
@@ -17,18 +18,18 @@ struct GameIdAndId {
 pub struct DbEventDetector;
 
 impl domain::event::driven_ports::EventDetector for DbEventDetector {
-    async fn bulk_event_id_exists(&self, gencon_event_id: &[&str], ext_cxn: &mut impl ExternalConnectivity) -> Result<Vec<Option<i64>>, Error> {
+    #[tracing::instrument(skip(self, gencon_event_id, ext_cxn), fields(first_3_ids = ?gencon_event_id.get(0..3)))]
+    async fn bulk_event_id_exists(&self, gencon_event_id: &[&str], current_year: i32, ext_cxn: &mut impl ExternalConnectivity) -> Result<Vec<Option<i64>>, anyhow::Error> {
         let mut cxn = ext_cxn.database_cxn().await.context("Trying to acquire connection to bulk detect events")?;
         
         let event_id_strings: Vec<String> = gencon_event_id.iter().map(|id| id.to_string()).collect();
-        let current_year = chrono::Local::now().year() as i16;
         let mut detected_db_ids: Vec<Option<i64>> = vec![None; gencon_event_id.len()];
         let event_id_to_idx: HashMap<&str, usize> = gencon_event_id.iter()
             .enumerate()
             .map(|(idx, event_id)| (*event_id, idx))
             .collect();
         
-        let located_ids: Vec<GameIdAndId> = sqlx::query_as!(GameIdAndId, "SELECT id, game_id from events WHERE game_id = ANY($1) AND year = $2", event_id_strings.as_slice(), current_year)
+        let located_ids: Vec<GameIdAndId> = sqlx::query_as!(GameIdAndId, "SELECT id, game_id from events WHERE game_id = ANY($1) AND year = $2", event_id_strings.as_slice(), current_year as i16)
             .fetch_all(cxn.borrow_connection())
             .await
             .context("Looking up event availability in database")?;
@@ -85,30 +86,29 @@ impl From<ExperienceLevel> for ExperienceLevelDTO {
 
 pub struct DbEventWriter;
 
-const SINGLE_EVENT_INSERT_PARAMS_LEN: usize = 18;
+const SINGLE_EVENT_INSERT_PARAMS_LEN: usize = 19;
 const EVENT_INSERT_CHUNK_SIZE: usize = super::PG_PARAM_LIMIT / SINGLE_EVENT_INSERT_PARAMS_LEN;
 
-const SINGLE_EVENT_UPDATE_PARAMS_LEN: usize = 18;
-const EVENT_UPDATE_CHUNK_SIZE: usize = super::PG_PARAM_LIMIT / SINGLE_EVENT_UPDATE_PARAMS_LEN;
-
+#[derive(Debug)]
 struct GameLocation {
     id: i64,
     loc_id: i32,
 }
 
 impl domain::event::driven_ports::EventWriter for DbEventWriter {
-    async fn bulk_save_events(&self, create_params: &[CreateParams<'_>], ext_cxn: &mut impl ExternalConnectivity) -> Result<Vec<i64>, Error> {
+    #[tracing::instrument(skip_all, fields(first_3_inserted = ?create_params.get(0..3)))]
+    async fn bulk_save_events(&self, create_params: &[CreateParams<'_>], ext_cxn: &mut impl ExternalConnectivity) -> Result<Vec<i64>, anyhow::Error> {
         let mut cxn = ext_cxn.database_cxn().await.context("Trying to acquire connection to bulk insert events")?;
         let mut all_inserted_ids: Vec<i64> = Vec::with_capacity(create_params.len());
         
-        for insert_chunk in create_params.chunks(EVENT_INSERT_CHUNK_SIZE) {
+        for (chunk_idx, insert_chunk) in create_params.chunks(EVENT_INSERT_CHUNK_SIZE).enumerate() {
             let mut insert_query_builder: sqlx::QueryBuilder<Postgres> = sqlx::QueryBuilder::new(r#"
                 INSERT INTO events(
                     game_id, event_type_id, game_system_id, title,
-                    description, start, end, cost, tickets_available,
-                    min_players, max_players, experience_level, age_requirement,
-                    table_number, materials, contact, website, group
-                ) VALUES
+                    description, start_dt, end_dt, year, cost, tickets_available,
+                    min_players, max_players, required_experience, age_requirement,
+                    table_number, materials_id, contact_id, website_id, group_id
+                )
             "#);
 
             insert_query_builder.push_values(insert_chunk, |mut builder, event_create| {
@@ -119,11 +119,11 @@ impl domain::event::driven_ports::EventWriter for DbEventWriter {
                     .push_bind(event_create.description)
                     .push_bind(event_create.start)
                     .push_bind(event_create.end)
+                    .push_bind(event_create.start.year() as i16)
                     .push_bind(event_create.cost.map(u32_as_i32))
                     .push_bind(event_create.tickets_available as i16)
                     .push_bind(event_create.min_players as i16)
                     .push_bind(event_create.max_players as i16)
-                    .push_bind(event_create.age_requirement as i16)
                     .push_bind(ExperienceLevelDTO::from(event_create.experience_level))
                     .push_bind(AgeRequirementDTO::from(event_create.age_requirement))
                     .push_bind(event_create.table_number.map(u16_as_i16))
@@ -143,7 +143,7 @@ impl domain::event::driven_ports::EventWriter for DbEventWriter {
             let mut sections_to_insert: Vec<GameLocation> = Vec::new();
 
             for (idx, id) in inserted_ids.iter().cloned().enumerate() {
-                if let Some(ref loc_ref) = create_params[idx].location {
+                if let Some(ref loc_ref) = create_params[idx + (chunk_idx * EVENT_INSERT_CHUNK_SIZE)].location {
                     let location_to_add = GameLocation {
                         id,
                         loc_id: loc_ref.id,
@@ -161,7 +161,7 @@ impl domain::event::driven_ports::EventWriter for DbEventWriter {
             
             upsert_location_refs(&mut cxn, &buildings_to_insert, RefType::Location).await.context("Event insert")?;
             upsert_location_refs(&mut cxn, &rooms_to_insert, RefType::Room).await.context("Event insert")?;
-            upsert_location_refs(&mut cxn, &rooms_to_insert, RefType::Section).await.context("Event insert")?;
+            upsert_location_refs(&mut cxn, &sections_to_insert, RefType::Section).await.context("Event insert")?;
             
             all_inserted_ids.extend(inserted_ids);
         }
@@ -169,7 +169,8 @@ impl domain::event::driven_ports::EventWriter for DbEventWriter {
         Ok(all_inserted_ids)
     }
 
-    async fn bulk_update_events(&self, update_params: &[(i64, UpdateParams<'_>)], ext_cxn: &mut impl ExternalConnectivity) -> Result<(), Error> {
+    #[tracing::instrument(skip_all, fields(first_3_updated = ?update_params.get(0..3)))]
+    async fn bulk_update_events(&self, update_params: &[(i64, UpdateParams<'_>)], ext_cxn: &mut impl ExternalConnectivity) -> Result<(), anyhow::Error> {
         let mut cxn = ext_cxn.database_cxn().await.context("Acquiring connection to bulk update events")?;
         let mut all_buildings: Vec<GameLocation> = Vec::new();
         let mut all_rooms: Vec<GameLocation> = Vec::new();
@@ -185,18 +186,19 @@ impl domain::event::driven_ports::EventWriter for DbEventWriter {
                     , description = $4
                     , start_dt = $5
                     , end_dt = $6
-                    , cost = $7
-                    , tickets_available = $8
-                    , min_players = $9
-                    , max_players = $10
-                    , age_requirement = $11
-                    , required_experience = $12
-                    , table_number = $13
-                    , materials_id = $14
-                    , contact_id = $15
-                    , website_id = $16
-                    , group_id = $17
-                WHERE id = $18
+                    , year = $7
+                    , cost = $8
+                    , tickets_available = $9
+                    , min_players = $10
+                    , max_players = $11
+                    , age_requirement = $12
+                    , required_experience = $13
+                    , table_number = $14
+                    , materials_id = $15
+                    , contact_id = $16
+                    , website_id = $17
+                    , group_id = $18
+                WHERE id = $19
             "#,
                 update_params.event_type_id,
                 update_params.game_system_id,
@@ -204,6 +206,7 @@ impl domain::event::driven_ports::EventWriter for DbEventWriter {
                 update_params.description,
                 update_params.start,
                 update_params.end,
+                update_params.start.year() as i16,
                 update_params.cost.map(u32_as_i32),
                 update_params.tickets_available as i16,
                 update_params.min_players as i16,
@@ -218,8 +221,8 @@ impl domain::event::driven_ports::EventWriter for DbEventWriter {
                 id,
             ).execute(cxn.borrow_connection())
                 .await
-                .context(format!("Updating event ID {id}"))?;
-            
+                .with_context(|| format!("Updating event ID {id}"))?;
+
             if let Some(ref location) = update_params.location {
                 let location_to_save = GameLocation {
                     id: *id,
@@ -247,7 +250,7 @@ impl domain::event::driven_ports::EventWriter for DbEventWriter {
 const LOCATION_UPSERT_PARAMS: usize = 2;
 const LOCATION_UPSERT_CHUNK_SIZE: usize = super::PG_PARAM_LIMIT / LOCATION_UPSERT_PARAMS;
 
-async fn upsert_location_refs_chunked(ext_cxn_handle: &mut impl ConnectionHandle, locations: &[GameLocation], ref_type: RefType) -> Result<(), Error> {
+async fn upsert_location_refs_chunked(ext_cxn_handle: &mut impl ConnectionHandle, locations: &[GameLocation], ref_type: RefType) -> Result<(), anyhow::Error> {
     if locations.is_empty() {
         return Ok(());
     }
@@ -259,15 +262,16 @@ async fn upsert_location_refs_chunked(ext_cxn_handle: &mut impl ConnectionHandle
     Ok(())
 }
 
-async fn upsert_location_refs(ext_cxn_handle: &mut impl ConnectionHandle, locations: &[GameLocation], ref_type: RefType) -> Result<(), Error> {
+#[tracing::instrument(skip(ext_cxn_handle, locations), fields(first_3_locations = ?locations.get(0..3)))]
+async fn upsert_location_refs(ext_cxn_handle: &mut impl ConnectionHandle, locations: &[GameLocation], ref_type: RefType) -> Result<(), anyhow::Error> {
     if locations.is_empty() {
         return Ok(());
     }
     
     let insert_query = match ref_type {
-        RefType::Location => "INSERT INTO event_location(event_id, location_id) VALUES ",
-        RefType::Room => "INSERT INTO event_room(event_id, room_id) VALUES ",
-        RefType::Section => "INSERT INTO event_section(event_id, section_id) VALUES ",
+        RefType::Location => "INSERT INTO event_location(event_id, location_id)",
+        RefType::Room => "INSERT INTO event_room(event_id, room_id)",
+        RefType::Section => "INSERT INTO event_section(event_id, section_id)",
     };
 
     let mut insert_builder: sqlx::QueryBuilder<Postgres> = sqlx::QueryBuilder::new(insert_query);
@@ -280,12 +284,12 @@ async fn upsert_location_refs(ext_cxn_handle: &mut impl ConnectionHandle, locati
     insert_builder.push(" ON CONFLICT DO NOTHING");
 
     insert_builder.build().execute(ext_cxn_handle.borrow_connection()).await
-        .context(format!("Inserting {ref_type} connections into database"))?;
+        .with_context(|| format!("Inserting {ref_type} connections into database"))?;
     
     Ok(())
 }
 
-async fn remove_location_refs_chunked(ext_cxn_handle: &mut impl ConnectionHandle, ids_to_remove_location: &[i64]) -> Result<(), Error> {
+async fn remove_location_refs_chunked(ext_cxn_handle: &mut impl ConnectionHandle, ids_to_remove_location: &[i64]) -> Result<(), anyhow::Error> {
     if ids_to_remove_location.is_empty() {
         return Ok(());
     }
@@ -297,7 +301,7 @@ async fn remove_location_refs_chunked(ext_cxn_handle: &mut impl ConnectionHandle
     Ok(())
 }
 
-async fn remove_location_refs(ext_cxn_handle: &mut impl ConnectionHandle, ids_to_remove_location: &[i64]) -> Result<(), Error> {
+async fn remove_location_refs(ext_cxn_handle: &mut impl ConnectionHandle, ids_to_remove_location: &[i64]) -> Result<(), anyhow::Error> {
     if ids_to_remove_location.is_empty() {
         return Ok(());
     }

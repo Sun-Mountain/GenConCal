@@ -1,12 +1,12 @@
 #![expect(dead_code)]
 
 use anyhow::{Context, anyhow};
-use chrono::DateTime;
+use chrono::{DateTime, Datelike};
 use chrono_tz::Tz;
 #[cfg(test)]
 use serde::Serialize;
 use std::collections::{HashMap, HashSet};
-
+use tracing::debug_span;
 use crate::domain::location::driven_ports::{LocationReader, LocationWriter};
 use crate::domain::location::{Location, LocationIngest, Room, Section};
 use crate::domain::metadata::driven_ports::UniqueStringSaver;
@@ -87,6 +87,7 @@ pub enum ExperienceLevel {
     Expert,
 }
 
+#[derive(Debug)]
 pub struct CreateParams<'items> {
     pub game_id: &'items str,
     pub event_type_id: i32,
@@ -109,6 +110,7 @@ pub struct CreateParams<'items> {
     pub group: Option<i64>,
 }
 
+#[derive(Debug)]
 pub struct UpdateParams<'items> {
     pub event_type_id: i32,
     pub game_system_id: Option<i64>,
@@ -137,6 +139,7 @@ pub mod driven_ports {
         async fn bulk_event_id_exists(
             &self,
             gencon_event_id: &[&str],
+            current_year: i32,
             ext_cxn: &mut impl ExternalConnectivity,
         ) -> Result<Vec<Option<i64>>, anyhow::Error>;
     }
@@ -184,6 +187,7 @@ pub struct EventService;
 
 impl driving_ports::EventPort for EventService {
     #[allow(clippy::too_many_arguments)]
+    #[tracing::instrument(skip_all, fields(event_titles=events_to_import.iter().take(50).map(|event| event.title.as_str()).collect::<Vec<_>>().join(",\n")))]
     async fn import_events(
         &self,
         events_to_import: &[IngestEvent],
@@ -200,6 +204,10 @@ impl driving_ports::EventPort for EventService {
         event_writer: &impl driven_ports::EventWriter,
         ext_cxn: &mut impl ExternalConnectivity,
     ) -> Result<Vec<i64>, anyhow::Error> {
+        if events_to_import.is_empty() {
+            return Ok(Vec::new());
+        }
+
         let unique_metadata = UniqueMetadataToSave::from(events_to_import);
         let saved_metadata = metadata::save_metadata(
             unique_metadata,
@@ -275,104 +283,109 @@ impl driving_ports::EventPort for EventService {
             .map(|event| event.game_id.as_str())
             .collect();
         let event_existence = event_detector
-            .bulk_event_id_exists(&event_ids, &mut *ext_cxn)
+            .bulk_event_id_exists(&event_ids, events_to_import[0].start.year(), &mut *ext_cxn)
             .await
             .context("Detecting event presence before insert")?;
 
         let mut event_creates: Vec<CreateParams<'_>> = Vec::new();
         let mut event_updates: Vec<(i64, UpdateParams<'_>)> = Vec::new();
 
-        for (found_event_id, event_ingest) in event_existence.iter().cloned().zip(events_to_import.iter())
         {
-            let Some(&event_type_id) = type_ids_by_name.get(event_ingest.event_type.as_str())
-            else {
-                return Err(anyhow!(
+            let evt_assembly = debug_span!("event_assembly");
+            let _enter = evt_assembly.enter();
+
+            for (found_event_id, event_ingest) in event_existence.iter().cloned().zip(events_to_import.iter())
+            {
+                let Some(&event_type_id) = type_ids_by_name.get(event_ingest.event_type.as_str())
+                else {
+                    return Err(anyhow!(
                     "Unexpected error: did not receive ID for event type {} during ingest",
                     event_ingest.event_type
                 ));
-            };
-            let game_system_id = find_id_for_optional_str(
-                event_ingest.game_system.as_deref(),
-                &game_system_ids_by_name,
-                "game system",
-            )?;
-            let contact_id = find_id_for_optional_str(
-                event_ingest.contact.as_deref(),
-                &contact_ids_by_name,
-                "contact email",
-            )?;
-            let group_id = find_id_for_optional_str(
-                event_ingest.group.as_deref(),
-                &group_ids_by_name,
-                "group",
-            )?;
-            let website_id = find_id_for_optional_str(
-                event_ingest.website.as_deref(),
-                &website_ids_by_name,
-                "website url",
-            )?;
-            let materials_id = find_id_for_optional_str(
-                event_ingest.materials.as_deref(),
-                &materials_ids_by_name,
-                "materials list",
-            )?;
-            let location_ref = if let Some(ref event_location) = event_ingest.location {
-                let Some(fetched_location) = location_ingest_to_ref.get(event_location) else {
-                    return Err(anyhow!("Unexpected error: previously saved location {:?} but failed to retrieve its ID", event_location));
                 };
-                Some((*fetched_location).clone())
-            } else {
-                None
-            };
-            
-            if let Some(id) = found_event_id {
-                let event_update_data = UpdateParams {
-                    event_type_id,
-                    game_system_id,
-                    title: event_ingest.title.as_str(),
-                    description: event_ingest.description.as_str(),
-                    start: event_ingest.start,
-                    end: event_ingest.end,
-                    cost: event_ingest.cost,
-                    tickets_available: event_ingest.tickets_available,
-                    min_players: event_ingest.min_players,
-                    max_players: event_ingest.max_players,
-                    age_requirement: event_ingest.age_requirement,
-                    experience_requirement: event_ingest.experience_requirement,
-                    location: location_ref,
-                    table_number: event_ingest.table_number,
-                    materials: materials_id,
-                    contact: contact_id,
-                    website: website_id,
-                    group: group_id,
+                let game_system_id = find_id_for_optional_str(
+                    event_ingest.game_system.as_deref(),
+                    &game_system_ids_by_name,
+                    "game system",
+                )?;
+                let contact_id = find_id_for_optional_str(
+                    event_ingest.contact.as_deref(),
+                    &contact_ids_by_name,
+                    "contact email",
+                )?;
+                let group_id = find_id_for_optional_str(
+                    event_ingest.group.as_deref(),
+                    &group_ids_by_name,
+                    "group",
+                )?;
+                let website_id = find_id_for_optional_str(
+                    event_ingest.website.as_deref(),
+                    &website_ids_by_name,
+                    "website url",
+                )?;
+                let materials_id = find_id_for_optional_str(
+                    event_ingest.materials.as_deref(),
+                    &materials_ids_by_name,
+                    "materials list",
+                )?;
+                let location_ref = if let Some(ref event_location) = event_ingest.location {
+                    let Some(fetched_location) = location_ingest_to_ref.get(event_location) else {
+                        return Err(anyhow!("Unexpected error: previously saved location {:?} but failed to retrieve its ID", event_location));
+                    };
+                    Some((*fetched_location).clone())
+                } else {
+                    None
                 };
-                event_updates.push((id, event_update_data));
-            } else {
-                let event_create_data = CreateParams {
-                    game_id: event_ingest.game_id.as_str(),
-                    event_type_id,
-                    game_system_id,
-                    title: event_ingest.title.as_str(),
-                    description: event_ingest.description.as_str(),
-                    start: event_ingest.start,
-                    end: event_ingest.end,
-                    cost: event_ingest.cost,
-                    tickets_available: event_ingest.tickets_available,
-                    min_players: event_ingest.min_players,
-                    max_players: event_ingest.max_players,
-                    age_requirement: event_ingest.age_requirement,
-                    experience_level: event_ingest.experience_requirement,
-                    location: location_ref,
-                    table_number: event_ingest.table_number,
-                    materials: materials_id,
-                    contact: contact_id,
-                    website: website_id,
-                    group: group_id,
-                };
-                event_creates.push(event_create_data);
+
+                if let Some(id) = found_event_id {
+                    let event_update_data = UpdateParams {
+                        event_type_id,
+                        game_system_id,
+                        title: event_ingest.title.as_str(),
+                        description: event_ingest.description.as_str(),
+                        start: event_ingest.start,
+                        end: event_ingest.end,
+                        cost: event_ingest.cost,
+                        tickets_available: event_ingest.tickets_available,
+                        min_players: event_ingest.min_players,
+                        max_players: event_ingest.max_players,
+                        age_requirement: event_ingest.age_requirement,
+                        experience_requirement: event_ingest.experience_requirement,
+                        location: location_ref,
+                        table_number: event_ingest.table_number,
+                        materials: materials_id,
+                        contact: contact_id,
+                        website: website_id,
+                        group: group_id,
+                    };
+                    event_updates.push((id, event_update_data));
+                } else {
+                    let event_create_data = CreateParams {
+                        game_id: event_ingest.game_id.as_str(),
+                        event_type_id,
+                        game_system_id,
+                        title: event_ingest.title.as_str(),
+                        description: event_ingest.description.as_str(),
+                        start: event_ingest.start,
+                        end: event_ingest.end,
+                        cost: event_ingest.cost,
+                        tickets_available: event_ingest.tickets_available,
+                        min_players: event_ingest.min_players,
+                        max_players: event_ingest.max_players,
+                        age_requirement: event_ingest.age_requirement,
+                        experience_level: event_ingest.experience_requirement,
+                        location: location_ref,
+                        table_number: event_ingest.table_number,
+                        materials: materials_id,
+                        contact: contact_id,
+                        website: website_id,
+                        group: group_id,
+                    };
+                    event_creates.push(event_create_data);
+                }
             }
         }
-        
+
         let created_ids = event_writer.bulk_save_events(&event_creates, &mut *ext_cxn).await.context("Creating events")?;
         event_writer.bulk_update_events(&event_updates, &mut *ext_cxn).await.context("Updating events")?;
         

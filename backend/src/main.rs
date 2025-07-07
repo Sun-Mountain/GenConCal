@@ -1,4 +1,4 @@
-use axum::body::Body;
+use axum::body::{Body, HttpBody};
 use axum::extract::State;
 use axum::http::{Request, Response};
 use axum::Router;
@@ -8,7 +8,7 @@ use std::sync::Arc;
 use std::time::Duration;
 use tokio::net::TcpListener;
 use tower::ServiceBuilder;
-use tower_http::trace::TraceLayer;
+use tower_http::trace::{DefaultMakeSpan, TraceLayer};
 use tracing::*;
 
 mod api;
@@ -56,15 +56,21 @@ async fn main() {
         .nest("/api/days", api::days::day_routes())
         .nest("/api/events", api::events::events_routes())
         .nest("/api/organizers", api::organizers::organizers_routes())
+        .nest("/api/data-ingests", api::event_import::event_import_routes())
         .merge(api::swagger_main::build_documentation())
         .layer(
             ServiceBuilder::new().layer(
                 TraceLayer::new_for_http()
                     .make_span_with(|request: &Request<Body>| {
+                        // TODO look for a span ID in the incoming request headers & attach
+                        //   if available. Can use opentelemetry-http for this
+                        let size_guesstimate = request.size_hint();
                         debug_span!(
                             "request",
                             method = &request.method().as_str(),
                             path = request.uri().path(),
+                            body_size_guess_low = size_guesstimate.lower(),
+                            body_size_guess_high = size_guesstimate.upper(),
                             response_status = field::Empty,
                         )
                     })

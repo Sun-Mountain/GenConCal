@@ -8,6 +8,7 @@ use crate::persistence::PG_PARAM_LIMIT;
 pub struct DbEventTypeSaver;
 
 impl domain::metadata::driven_ports::UniqueStringSaver<i32, EventType> for DbEventTypeSaver {
+    #[tracing::instrument(skip_all, fields(first_5 = ?names.get(0..5), total = names.len()))]
     async fn read_matching(&self, names: &[&str], ext_cxn: &mut impl ExternalConnectivity) -> Result<Vec<Option<EventType>>, Error> {
         let mut cxn_handle = ext_cxn.database_cxn()
             .await.context("Fetching connection for reading event types")?;
@@ -28,6 +29,7 @@ impl domain::metadata::driven_ports::UniqueStringSaver<i32, EventType> for DbEve
         Ok(fetched_rows)
     }
 
+    #[tracing::instrument(skip_all, fields(first_5 = ?new_names.get(0..5), total = new_names.len()))]
     async fn bulk_save(&self, new_names: &[&str], ext_cxn: &mut impl ExternalConnectivity) -> Result<Vec<i32>, Error> {
         let mut cxn = ext_cxn.database_cxn()
             .await.context("Fetching connection for saving event types")?;
@@ -35,7 +37,7 @@ impl domain::metadata::driven_ports::UniqueStringSaver<i32, EventType> for DbEve
         let mut saved_ids: Vec<i32> = Vec::with_capacity(new_names.len());
 
         for name_chunk in new_names.chunks(PG_PARAM_LIMIT) {
-            let mut query_builder: sqlx::QueryBuilder<Postgres> = sqlx::QueryBuilder::new("INSERT INTO event_types(event_type) VALUES ");
+            let mut query_builder: sqlx::QueryBuilder<Postgres> = sqlx::QueryBuilder::new("INSERT INTO event_types(event_type)");
 
             query_builder.push_values(name_chunk, |mut builder, name| {
                 builder.push_bind(name);
@@ -54,6 +56,7 @@ impl domain::metadata::driven_ports::UniqueStringSaver<i32, EventType> for DbEve
 pub struct DbGameSystemSaver;
 
 impl domain::metadata::driven_ports::UniqueStringSaver<i64, GameSystem> for DbGameSystemSaver {
+    #[tracing::instrument(skip_all, fields(first_5 = ?names.get(0..5), total = names.len()))]
     async fn read_matching(&self, names: &[&str], ext_cxn: &mut impl ExternalConnectivity) -> Result<Vec<Option<GameSystem>>, Error> {
         let mut cxn_handle = ext_cxn.database_cxn()
             .await.context("Fetching connection for reading game systems")?;
@@ -74,6 +77,7 @@ impl domain::metadata::driven_ports::UniqueStringSaver<i64, GameSystem> for DbGa
         Ok(fetched_rows)
     }
 
+    #[tracing::instrument(skip_all, fields(first_5 = ?new_names.get(0..5), total = new_names.len()))]
     async fn bulk_save(&self, new_names: &[&str], ext_cxn: &mut impl ExternalConnectivity) -> Result<Vec<i64>, Error> {
         let mut cxn = ext_cxn.database_cxn()
             .await.context("Fetching connection for saving game systems")?;
@@ -81,7 +85,7 @@ impl domain::metadata::driven_ports::UniqueStringSaver<i64, GameSystem> for DbGa
         let mut saved_ids: Vec<i64> = Vec::with_capacity(new_names.len());
 
         for name_chunk in new_names.chunks(PG_PARAM_LIMIT) {
-            let mut query_builder: sqlx::QueryBuilder<Postgres> = sqlx::QueryBuilder::new("INSERT INTO game_systems(system_name) VALUES ");
+            let mut query_builder: sqlx::QueryBuilder<Postgres> = sqlx::QueryBuilder::new("INSERT INTO game_systems(system_name)");
 
             query_builder.push_values(name_chunk, |mut builder, name| {
                 builder.push_bind(name);
@@ -100,6 +104,7 @@ impl domain::metadata::driven_ports::UniqueStringSaver<i64, GameSystem> for DbGa
 pub struct DbContactSaver;
 
 impl domain::metadata::driven_ports::UniqueStringSaver<i64, Contact> for DbContactSaver {
+    #[tracing::instrument(skip_all, fields(first_5 = ?names.get(0..5), total = names.len()))]
     async fn read_matching(&self, names: &[&str], ext_cxn: &mut impl ExternalConnectivity) -> Result<Vec<Option<Contact>>, Error> {
         let mut cxn_handle = ext_cxn.database_cxn()
             .await.context("Fetching connection for reading contacts")?;
@@ -120,6 +125,7 @@ impl domain::metadata::driven_ports::UniqueStringSaver<i64, Contact> for DbConta
         Ok(fetched_rows)
     }
 
+    #[tracing::instrument(skip_all, fields(first_5 = ?new_names.get(0..5), total = new_names.len()))]
     async fn bulk_save(&self, new_names: &[&str], ext_cxn: &mut impl ExternalConnectivity) -> Result<Vec<i64>, Error> {
         let mut cxn = ext_cxn.database_cxn()
             .await.context("Fetching connection for saving contacts")?;
@@ -127,7 +133,7 @@ impl domain::metadata::driven_ports::UniqueStringSaver<i64, Contact> for DbConta
         let mut saved_ids: Vec<i64> = Vec::with_capacity(new_names.len());
 
         for name_chunk in new_names.chunks(PG_PARAM_LIMIT) {
-            let mut query_builder: sqlx::QueryBuilder<Postgres> = sqlx::QueryBuilder::new("INSERT INTO contacts(contact_email) VALUES ");
+            let mut query_builder: sqlx::QueryBuilder<Postgres> = sqlx::QueryBuilder::new("INSERT INTO contacts(contact_email)");
 
             query_builder.push_values(name_chunk, |mut builder, name| {
                 builder.push_bind(name);
@@ -146,6 +152,7 @@ impl domain::metadata::driven_ports::UniqueStringSaver<i64, Contact> for DbConta
 pub struct DbGroupSaver;
 
 impl domain::metadata::driven_ports::UniqueStringSaver<i64, Group> for DbGroupSaver {
+    #[tracing::instrument(skip_all, fields(first_5 = ?names.get(0..5), total = names.len()))]
     async fn read_matching(&self, names: &[&str], ext_cxn: &mut impl ExternalConnectivity) -> Result<Vec<Option<Group>>, Error> {
         let mut cxn_handle = ext_cxn.database_cxn()
             .await.context("Fetching connection for reading groups")?;
@@ -166,6 +173,7 @@ impl domain::metadata::driven_ports::UniqueStringSaver<i64, Group> for DbGroupSa
         Ok(fetched_rows)
     }
 
+    #[tracing::instrument(skip_all, fields(first_5 = ?new_names.get(0..5), total = new_names.len()))]
     async fn bulk_save(&self, new_names: &[&str], ext_cxn: &mut impl ExternalConnectivity) -> Result<Vec<i64>, Error> {
         let mut cxn = ext_cxn.database_cxn()
             .await.context("Fetching connection for saving groups")?;
@@ -173,7 +181,7 @@ impl domain::metadata::driven_ports::UniqueStringSaver<i64, Group> for DbGroupSa
         let mut saved_ids: Vec<i64> = Vec::with_capacity(new_names.len());
 
         for name_chunk in new_names.chunks(PG_PARAM_LIMIT) {
-            let mut query_builder: sqlx::QueryBuilder<Postgres> = sqlx::QueryBuilder::new("INSERT INTO groups(group_name) VALUES ");
+            let mut query_builder: sqlx::QueryBuilder<Postgres> = sqlx::QueryBuilder::new("INSERT INTO groups(group_name)");
 
             query_builder.push_values(name_chunk, |mut builder, name| {
                 builder.push_bind(name);
@@ -192,6 +200,7 @@ impl domain::metadata::driven_ports::UniqueStringSaver<i64, Group> for DbGroupSa
 pub struct DbWebsiteSaver;
 
 impl domain::metadata::driven_ports::UniqueStringSaver<i64, Website> for DbWebsiteSaver {
+    #[tracing::instrument(skip_all, fields(first_5 = ?names.get(0..5), total = names.len()))]
     async fn read_matching(&self, names: &[&str], ext_cxn: &mut impl ExternalConnectivity) -> Result<Vec<Option<Website>>, Error> {
         let mut cxn_handle = ext_cxn.database_cxn()
             .await.context("Fetching connection for reading websites")?;
@@ -212,6 +221,7 @@ impl domain::metadata::driven_ports::UniqueStringSaver<i64, Website> for DbWebsi
         Ok(fetched_rows)
     }
 
+    #[tracing::instrument(skip_all, fields(first_5 = ?new_names.get(0..5), total = new_names.len()))]
     async fn bulk_save(&self, new_names: &[&str], ext_cxn: &mut impl ExternalConnectivity) -> Result<Vec<i64>, Error> {
         let mut cxn = ext_cxn.database_cxn()
             .await.context("Fetching connection for saving websites")?;
@@ -219,7 +229,7 @@ impl domain::metadata::driven_ports::UniqueStringSaver<i64, Website> for DbWebsi
         let mut saved_ids: Vec<i64> = Vec::with_capacity(new_names.len());
 
         for name_chunk in new_names.chunks(PG_PARAM_LIMIT) {
-            let mut query_builder: sqlx::QueryBuilder<Postgres> = sqlx::QueryBuilder::new("INSERT INTO websites(url) VALUES ");
+            let mut query_builder: sqlx::QueryBuilder<Postgres> = sqlx::QueryBuilder::new("INSERT INTO websites(url)");
 
             query_builder.push_values(name_chunk, |mut builder, name| {
                 builder.push_bind(name);
@@ -238,6 +248,7 @@ impl domain::metadata::driven_ports::UniqueStringSaver<i64, Website> for DbWebsi
 pub struct DbMaterialsSaver;
 
 impl domain::metadata::driven_ports::UniqueStringSaver<i64, Materials> for DbMaterialsSaver {
+    #[tracing::instrument(skip_all, fields(first_5 = ?names.get(0..5), total = names.len()))]
     async fn read_matching(&self, names: &[&str], ext_cxn: &mut impl ExternalConnectivity) -> Result<Vec<Option<Materials>>, Error> {
         let mut cxn_handle = ext_cxn.database_cxn()
             .await.context("Fetching connection for reading materials")?;
@@ -258,6 +269,7 @@ impl domain::metadata::driven_ports::UniqueStringSaver<i64, Materials> for DbMat
         Ok(fetched_rows)
     }
 
+    #[tracing::instrument(skip_all, fields(first_5 = ?new_names.get(0..5), total = new_names.len()))]
     async fn bulk_save(&self, new_names: &[&str], ext_cxn: &mut impl ExternalConnectivity) -> Result<Vec<i64>, Error> {
         let mut cxn = ext_cxn.database_cxn()
             .await.context("Fetching connection for saving materials")?;
@@ -265,7 +277,7 @@ impl domain::metadata::driven_ports::UniqueStringSaver<i64, Materials> for DbMat
         let mut saved_ids: Vec<i64> = Vec::with_capacity(new_names.len());
 
         for name_chunk in new_names.chunks(PG_PARAM_LIMIT) {
-            let mut query_builder: sqlx::QueryBuilder<Postgres> = sqlx::QueryBuilder::new("INSERT INTO materials(summary) VALUES ");
+            let mut query_builder: sqlx::QueryBuilder<Postgres> = sqlx::QueryBuilder::new("INSERT INTO materials(summary)");
 
             query_builder.push_values(name_chunk, |mut builder, name| {
                 builder.push_bind(name);

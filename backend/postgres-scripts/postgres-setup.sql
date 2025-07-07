@@ -1,10 +1,3 @@
-CREATE TABLE gencon_years (
-    year SMALLINT PRIMARY KEY NOT NULL
-);
-
-COMMENT ON TABLE gencon_years IS
-    'Table containing individual years when a GenCon event occurred. This allows us to keep historical records of events and operate on the basis of the current year under normal conditions';
-
 CREATE TABLE locations (
     id SMALLSERIAL PRIMARY KEY,
     location_name VARCHAR(64) NOT NULL,
@@ -121,7 +114,7 @@ CREATE TABLE events (
     id BIGSERIAL PRIMARY KEY,
     game_id varchar(128) NOT NULL,
 
-    game_system_id BIGINT NOT NULL,
+    game_system_id BIGINT NULL DEFAULT NULL,
     event_type_id INT NOT NULL,
     age_requirement AGEREQUIREMENT NOT NULL,
     required_experience EXPERIENCEREQUIREMENT NOT NULL,
@@ -160,18 +153,17 @@ CREATE TABLE events (
     CONSTRAINT events_group_id_fk
         FOREIGN KEY (group_id)
         REFERENCES groups(id),
-    CONSTRAINT events_gencon_year_fk
-        FOREIGN KEY (year)
-        REFERENCES gencon_years(year),
 
     CONSTRAINT events_game_id_uk UNIQUE (game_id),
 
     CONSTRAINT events_start_dt_end_dt_ordering_chk CHECK (start_dt <= end_dt),
-    CONSTRAINT events_player_count_chk CHECK (min_players < max_players),
+    CONSTRAINT events_player_count_chk CHECK (min_players <= max_players),
     CONSTRAINT events_cost_validity_chk CHECK (cost IS NULL OR cost > 0),
     CONSTRAINT events_positive_ticket_count_chk CHECK (tickets_available >= 0),
     CONSTRAINT events_title_has_content_chk CHECK (length(title) > 0)
 );
+
+CREATE INDEX events_year_idx on events(year);
 
 COMMENT ON TABLE events IS
     'Central table representing a single event at GenCon. Each event is considered unique on the basis of the Game ID assigned by GenCon staffers.';
@@ -185,10 +177,7 @@ CREATE TABLE tournaments (
      gencon_year INT NOT NULL,
      total_rounds SMALLINT NOT NULL,
 
-     CONSTRAINT tournaments_tournament_name_gencon_year_uk UNIQUE (tournament_name, gencon_year),
-     CONSTRAINT tournaments_gencon_year_fk
-         FOREIGN KEY (gencon_year)
-         REFERENCES gencon_years(year)
+     CONSTRAINT tournaments_tournament_name_gencon_year_uk UNIQUE (tournament_name, gencon_year)
 );
 
 COMMENT ON TABLE tournaments IS
@@ -293,6 +282,8 @@ BEGIN
     WHERE event_section.event_id IN (
         SELECT DISTINCT new_locations.event_id FROM new_locations
     );
+
+    RETURN NULL;
 END;
 $func$;
 
@@ -319,6 +310,8 @@ BEGIN
     WHERE event_section.event_id IN (
         SELECT DISTINCT new_rooms.event_id FROM new_rooms
     );
+
+    RETURN NULL;
 END;
 $func$;
 
@@ -345,6 +338,8 @@ BEGIN
     WHERE event_room.event_id IN (
         SELECT DISTINCT new_sections.event_id FROM new_sections
     );
+
+    RETURN NULL;
 END;
 $func$;
 

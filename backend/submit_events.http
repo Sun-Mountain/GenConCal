@@ -1,0 +1,5 @@
+### Submit events to GenConCal backend
+POST http://localhost:8080/api/data-ingests
+Content-Type: application/json
+
+< ./example_events.json

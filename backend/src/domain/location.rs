@@ -59,13 +59,13 @@ pub struct Section {
     pub name: String,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Ref {
     pub id: i32,
     pub ref_type: RefType,
 }
 
-#[derive(Clone, Copy, PartialEq, Eq, Display)]
+#[derive(Clone, Copy, PartialEq, Eq, Display, Debug)]
 pub enum RefType {
     Location,
     Room,
@@ -103,7 +103,7 @@ pub struct RoomOnly {
     pub name: String,
 }
 
-#[derive(PartialEq, Eq, Hash)]
+#[derive(PartialEq, Eq, Hash, Debug, Clone)]
 pub struct RoomOnlyRef<'room> {
     pub location_id: i32,
     pub name: &'room str,
@@ -116,7 +116,7 @@ pub struct SectionOnly {
     pub name: String,
 }
 
-#[derive(PartialEq, Eq, Hash)]
+#[derive(PartialEq, Eq, Hash, Debug)]
 pub struct SectionOnlyRef<'section> {
     pub room_id: i32,
     pub name: &'section str,
@@ -168,6 +168,7 @@ pub mod driven_ports {
     }
 }
 
+#[tracing::instrument(skip_all, fields(first_10 = ?incoming_locations.get(0..10), total = incoming_locations.len()))]
 pub(super) async fn save_locations(
     incoming_locations: &[LocationIngest],
     reader: &impl LocationReader,
@@ -463,7 +464,7 @@ mod tests {
                     name: "Left Half".to_owned(),
                 }
             ];
-            
+
             let location_storage = Mutex::new(test_util::FakeLocationStorage {
                 locations: existing_locations,
                 rooms: existing_rooms,
@@ -471,7 +472,7 @@ mod tests {
                 location_storage_failures: Default::default(),
             });
             let mut fake_connectivity = external_connections::test_util::FakeExternalConnectivity::new();
-            
+
             let ingested_locations = [
                 LocationIngest::Location {
                     name: "Westin".to_owned(),
@@ -479,7 +480,7 @@ mod tests {
                 LocationIngest::Location {
                     name: "Hyatt".to_owned(),
                 },
-                
+
                 LocationIngest::Room {
                     location_name: "Hyatt".to_owned(),
                     room_name: "Ballroom B".to_owned(),
@@ -492,7 +493,7 @@ mod tests {
                     location_name: "Westin".to_owned(),
                     room_name: "Ballroom A".to_owned(),
                 },
-                
+
                 LocationIngest::Section {
                     location_name: "Hyatt".to_owned(),
                     room_name: "Ballroom A".to_owned(),
@@ -519,7 +520,7 @@ mod tests {
                     section_name: "Left Half".to_owned(),
                 }
             ];
-            
+
             let expected_locations = [LocationOnly {
                     id: 1,
                     name: "Hyatt".to_owned(),
@@ -528,7 +529,7 @@ mod tests {
                     id: 2,
                     name: "Westin".to_owned(),
                 }];
-            
+
             let expected_rooms = [RoomOnly {
                     id: 3,
                     location_id: 1,
@@ -549,7 +550,7 @@ mod tests {
                     location_id: 2,
                     name: "Ballroom B".to_owned(),
                 }];
-            
+
             let expected_sections = [SectionOnly {
                     id: 7,
                     room_id: 3,
@@ -575,7 +576,7 @@ mod tests {
                     room_id: 6,
                     name: "Left Half".to_owned(),
                 }];
-            
+
             let expected_result = [
                 Location {
                     id: 2,
@@ -587,7 +588,7 @@ mod tests {
                     name: "Hyatt".to_owned(),
                     room: None,
                 },
-                
+
                 Location {
                     id: 1,
                     name: "Hyatt".to_owned(),
@@ -615,7 +616,7 @@ mod tests {
                         section: None,
                     })
                 },
-                
+
                 Location {
                     id: 1,
                     name: "Hyatt".to_owned(),
@@ -677,15 +678,15 @@ mod tests {
                     })
                 }
             ];
-            
+
             let save_result = save_locations(&ingested_locations, &location_storage, &location_storage, &mut fake_connectivity).await;
             let Ok(location_results) = save_result else {
                 let err = save_result.unwrap_err();
                 panic!("Failed to save locations: {err}");
             };
-            
+
             assert_eq!(expected_result, location_results.as_slice());
-            
+
             let locked_storage = location_storage.lock().expect("Failed to lock location storage during assertions");
             assert_eq!(expected_locations, locked_storage.locations.as_slice());
             assert_eq!(expected_rooms, locked_storage.rooms.as_slice());
@@ -727,7 +728,7 @@ mod test_util {
                 location_read_err: domain::test_util::FakeImpl::new(),
                 room_read_err: domain::test_util::FakeImpl::new(),
                 section_read_err: domain::test_util::FakeImpl::new(),
-                
+
                 location_write_err: domain::test_util::FakeImpl::new(),
                 room_write_err: domain::test_util::FakeImpl::new(),
                 section_write_err: domain::test_util::FakeImpl::new(),
@@ -779,7 +780,7 @@ mod test_util {
                     }
                 })
             }).collect();
-            
+
             Ok(matching_locations)
         }
 
@@ -929,7 +930,7 @@ mod test_util {
                     saved_ids.push(*id);
                     continue;
                 }
-                
+
                 saved_ids.push(next_loc_id);
                 locked_self.locations.push(LocationOnly {
                     id: next_loc_id,
@@ -981,7 +982,7 @@ mod test_util {
                     saved_ids.push(*id);
                     continue;
                 }
-                
+
                 saved_ids.push(next_room_id);
                 locked_self.rooms.push(RoomOnly {
                     id: next_room_id,
@@ -1034,7 +1035,7 @@ mod test_util {
                     saved_ids.push(*id);
                     continue;
                 }
-                
+
                 saved_ids.push(next_section_id);
                 locked_self.sections.push(SectionOnly {
                     id: next_section_id,

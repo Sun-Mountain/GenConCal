@@ -509,14 +509,14 @@ pub struct LocationPart {
     pub name: String,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 #[expect(dead_code)]
 pub struct EventImportRequest {
     pub event_data: Vec<ImportedEvent>,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct ImportedEvent {
     pub age_requirement: String,
@@ -547,7 +547,7 @@ pub struct ImportedEvent {
     pub website: String,
 }
 
-#[derive(Serialize, Deserialize, Clone, ToSchema)]
+#[derive(Serialize, Deserialize, Clone, ToSchema, Debug)]
 #[serde(try_from = "String", into = "String")]
 #[schema(example = "7/28/2024", value_type = String)]
 pub struct DateDto(pub NaiveDate);
@@ -736,7 +736,7 @@ impl TryFrom<ImportedEvent> for domain::event::IngestEvent {
     }
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 #[serde(untagged)]
 pub enum NumberOrString {
     Number(u16),

@@ -77,7 +77,7 @@ impl ConstructUniqueStr<i64> for Materials {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct UniqueMetadataToSave<'incoming_data> {
     event_types: Vec<&'incoming_data str>,
     game_systems: Vec<&'incoming_data str>,
@@ -158,6 +158,7 @@ trait ConstructUniqueStr<IDType> {
     fn new_with_id(id: IDType, value: String) -> Self;
 }
 
+#[tracing::instrument(skip_all, fields(first_5 = ?values.get(0..5), total = values.len()))]
 async fn save_or_get_unique_str<IDType: Copy, DomainType: ConstructUniqueStr<IDType>>(
     values: &[&str],
     saver: &impl UniqueStringSaver<IDType, DomainType>,
@@ -192,6 +193,7 @@ async fn save_or_get_unique_str<IDType: Copy, DomainType: ConstructUniqueStr<IDT
 }
 
 #[allow(clippy::too_many_arguments)]
+#[tracing::instrument(skip_all)]
 pub(super) async fn save_metadata(
     metadata: UniqueMetadataToSave<'_>,
     evt_type_saver: &impl UniqueStringSaver<i32, EventType>,

@@ -10,6 +10,7 @@ services:
     volumes:
       - "./postgres-scripts:/docker-entrypoint-initdb.d"
 
+# TODO figure out how to increase the max grpc message size
   jaeger-trace:
       image: jaegertracing/jaeger:2.1.0
       ports:
