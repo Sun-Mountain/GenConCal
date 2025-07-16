@@ -26,7 +26,7 @@ rand = "0.8"
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["json", "env-filter"] }
 tracing-opentelemetry = {  version = "0.28.0", features = ["metrics"] }
-opentelemetry-otlp = { version = "0.27", features = ["metrics", "serialize"]}
+opentelemetry-otlp = { version = "0.27", features = ["metrics", "serialize", "gzip-tonic"]}
 opentelemetry_sdk = { version = "0.27", features = ["rt-tokio"]}
 opentelemetry = "0.27"
 tower = "0.5"

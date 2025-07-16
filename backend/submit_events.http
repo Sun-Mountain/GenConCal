@@ -1,4 +1,5 @@
 ### Submit events to GenConCal backend
+# @connection-timeout 5 m
 POST http://localhost:8080/api/data-ingests
 Content-Type: application/json
 

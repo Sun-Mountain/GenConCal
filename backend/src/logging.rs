@@ -1,13 +1,17 @@
 use crate::app_env;
-use opentelemetry::trace::TracerProvider;
 use opentelemetry::KeyValue;
-use opentelemetry_otlp::{MetricExporter, SpanExporter, WithExportConfig};
+use opentelemetry::trace::TracerProvider;
+use opentelemetry_otlp::{
+    Compression, MetricExporter, SpanExporter, WithExportConfig, WithTonicConfig,
+};
 use opentelemetry_sdk::metrics::{PeriodicReader, SdkMeterProvider};
 use opentelemetry_sdk::trace::Tracer;
-use opentelemetry_sdk::{runtime, Resource};
+use opentelemetry_sdk::{Resource, runtime};
+use tracing::Level;
 use tracing::level_filters::LevelFilter;
 use tracing_opentelemetry::{MetricsLayer, OpenTelemetryLayer};
-use tracing_subscriber::{prelude::*, registry, EnvFilter};
+use tracing_subscriber::filter::FilterFn;
+use tracing_subscriber::{EnvFilter, prelude::*, registry};
 
 /// The name of the service as it should appear in OpenTelemetry collectors
 const SERVICE_NAME: &str = "genconcal_backend";
@@ -25,6 +29,7 @@ pub fn init_exporters(otlp_traces_endpoint: &str, otlp_metrics_endpoint: &str) -
     let span_export = SpanExporter::builder()
         .with_tonic()
         .with_endpoint(otlp_traces_endpoint)
+        .with_compression(Compression::Gzip)
         .build()
         .expect("failed to build span exporter");
     let meter_export = MetricExporter::builder()
@@ -69,7 +74,13 @@ pub fn setup_logging_and_tracing(env_filter: EnvFilter, otel_exporters: Option<O
     if let Some(exporters) = otel_exporters {
         registry()
             .with(LevelFilter::DEBUG)
-            .with(OpenTelemetryLayer::new(exporters.tracer))
+            .with(
+                OpenTelemetryLayer::new(exporters.tracer).with_filter(FilterFn::new(|span| {
+                    span.module_path()
+                        .map(|module| !module.starts_with("sqlx") || span.level() > &Level::INFO)
+                        .unwrap_or(true)
+                })),
+            )
             .with(MetricsLayer::new(exporters.meter))
             .with(
                 tracing_subscriber::fmt::layer()

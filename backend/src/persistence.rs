@@ -1,6 +1,7 @@
 pub mod metadata;
 pub mod event;
 pub mod location;
+pub mod game_master;
 
 use crate::external_connections;
 use crate::external_connections::ConnectionHandle;
@@ -129,8 +130,8 @@ impl Count {
 
 #[expect(dead_code)]
 /// Utility DTO for retrieving the ID of a newly inserted record to PostgreSQL
-struct NewId {
-    id: i32,
+struct NewId<IdType> {
+    id: IdType,
 }
 
 #[expect(dead_code)]

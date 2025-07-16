@@ -7,7 +7,7 @@ use crate::persistence::PG_PARAM_LIMIT;
 
 pub struct DbEventTypeSaver;
 
-impl domain::metadata::driven_ports::UniqueStringSaver<i32, EventType> for DbEventTypeSaver {
+impl domain::unique::driven_ports::UniqueStringSaver<i32, EventType> for DbEventTypeSaver {
     #[tracing::instrument(skip_all, fields(first_5 = ?names.get(0..5), total = names.len()))]
     async fn read_matching(&self, names: &[&str], ext_cxn: &mut impl ExternalConnectivity) -> Result<Vec<Option<EventType>>, Error> {
         let mut cxn_handle = ext_cxn.database_cxn()
@@ -55,7 +55,7 @@ impl domain::metadata::driven_ports::UniqueStringSaver<i32, EventType> for DbEve
 
 pub struct DbGameSystemSaver;
 
-impl domain::metadata::driven_ports::UniqueStringSaver<i64, GameSystem> for DbGameSystemSaver {
+impl domain::unique::driven_ports::UniqueStringSaver<i64, GameSystem> for DbGameSystemSaver {
     #[tracing::instrument(skip_all, fields(first_5 = ?names.get(0..5), total = names.len()))]
     async fn read_matching(&self, names: &[&str], ext_cxn: &mut impl ExternalConnectivity) -> Result<Vec<Option<GameSystem>>, Error> {
         let mut cxn_handle = ext_cxn.database_cxn()
@@ -103,7 +103,7 @@ impl domain::metadata::driven_ports::UniqueStringSaver<i64, GameSystem> for DbGa
 
 pub struct DbContactSaver;
 
-impl domain::metadata::driven_ports::UniqueStringSaver<i64, Contact> for DbContactSaver {
+impl domain::unique::driven_ports::UniqueStringSaver<i64, Contact> for DbContactSaver {
     #[tracing::instrument(skip_all, fields(first_5 = ?names.get(0..5), total = names.len()))]
     async fn read_matching(&self, names: &[&str], ext_cxn: &mut impl ExternalConnectivity) -> Result<Vec<Option<Contact>>, Error> {
         let mut cxn_handle = ext_cxn.database_cxn()
@@ -151,7 +151,7 @@ impl domain::metadata::driven_ports::UniqueStringSaver<i64, Contact> for DbConta
 
 pub struct DbGroupSaver;
 
-impl domain::metadata::driven_ports::UniqueStringSaver<i64, Group> for DbGroupSaver {
+impl domain::unique::driven_ports::UniqueStringSaver<i64, Group> for DbGroupSaver {
     #[tracing::instrument(skip_all, fields(first_5 = ?names.get(0..5), total = names.len()))]
     async fn read_matching(&self, names: &[&str], ext_cxn: &mut impl ExternalConnectivity) -> Result<Vec<Option<Group>>, Error> {
         let mut cxn_handle = ext_cxn.database_cxn()
@@ -199,7 +199,7 @@ impl domain::metadata::driven_ports::UniqueStringSaver<i64, Group> for DbGroupSa
 
 pub struct DbWebsiteSaver;
 
-impl domain::metadata::driven_ports::UniqueStringSaver<i64, Website> for DbWebsiteSaver {
+impl domain::unique::driven_ports::UniqueStringSaver<i64, Website> for DbWebsiteSaver {
     #[tracing::instrument(skip_all, fields(first_5 = ?names.get(0..5), total = names.len()))]
     async fn read_matching(&self, names: &[&str], ext_cxn: &mut impl ExternalConnectivity) -> Result<Vec<Option<Website>>, Error> {
         let mut cxn_handle = ext_cxn.database_cxn()
@@ -247,7 +247,7 @@ impl domain::metadata::driven_ports::UniqueStringSaver<i64, Website> for DbWebsi
 
 pub struct DbMaterialsSaver;
 
-impl domain::metadata::driven_ports::UniqueStringSaver<i64, Materials> for DbMaterialsSaver {
+impl domain::unique::driven_ports::UniqueStringSaver<i64, Materials> for DbMaterialsSaver {
     #[tracing::instrument(skip_all, fields(first_5 = ?names.get(0..5), total = names.len()))]
     async fn read_matching(&self, names: &[&str], ext_cxn: &mut impl ExternalConnectivity) -> Result<Vec<Option<Materials>>, Error> {
         let mut cxn_handle = ext_cxn.database_cxn()

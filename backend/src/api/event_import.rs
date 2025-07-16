@@ -14,8 +14,10 @@ use crate::api::MEBIBYTE;
 use crate::routing_utils::GenericErrorResponse;
 
 #[derive(OpenApi)]
-#[openapi()]
-pub struct EventImport;
+#[openapi(paths(
+    import_events,
+))]
+pub struct EventImportApi;
 
 pub const EVENT_IMPORT_GROUP: &str = "EventImport";
 
@@ -29,8 +31,55 @@ pub fn event_import_routes() -> Router<Arc<SharedData>> {
         })).layer(DefaultBodyLimit::max(50 * MEBIBYTE))
 }
 
-// TODO add OpenAPI documentation for this endpoint
-
+#[utoipa::path(
+    post,
+    path = "/api/data-ingests",
+    tag = EVENT_IMPORT_GROUP,
+    request_body = EventImportRequest,
+    responses(
+        (status = 201, description = "Events successfully upserted."),
+        (
+            status = 400,
+            description = "Event had bad start time",
+            body = BasicError,
+            examples(
+                ("Bad start time" = (
+                    summary = "Malformed start time in an event (error_code: bad_start_time)",
+                    value = json!({
+                        "errorCode": "bad_start_time",
+                        "errorDescription": "Could not parse the start time of the event at index 0.",
+                        "extraInfo": null
+                    }))
+                ),
+                ("Bad end time" = (
+                    summary = "Malformed end time in an event (error_code: bad_end_time)",
+                    value = json!({
+                        "errorCode": "bad_end_time",
+                        "errorDescription": "Could not parse the end time of the event at index 0.",
+                        "extraInfo": null
+                    }))
+                ),
+                ("Bad age requirement" = (
+                    summary = "Malformed age requirement in an event (error_code: bad_age_requirement)",
+                    value = json!({
+                       "errorCode": "bad_age_requirement",
+                       "errorDescription": "Could not parse the age requirement of the event at index 0: gobbledygook",
+                       "extraInfo": null
+                   }))
+                ),
+               ("Bad experience requirement" = (
+                    summary = "Malformed experience requirement in an event (error_code: bad_experience_requirement)",
+                    value = json!({
+                        "errorCode": "bad_experience_requirement",
+                        "errorDescription": "Could not parse the experience level of the event at index 5: whatchamacallit",
+                        "extraInfo": null
+                   }))
+                ),
+           )
+        ),
+        (status = 500, response = dto::err_resps::BasicError500),
+    )
+)]
 #[tracing::instrument(skip_all, fields(total_events = import_request.event_data.len()))]
 async fn import_events(
     import_request: dto::EventImportRequest,
@@ -90,8 +139,12 @@ async fn import_events(
             &persistence::metadata::DbWebsiteSaver,
             &persistence::metadata::DbMaterialsSaver,
 
+            &persistence::game_master::GameMasterDbSaver,
+
             &persistence::location::DbLocationReader,
             &persistence::location::DbLocationWriter,
+
+            &persistence::game_master::GameMasterDbAssociator,
 
             &persistence::event::DbEventDetector,
             &persistence::event::DbEventWriter,

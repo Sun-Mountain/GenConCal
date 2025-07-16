@@ -9,10 +9,11 @@ use std::collections::{HashMap, HashSet};
 use tracing::debug_span;
 use crate::domain::location::driven_ports::{LocationReader, LocationWriter};
 use crate::domain::location::{Location, LocationIngest, Room, Section};
-use crate::domain::metadata::driven_ports::UniqueStringSaver;
+use crate::domain::unique::driven_ports::UniqueStringSaver;
 use crate::domain::metadata::{Metadata, UniqueMetadataToSave};
 use crate::domain::tournament::RoundInfoIngest;
-use crate::domain::{location, metadata};
+use crate::domain::{game_master, location, metadata};
+use crate::domain::game_master::driven_ports::GMAssociator;
 use crate::external_connections::ExternalConnectivity;
 
 pub struct FullEvent {
@@ -159,6 +160,8 @@ pub mod driven_ports {
 }
 
 pub mod driving_ports {
+    use crate::domain::game_master;
+    use crate::domain::game_master::driven_ports::GMAssociator;
     use super::*;
     
     pub trait EventPort: Sync {
@@ -173,8 +176,10 @@ pub mod driving_ports {
             group_saver: &impl UniqueStringSaver<i64, metadata::Group>,
             websites_saver: &impl UniqueStringSaver<i64, metadata::Website>,
             materials_saver: &impl UniqueStringSaver<i64, metadata::Materials>,
+            gm_saver: &impl UniqueStringSaver<i64, game_master::GameMaster>,
             location_reader: &impl LocationReader,
             location_writer: &impl LocationWriter,
+            gm_assoc: &impl GMAssociator,
             event_detector: &impl driven_ports::EventDetector,
             event_writer: &impl driven_ports::EventWriter,
             ext_cxn: &mut impl ExternalConnectivity,
@@ -198,8 +203,10 @@ impl driving_ports::EventPort for EventService {
         group_saver: &impl UniqueStringSaver<i64, metadata::Group>,
         websites_saver: &impl UniqueStringSaver<i64, metadata::Website>,
         materials_saver: &impl UniqueStringSaver<i64, metadata::Materials>,
+        gm_saver: &impl UniqueStringSaver<i64, game_master::GameMaster>,
         location_reader: &impl LocationReader,
         location_writer: &impl LocationWriter,
+        gm_assoc: &impl GMAssociator,
         event_detector: &impl driven_ports::EventDetector,
         event_writer: &impl driven_ports::EventWriter,
         ext_cxn: &mut impl ExternalConnectivity,
@@ -401,6 +408,17 @@ impl driving_ports::EventPort for EventService {
                 Some(existing_event_id) => all_event_ids.push(existing_event_id),
             }
         }
+
+        let gm_associations: Vec<game_master::GameMastersForEvent> = all_event_ids
+            .iter()
+            .cloned()
+            .zip(events_to_import.iter())
+            .map(|(event_id, event_data)| game_master::GameMastersForEvent {
+                event_id,
+                game_masters: event_data.game_masters.clone(),
+            }).collect();
+
+        game_master::save_game_masters(&gm_associations, gm_saver, gm_assoc, ext_cxn).await.context("Saving game masters")?;
 
         Ok(all_event_ids)
     }
