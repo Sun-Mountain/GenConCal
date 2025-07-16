@@ -1,0 +1,6 @@
+@use '@/styles/base/colors' as color;
+
+nav {
+    background-color: color.$nav-bg;
+    padding: 1rem 2rem;
+}
