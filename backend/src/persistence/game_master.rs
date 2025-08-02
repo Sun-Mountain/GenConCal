@@ -6,7 +6,8 @@ use crate::domain::unique::driven_ports::UniqueStringSaver;
 use crate::external_connections::{ConnectionHandle, ExternalConnectivity};
 use anyhow::{Context, Error};
 use sqlx::{Postgres, Row};
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
+use crate::domain::BulkLookupResult;
 
 pub struct GameMasterDbSaver;
 
@@ -76,42 +77,59 @@ pub struct GameMasterDbAssociator;
 
 struct EventIdDTO {
     event_id: i64,
+    gm_ids: Vec<i64>,
 }
 
 impl GMAssociator for GameMasterDbAssociator {
-    #[tracing::instrument(skip(self, ext_cxn))]
+    #[tracing::instrument(skip_all, fields(first_5_ids = ?game_ids[0..5], total_ids = game_ids.len()))]
     async fn existing_gm_associations(
         &self,
-        game_id: i64,
+        game_ids: &[i64],
         ext_cxn: &mut impl ExternalConnectivity,
-    ) -> Result<Vec<i64>, ExistingAssociationError> {
+    ) -> BulkLookupResult<Vec<i64>, ExistingAssociationError> {
         let mut db_cxn = ext_cxn
             .database_cxn()
             .await
-            .with_context(|| format!("Retrieving DB connection to read GMs for game {game_id}"))
+            .context("Retrieving DB connection to read GMs")
             .map_err(ExistingAssociationError::PortError)?;
 
-        let game_exists_opt = sqlx::query!(
-            "SELECT 1 as exists FROM events WHERE events.id = $1",
-            game_id
+        let matching_games_count = sqlx::query!(
+            "SELECT count(id) FROM events WHERE events.id = ANY($1)",
+            game_ids
         )
-        .fetch_optional(db_cxn.borrow_connection())
+        .fetch_one(db_cxn.borrow_connection())
         .await
-        .with_context(|| format!("Detecting if event {game_id} exists before GM retrieval"))
+        .context("Detecting if all events exist before GM retrieval")
         .map_err(ExistingAssociationError::PortError)?;
-        game_exists_opt.ok_or_else(|| ExistingAssociationError::GameDoesNotExist(game_id))?;
+        if let Some(existing_games) = matching_games_count.count {
+            if existing_games as usize != game_ids.len() {
+                return Err(ExistingAssociationError::GamesDoNotExist {
+                    existing_games: existing_games as usize,
+                    requested_games: game_ids.len(),
+                });
+            }
+        };
 
-        let associated_gms = sqlx::query_as!(
+        let game_ids_to_idx: HashMap<i64, usize> = game_ids.iter().enumerate().map(|(idx, id)| (*id, idx)).collect();
+        let mut associated_gms: Vec<Option<Vec<i64>>> = vec![None; game_ids.len()];
+
+
+        let associated_gm_dtos = sqlx::query_as!(
             EventIdDTO,
-            "SELECT event_id FROM event_game_masters WHERE event_id = $1",
-            game_id
+            "SELECT event_id, array_agg(gm_id) as \"gm_ids!\" FROM event_game_masters WHERE event_id = ANY($1) GROUP BY event_id",
+            game_ids
         )
         .fetch_all(db_cxn.borrow_connection())
         .await
-        .with_context(|| format!("Retrieving GMs for game {game_id}"))
+        .context("Retrieving GMs for requested games")
         .map_err(ExistingAssociationError::PortError)?;
 
-        Ok(associated_gms.into_iter().map(|dto| dto.event_id).collect())
+        for event_gms in associated_gm_dtos.into_iter() {
+            let result_idx = game_ids_to_idx[&event_gms.event_id];
+            associated_gms[result_idx] = Some(event_gms.gm_ids);
+        }
+
+        Ok(associated_gms)
     }
 
     #[tracing::instrument(skip(self, ext_cxn))]

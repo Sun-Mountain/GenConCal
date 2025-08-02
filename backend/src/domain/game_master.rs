@@ -21,6 +21,11 @@ impl ConstructUniqueStr<i64> for GameMaster {
 
 #[derive(Debug, Display, Error)]
 pub enum GameMasterAssociationError {
+    #[display("When requesting existing associations, only {existing_games} of {requested_games} actually exist")]
+    GamesDoNotExist{
+        requested_games: usize,
+        existing_games: usize,
+    },
     #[display("Game with ID {} does not exist", _0)]
     GameDoesNotExist(#[error(not(source))] i64),
     #[display("Game master with ID {} does not exist", _0)]
@@ -31,7 +36,7 @@ pub enum GameMasterAssociationError {
 impl From<driven_ports::ExistingAssociationError> for GameMasterAssociationError {
     fn from(e: driven_ports::ExistingAssociationError) -> Self {
         match e {
-            driven_ports::ExistingAssociationError::GameDoesNotExist(id) => Self::GameDoesNotExist(id),
+            driven_ports::ExistingAssociationError::GamesDoNotExist { requested_games, existing_games} => Self::GamesDoNotExist { requested_games, existing_games },
             driven_ports::ExistingAssociationError::PortError(e) => Self::Other(e),
         }
     }
@@ -54,12 +59,16 @@ pub struct GameMastersForEvent {
 }
 
 pub mod driven_ports {
+    use crate::domain::BulkLookupResult;
     use super::*;
 
     #[derive(Debug, Display, Error)]
     pub enum ExistingAssociationError {
-        #[display("Game with ID {} does not exist", _0)]
-        GameDoesNotExist(#[error(not(source))] i64),
+        #[display("When requesting existing associations, only {existing_games} of {requested_games} actually exist")]
+        GamesDoNotExist{
+            requested_games: usize,
+            existing_games: usize,
+        },
         PortError(anyhow::Error)
     }
 
@@ -75,9 +84,9 @@ pub mod driven_ports {
     pub trait GMAssociator {
         async fn existing_gm_associations(
             &self,
-            game_id: i64,
+            game_ids: &[i64],
             ext_cxn: &mut impl ExternalConnectivity,
-        ) -> Result<Vec<i64>, ExistingAssociationError>;
+        ) -> BulkLookupResult<Vec<i64>, ExistingAssociationError>;
 
         async fn associate_gms_with_game(
             &self,
@@ -110,8 +119,11 @@ pub async fn save_game_masters(
     
     // Create a mapping from game_id to its game masters for later use
     let mut game_to_gms: HashMap<i64, Vec<&str>> = HashMap::new();
-    
-    // Collect all unique GM names and build the mapping
+
+    // List out all event IDs in order
+    let event_ids: Vec<i64> = game_masters.iter().map(|game_master_for_game| game_master_for_game.event_id).collect();
+
+    // Collect all unique GM names and build the name->id mapping
     for game_master_for_game in game_masters {
         let game_id = game_master_for_game.event_id;
         let gm_names = &game_master_for_game.game_masters;
@@ -149,12 +161,15 @@ pub async fn save_game_masters(
     for (i, &name) in all_gm_names_vec.iter().enumerate() {
         gm_name_to_id.insert(name, saved_gms[i].id);
     }
-    
+
+    // Detect all existing game-to-gm relationships
+    let existing_gms: Vec<Option<Vec<i64>>> = gm_assoc.existing_gm_associations(&event_ids, ext_cxn).await?;
+
     // Now perform the association for each game and remove GMs that are no longer part of the game
-    for (game_id, gm_names) in game_to_gms {
+    for (game_id, gm_associations) in event_ids.iter().zip(existing_gms.into_iter()) {
         // Get the IDs for this game's GMs
         let mut seen_gm_ids: HashSet<i64> = HashSet::new();
-        let gm_ids: Vec<i64> = gm_names.iter()
+        let gm_ids: Option<Vec<i64>> = game_to_gms.remove(game_id).map(|name_list| name_list.iter()
             .filter_map(|&name| {
                 let gm_id = gm_name_to_id[name];
                 if seen_gm_ids.contains(&gm_id) {
@@ -163,27 +178,35 @@ pub async fn save_game_masters(
                 seen_gm_ids.insert(gm_id);
                 Some(gm_id)
             })
-            .collect();
-        let gm_id_set: HashSet<i64> = gm_ids.iter().copied().collect();
-        
-        // Detect which GMs are already associated with the game
-        let existing_gms: HashSet<i64> = gm_assoc.existing_gm_associations(game_id, ext_cxn).await?.into_iter().collect();
-        
-        // Filter out GMs that are already associated with the game
-        let new_gm_ids: Vec<i64> = gm_ids
-            .iter()
-            .filter_map(|id| if !existing_gms.contains(id) { Some(*id) } else { None })
-            .collect();
+            .collect()
+        );
 
-        // Determine which GM IDs to remove
-        let gm_ids_to_remove: Vec<i64> = existing_gms
-            .iter()
-            .filter_map(|existing_gm_id| if !gm_id_set.contains(existing_gm_id) { Some(*existing_gm_id) } else { None })
-            .collect();
-        
+
+        let (new_gm_ids, gm_ids_to_remove) = match (gm_ids, gm_associations) {
+            (Some(requested_ids), Some(present_existing_associations)) => {
+                let gm_id_set: HashSet<i64> = requested_ids.iter().copied().collect();
+                let existing_gm_id_set: HashSet<i64> = present_existing_associations.iter().copied().collect();
+
+                // Filter out GMs that are already associated with the game
+                let new: Vec<i64> = requested_ids.iter()
+                    .filter_map(|id| if !existing_gm_id_set.contains(id) { Some(*id) } else { None })
+                    .collect();
+                // Determine which GM IDs to remove
+                let remove: Vec<i64> = present_existing_associations
+                    .iter()
+                    .filter_map(|existing_gm_id| if !gm_id_set.contains(existing_gm_id) { Some(*existing_gm_id) } else { None })
+                    .collect();
+
+                (new, remove)
+            },
+            (Some(requested_ids), None) => (requested_ids, vec![]),
+            (None, Some(present_existing_associations)) => (vec![], present_existing_associations),
+            (None, None) => continue,
+        };
+
         // Associate new GMs with the game if there are any
         if !new_gm_ids.is_empty() {
-            let assoc_result = gm_assoc.associate_gms_with_game(game_id, &new_gm_ids, ext_cxn).await;
+            let assoc_result = gm_assoc.associate_gms_with_game(*game_id, &new_gm_ids, ext_cxn).await;
             if assoc_result.is_err() {
                 assoc_result?;
             }
@@ -191,7 +214,7 @@ pub async fn save_game_masters(
 
         // Remove GMs from the game, if any
         if !gm_ids_to_remove.is_empty() {
-            gm_assoc.remove_gms_from_game(game_id, &gm_ids_to_remove, ext_cxn).await.with_context(|| format!("Removing GMs that are no longer part of the game {game_id}")).map_err(GameMasterAssociationError::Other)?;
+            gm_assoc.remove_gms_from_game(*game_id, &gm_ids_to_remove, ext_cxn).await.with_context(|| format!("Removing GMs that are no longer part of the game {game_id}")).map_err(GameMasterAssociationError::Other)?;
         }
     }
     
@@ -283,7 +306,7 @@ mod tests {
 
             let save_result = save_game_masters(&gms_to_save, &gm_save, &gm_assoc, &mut fake_cxn).await;
 
-            assert_that!(save_result).matches(|err| matches!(err, Err(GameMasterAssociationError::GameDoesNotExist(4))));
+            assert_that!(save_result).matches(|err| matches!(err, Err(GameMasterAssociationError::GamesDoNotExist{existing_games: 0, requested_games: 1})));
         }
 
         #[tokio::test]
@@ -312,6 +335,7 @@ pub mod test_util {
     use std::collections::{HashMap, HashSet};
     use std::sync::Mutex;
     use anyhow::Error;
+    use crate::domain::BulkLookupResult;
     use crate::domain::game_master::driven_ports::ExistingAssociationError;
     use crate::domain::test_util::Connectivity;
     use super::*;
@@ -341,15 +365,19 @@ pub mod test_util {
     }
 
     impl GMAssociator for Mutex<FakeGmAssociator> {
-        async fn existing_gm_associations(&self, game_id: i64, _ext_cxn: &mut impl ExternalConnectivity) -> Result<Vec<i64>, ExistingAssociationError> {
-            let mut self_lock = self.lock().expect("Could not lock FakeGmAssociator");
+        async fn existing_gm_associations(&self, game_ids: &[i64], ext_cxn: &mut impl ExternalConnectivity) -> BulkLookupResult<Vec<i64>, ExistingAssociationError> {
+            let self_lock = self.lock().expect("Could not lock FakeGmAssociator");
             self_lock.connectivity.blow_up_if_disconnected().map_err(ExistingAssociationError::PortError)?;
 
-            if !self_lock.valid_games.contains(&game_id) {
-                return Err(ExistingAssociationError::GameDoesNotExist(game_id));
+            if !game_ids.iter().all(|id| self_lock.valid_games.contains(id)) {
+                return Err(ExistingAssociationError::GamesDoNotExist { existing_games: 0, requested_games: game_ids.len() });
             }
-            let gms_for_game = self_lock.existing_gms.entry(game_id).or_default();
-            let gm_ids: Vec<i64> = gms_for_game.to_vec();
+            let mut gm_ids: Vec<Option<Vec<i64>>> = Vec::with_capacity(game_ids.len());
+            for game_id in game_ids.iter() {
+                let gms_for_game = self_lock.existing_gms.get(game_id).cloned();
+                gm_ids.push(gms_for_game);
+            }
+
             Ok(gm_ids)
         }
 
