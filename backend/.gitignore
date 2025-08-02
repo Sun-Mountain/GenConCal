@@ -1,2 +1,3 @@
 target/*
 .idea
+backing-services-data/tempo-data/*
