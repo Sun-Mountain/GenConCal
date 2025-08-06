@@ -1,34 +1,41 @@
+use crate::api::MEBIBYTE;
 use crate::dto::IngestEventConvertErr;
-use crate::external_connections::{with_transaction, ExternalConnectivity, TransactableExternalConnectivity, TxOrSourceError};
-use crate::{domain, dto, persistence, AppState, SharedData};
-use axum::http::StatusCode;
-use axum::response::ErrorResponse;
-use axum::{Json, Router};
-use std::sync::Arc;
+use crate::external_connections::{
+    TransactableExternalConnectivity, TxOrSourceError, with_transaction,
+};
+use crate::routing_utils::GenericErrorResponse;
+use crate::{AppState, SharedData, domain, dto, persistence};
 use anyhow::anyhow;
 use axum::extract::{DefaultBodyLimit, State};
+use axum::http::StatusCode;
+use axum::response::ErrorResponse;
 use axum::routing::post;
+use axum::{Json, Router};
+use std::sync::Arc;
 use tracing::*;
 use utoipa::OpenApi;
-use crate::api::MEBIBYTE;
-use crate::routing_utils::GenericErrorResponse;
 
 #[derive(OpenApi)]
-#[openapi(paths(
-    import_events,
-))]
+#[openapi(paths(import_events,))]
 pub struct EventImportApi;
 
-pub const EVENT_IMPORT_GROUP: &str = "EventImport";
+pub const EVENT_IMPORT_GROUP: &str = "Event Import";
 
 pub fn event_import_routes() -> Router<Arc<SharedData>> {
     Router::new()
-        .route("/", post(|State(app_state): AppState, Json(import_request): Json<dto::EventImportRequest>| async move {
-            let evt_svc = domain::event::EventService;
-            let mut ext_cxn = app_state.ext_cxn.clone();
-            
-            import_events(import_request, &evt_svc, &mut ext_cxn).await
-        })).layer(DefaultBodyLimit::max(50 * MEBIBYTE))
+        .route(
+            "/",
+            post(
+                |State(app_state): AppState,
+                 Json(import_request): Json<dto::EventImportRequest>| async move {
+                    let evt_svc = domain::event::EventService;
+                    let mut ext_cxn = app_state.ext_cxn.clone();
+
+                    import_events(import_request, &evt_svc, &mut ext_cxn).await
+                },
+            ),
+        )
+        .layer(DefaultBodyLimit::max(50 * MEBIBYTE))
 }
 
 #[utoipa::path(
@@ -86,12 +93,13 @@ async fn import_events(
     event_port: &impl domain::event::driving_ports::EventPort,
     ext_cxn: &mut impl TransactableExternalConnectivity,
 ) -> Result<StatusCode, ErrorResponse> {
-    let mut ingest_vec: Vec<domain::event::IngestEvent>= Vec::with_capacity(import_request.event_data.len());
+    let mut ingest_vec: Vec<domain::event::IngestEvent> =
+        Vec::with_capacity(import_request.event_data.len());
 
     {
         let conv_span = debug_span!("DTO Conversion");
         let _entered_span = conv_span.enter();
-        
+
         for (evt_idx, import_evt) in import_request.event_data.into_iter().enumerate() {
             let conversion_result = domain::event::IngestEvent::try_from(import_evt);
 

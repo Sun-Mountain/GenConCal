@@ -13,7 +13,7 @@ use fake::{Dummy, Fake, Faker, Opt, Optional};
 use rand::prelude::*;
 use serde::{Deserialize, Serialize};
 use utoipa::openapi::{RefOr, Schema};
-use utoipa::{openapi, OpenApi, ToSchema};
+use utoipa::{OpenApi, ToSchema, openapi};
 use validator::ValidationErrors;
 
 use crate::domain;
@@ -541,7 +541,9 @@ pub struct ImportedEvent {
     /// The cost of the event (in dollars). 0 if the event is free.
     pub cost: u32,
 
-    #[schema(example = "This is a description of the event. It can be as long as you want. It can even contain multiple paragraphs.")]
+    #[schema(
+        example = "This is a description of the event. It can be as long as you want. It can even contain multiple paragraphs."
+    )]
     /// Description of the event
     pub description_short: String,
 
@@ -662,7 +664,6 @@ impl From<TimeDto> for String {
 }
 
 #[derive(Debug)]
-#[expect(dead_code)]
 pub enum IngestEventConvertErr {
     BadStartTime,
     BadEndTime,

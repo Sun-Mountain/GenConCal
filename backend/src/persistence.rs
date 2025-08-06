@@ -1,16 +1,15 @@
-pub mod metadata;
 pub mod event;
-pub mod location;
 pub mod game_master;
+pub mod location;
+pub mod metadata;
 
 use crate::external_connections;
 use crate::external_connections::ConnectionHandle;
-use anyhow::{anyhow, Context};
+use anyhow::{Context, anyhow};
 use std::fmt::{Debug, Display};
 
 use sqlx::pool::PoolConnection;
 use sqlx::{Acquire, PgConnection, PgPool, Postgres, Transaction};
-
 
 const PG_PARAM_LIMIT: usize = 65535;
 
@@ -128,7 +127,6 @@ impl Count {
     }
 }
 
-#[expect(dead_code)]
 /// Utility DTO for retrieving the ID of a newly inserted record to PostgreSQL
 struct NewId<IdType> {
     id: IdType,

@@ -1,10 +1,10 @@
 use crate::domain::location::driven_ports::{LocationReader, LocationWriter};
 use crate::external_connections::ExternalConnectivity;
 use anyhow::Context;
+use derive_more::Display;
 #[cfg(test)]
 use serde::Serialize;
 use std::collections::HashMap;
-use derive_more::Display;
 
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub struct Location {
@@ -444,26 +444,20 @@ mod tests {
 
         #[tokio::test]
         async fn saves_locations_properly() {
-            let existing_locations = vec![
-                LocationOnly {
-                    id: 1,
-                    name: "Hyatt".to_owned(),
-                }
-            ];
-            let existing_rooms = vec![
-                RoomOnly {
-                    id: 3,
-                    location_id: 1,
-                    name: "Ballroom A".to_owned(),
-                }
-            ];
-            let existing_sections = vec![
-                SectionOnly {
-                    id: 7,
-                    room_id: 3,
-                    name: "Left Half".to_owned(),
-                }
-            ];
+            let existing_locations = vec![LocationOnly {
+                id: 1,
+                name: "Hyatt".to_owned(),
+            }];
+            let existing_rooms = vec![RoomOnly {
+                id: 3,
+                location_id: 1,
+                name: "Ballroom A".to_owned(),
+            }];
+            let existing_sections = vec![SectionOnly {
+                id: 7,
+                room_id: 3,
+                name: "Left Half".to_owned(),
+            }];
 
             let location_storage = Mutex::new(test_util::FakeLocationStorage {
                 locations: existing_locations,
@@ -471,7 +465,8 @@ mod tests {
                 sections: existing_sections,
                 location_storage_failures: Default::default(),
             });
-            let mut fake_connectivity = external_connections::test_util::FakeExternalConnectivity::new();
+            let mut fake_connectivity =
+                external_connections::test_util::FakeExternalConnectivity::new();
 
             let ingested_locations = [
                 LocationIngest::Location {
@@ -480,7 +475,6 @@ mod tests {
                 LocationIngest::Location {
                     name: "Hyatt".to_owned(),
                 },
-
                 LocationIngest::Room {
                     location_name: "Hyatt".to_owned(),
                     room_name: "Ballroom B".to_owned(),
@@ -493,7 +487,6 @@ mod tests {
                     location_name: "Westin".to_owned(),
                     room_name: "Ballroom A".to_owned(),
                 },
-
                 LocationIngest::Section {
                     location_name: "Hyatt".to_owned(),
                     room_name: "Ballroom A".to_owned(),
@@ -518,19 +511,22 @@ mod tests {
                     location_name: "Westin".to_owned(),
                     room_name: "Ballroom B".to_owned(),
                     section_name: "Left Half".to_owned(),
-                }
+                },
             ];
 
-            let expected_locations = [LocationOnly {
+            let expected_locations = [
+                LocationOnly {
                     id: 1,
                     name: "Hyatt".to_owned(),
                 },
                 LocationOnly {
                     id: 2,
                     name: "Westin".to_owned(),
-                }];
+                },
+            ];
 
-            let expected_rooms = [RoomOnly {
+            let expected_rooms = [
+                RoomOnly {
                     id: 3,
                     location_id: 1,
                     name: "Ballroom A".to_owned(),
@@ -549,9 +545,11 @@ mod tests {
                     id: 6,
                     location_id: 2,
                     name: "Ballroom B".to_owned(),
-                }];
+                },
+            ];
 
-            let expected_sections = [SectionOnly {
+            let expected_sections = [
+                SectionOnly {
                     id: 7,
                     room_id: 3,
                     name: "Left Half".to_owned(),
@@ -575,7 +573,8 @@ mod tests {
                     id: 11,
                     room_id: 6,
                     name: "Left Half".to_owned(),
-                }];
+                },
+            ];
 
             let expected_result = [
                 Location {
@@ -588,24 +587,23 @@ mod tests {
                     name: "Hyatt".to_owned(),
                     room: None,
                 },
-
                 Location {
                     id: 1,
                     name: "Hyatt".to_owned(),
-                    room: Some(Room{
+                    room: Some(Room {
                         id: 4,
                         name: "Ballroom B".to_owned(),
                         section: None,
-                    })
+                    }),
                 },
                 Location {
                     id: 1,
                     name: "Hyatt".to_owned(),
-                    room: Some(Room{
+                    room: Some(Room {
                         id: 3,
                         name: "Ballroom A".to_owned(),
                         section: None,
-                    })
+                    }),
                 },
                 Location {
                     id: 2,
@@ -614,9 +612,8 @@ mod tests {
                         id: 5,
                         name: "Ballroom A".to_owned(),
                         section: None,
-                    })
+                    }),
                 },
-
                 Location {
                     id: 1,
                     name: "Hyatt".to_owned(),
@@ -626,8 +623,8 @@ mod tests {
                         section: Some(Section {
                             id: 7,
                             name: "Left Half".to_owned(),
-                        })
-                    })
+                        }),
+                    }),
                 },
                 Location {
                     id: 1,
@@ -638,8 +635,8 @@ mod tests {
                         section: Some(Section {
                             id: 8,
                             name: "Right Half".to_owned(),
-                        })
-                    })
+                        }),
+                    }),
                 },
                 Location {
                     id: 1,
@@ -650,8 +647,8 @@ mod tests {
                         section: Some(Section {
                             id: 9,
                             name: "Left Half".to_owned(),
-                        })
-                    })
+                        }),
+                    }),
                 },
                 Location {
                     id: 2,
@@ -662,8 +659,8 @@ mod tests {
                         section: Some(Section {
                             id: 10,
                             name: "Left Half".to_owned(),
-                        })
-                    })
+                        }),
+                    }),
                 },
                 Location {
                     id: 2,
@@ -674,12 +671,18 @@ mod tests {
                         section: Some(Section {
                             id: 11,
                             name: "Left Half".to_owned(),
-                        })
-                    })
-                }
+                        }),
+                    }),
+                },
             ];
 
-            let save_result = save_locations(&ingested_locations, &location_storage, &location_storage, &mut fake_connectivity).await;
+            let save_result = save_locations(
+                &ingested_locations,
+                &location_storage,
+                &location_storage,
+                &mut fake_connectivity,
+            )
+            .await;
             let Ok(location_results) = save_result else {
                 let err = save_result.unwrap_err();
                 panic!("Failed to save locations: {err}");
@@ -687,7 +690,9 @@ mod tests {
 
             assert_eq!(expected_result, location_results.as_slice());
 
-            let locked_storage = location_storage.lock().expect("Failed to lock location storage during assertions");
+            let locked_storage = location_storage
+                .lock()
+                .expect("Failed to lock location storage during assertions");
             assert_eq!(expected_locations, locked_storage.locations.as_slice());
             assert_eq!(expected_rooms, locked_storage.rooms.as_slice());
             assert_eq!(expected_sections, locked_storage.sections.as_slice());
@@ -770,16 +775,21 @@ mod test_util {
             if location_names.is_empty() {
                 return Ok(Vec::new());
             }
-            let location_name_to_id: HashMap<&str, i32> = locked_self.locations.iter().map(|location| (location.name.as_str(), location.id)).collect();
+            let location_name_to_id: HashMap<&str, i32> = locked_self
+                .locations
+                .iter()
+                .map(|location| (location.name.as_str(), location.id))
+                .collect();
 
-            let matching_locations: Vec<Option<LocationOnly>> = location_names.iter().map(|name| {
-                location_name_to_id.get(name).map(|id| {
-                    LocationOnly {
+            let matching_locations: Vec<Option<LocationOnly>> = location_names
+                .iter()
+                .map(|name| {
+                    location_name_to_id.get(name).map(|id| LocationOnly {
                         id: *id,
                         name: name.to_string(),
-                    }
+                    })
                 })
-            }).collect();
+                .collect();
 
             Ok(matching_locations)
         }

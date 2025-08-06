@@ -1,3 +1,4 @@
+use crate::domain::BulkLookupResult;
 use crate::domain::game_master::GameMaster;
 use crate::domain::game_master::driven_ports::{
     ExistingAssociationError, GMAssociator, NewAssociationError,
@@ -7,7 +8,6 @@ use crate::external_connections::{ConnectionHandle, ExternalConnectivity};
 use anyhow::{Context, Error};
 use sqlx::{Postgres, Row};
 use std::collections::{HashMap, HashSet};
-use crate::domain::BulkLookupResult;
 
 pub struct GameMasterDbSaver;
 
@@ -110,9 +110,12 @@ impl GMAssociator for GameMasterDbAssociator {
             }
         };
 
-        let game_ids_to_idx: HashMap<i64, usize> = game_ids.iter().enumerate().map(|(idx, id)| (*id, idx)).collect();
+        let game_ids_to_idx: HashMap<i64, usize> = game_ids
+            .iter()
+            .enumerate()
+            .map(|(idx, id)| (*id, idx))
+            .collect();
         let mut associated_gms: Vec<Option<Vec<i64>>> = vec![None; game_ids.len()];
-
 
         let associated_gm_dtos = sqlx::query_as!(
             EventIdDTO,

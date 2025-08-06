@@ -1,14 +1,12 @@
-use std::collections::HashMap;
-use anyhow::Context;
-use chrono::Datelike;
-use sqlx::{Postgres, Row};
-use tracing::*;
 use crate::domain;
 use crate::domain::event::{AgeRequirement, CreateParams, ExperienceLevel, UpdateParams};
-use crate::domain::location;
 use crate::domain::location::RefType;
 use crate::external_connections::{ConnectionHandle, ExternalConnectivity};
 use crate::persistence::{u16_as_i16, u32_as_i32};
+use anyhow::Context;
+use chrono::Datelike;
+use sqlx::{Postgres, Row};
+use std::collections::HashMap;
 
 struct GameIdAndId {
     game_id: String,
@@ -19,25 +17,40 @@ pub struct DbEventDetector;
 
 impl domain::event::driven_ports::EventDetector for DbEventDetector {
     #[tracing::instrument(skip(self, gencon_event_id, ext_cxn), fields(first_3_ids = ?gencon_event_id.get(0..3)))]
-    async fn bulk_event_id_exists(&self, gencon_event_id: &[&str], current_year: i32, ext_cxn: &mut impl ExternalConnectivity) -> Result<Vec<Option<i64>>, anyhow::Error> {
-        let mut cxn = ext_cxn.database_cxn().await.context("Trying to acquire connection to bulk detect events")?;
-        
-        let event_id_strings: Vec<String> = gencon_event_id.iter().map(|id| id.to_string()).collect();
+    async fn bulk_event_id_exists(
+        &self,
+        gencon_event_id: &[&str],
+        current_year: i32,
+        ext_cxn: &mut impl ExternalConnectivity,
+    ) -> Result<Vec<Option<i64>>, anyhow::Error> {
+        let mut cxn = ext_cxn
+            .database_cxn()
+            .await
+            .context("Trying to acquire connection to bulk detect events")?;
+
+        let event_id_strings: Vec<String> =
+            gencon_event_id.iter().map(|id| id.to_string()).collect();
         let mut detected_db_ids: Vec<Option<i64>> = vec![None; gencon_event_id.len()];
-        let event_id_to_idx: HashMap<&str, usize> = gencon_event_id.iter()
+        let event_id_to_idx: HashMap<&str, usize> = gencon_event_id
+            .iter()
             .enumerate()
             .map(|(idx, event_id)| (*event_id, idx))
             .collect();
-        
-        let located_ids: Vec<GameIdAndId> = sqlx::query_as!(GameIdAndId, "SELECT id, game_id from events WHERE game_id = ANY($1) AND year = $2", event_id_strings.as_slice(), current_year as i16)
-            .fetch_all(cxn.borrow_connection())
-            .await
-            .context("Looking up event availability in database")?;
-        
+
+        let located_ids: Vec<GameIdAndId> = sqlx::query_as!(
+            GameIdAndId,
+            "SELECT id, game_id from events WHERE game_id = ANY($1) AND year = $2",
+            event_id_strings.as_slice(),
+            current_year as i16
+        )
+        .fetch_all(cxn.borrow_connection())
+        .await
+        .context("Looking up event availability in database")?;
+
         for id in located_ids.into_iter() {
             detected_db_ids[event_id_to_idx[&id.game_id.as_str()]] = Some(id.id);
         }
-        
+
         Ok(detected_db_ids)
     }
 }
@@ -97,22 +110,32 @@ struct GameLocation {
 
 impl domain::event::driven_ports::EventWriter for DbEventWriter {
     #[tracing::instrument(skip_all, fields(first_3_inserted = ?create_params.get(0..3)))]
-    async fn bulk_save_events(&self, create_params: &[CreateParams<'_>], ext_cxn: &mut impl ExternalConnectivity) -> Result<Vec<i64>, anyhow::Error> {
-        let mut cxn = ext_cxn.database_cxn().await.context("Trying to acquire connection to bulk insert events")?;
+    async fn bulk_save_events(
+        &self,
+        create_params: &[CreateParams<'_>],
+        ext_cxn: &mut impl ExternalConnectivity,
+    ) -> Result<Vec<i64>, anyhow::Error> {
+        let mut cxn = ext_cxn
+            .database_cxn()
+            .await
+            .context("Trying to acquire connection to bulk insert events")?;
         let mut all_inserted_ids: Vec<i64> = Vec::with_capacity(create_params.len());
-        
+
         for (chunk_idx, insert_chunk) in create_params.chunks(EVENT_INSERT_CHUNK_SIZE).enumerate() {
-            let mut insert_query_builder: sqlx::QueryBuilder<Postgres> = sqlx::QueryBuilder::new(r#"
+            let mut insert_query_builder: sqlx::QueryBuilder<Postgres> = sqlx::QueryBuilder::new(
+                r#"
                 INSERT INTO events(
                     game_id, event_type_id, game_system_id, title,
                     description, start_dt, end_dt, year, cost, tickets_available,
                     min_players, max_players, required_experience, age_requirement,
                     table_number, materials_id, contact_id, website_id, group_id
                 )
-            "#);
+            "#,
+            );
 
             insert_query_builder.push_values(insert_chunk, |mut builder, event_create| {
-                builder.push_bind(event_create.game_id)
+                builder
+                    .push_bind(event_create.game_id)
                     .push_bind(event_create.event_type_id)
                     .push_bind(event_create.game_system_id)
                     .push_bind(event_create.title)
@@ -135,15 +158,24 @@ impl domain::event::driven_ports::EventWriter for DbEventWriter {
 
             insert_query_builder.push(" RETURNING events.id");
 
-            let inserted_id_rows = insert_query_builder.build().fetch_all(cxn.borrow_connection()).await.context("Inserting events into database")?;
-            let inserted_ids: Vec<i64> = inserted_id_rows.into_iter().map(|row| row.get("id")).collect();
+            let inserted_id_rows = insert_query_builder
+                .build()
+                .fetch_all(cxn.borrow_connection())
+                .await
+                .context("Inserting events into database")?;
+            let inserted_ids: Vec<i64> = inserted_id_rows
+                .into_iter()
+                .map(|row| row.get("id"))
+                .collect();
 
             let mut buildings_to_insert: Vec<GameLocation> = Vec::new();
             let mut rooms_to_insert: Vec<GameLocation> = Vec::new();
             let mut sections_to_insert: Vec<GameLocation> = Vec::new();
 
             for (idx, id) in inserted_ids.iter().cloned().enumerate() {
-                if let Some(ref loc_ref) = create_params[idx + (chunk_idx * EVENT_INSERT_CHUNK_SIZE)].location {
+                if let Some(ref loc_ref) =
+                    create_params[idx + (chunk_idx * EVENT_INSERT_CHUNK_SIZE)].location
+                {
                     let location_to_add = GameLocation {
                         id,
                         loc_id: loc_ref.id,
@@ -158,11 +190,17 @@ impl domain::event::driven_ports::EventWriter for DbEventWriter {
 
             // We don't need to chunk these inserts since they're guaranteed to have fewer inputs
             // than the larger query to insert the events
-            
-            upsert_location_refs(&mut cxn, &buildings_to_insert, RefType::Location).await.context("Event insert")?;
-            upsert_location_refs(&mut cxn, &rooms_to_insert, RefType::Room).await.context("Event insert")?;
-            upsert_location_refs(&mut cxn, &sections_to_insert, RefType::Section).await.context("Event insert")?;
-            
+
+            upsert_location_refs(&mut cxn, &buildings_to_insert, RefType::Location)
+                .await
+                .context("Event insert")?;
+            upsert_location_refs(&mut cxn, &rooms_to_insert, RefType::Room)
+                .await
+                .context("Event insert")?;
+            upsert_location_refs(&mut cxn, &sections_to_insert, RefType::Section)
+                .await
+                .context("Event insert")?;
+
             all_inserted_ids.extend(inserted_ids);
         }
 
@@ -170,15 +208,23 @@ impl domain::event::driven_ports::EventWriter for DbEventWriter {
     }
 
     #[tracing::instrument(skip_all, fields(first_3_updated = ?update_params.get(0..3)))]
-    async fn bulk_update_events(&self, update_params: &[(i64, UpdateParams<'_>)], ext_cxn: &mut impl ExternalConnectivity) -> Result<(), anyhow::Error> {
-        let mut cxn = ext_cxn.database_cxn().await.context("Acquiring connection to bulk update events")?;
+    async fn bulk_update_events(
+        &self,
+        update_params: &[(i64, UpdateParams<'_>)],
+        ext_cxn: &mut impl ExternalConnectivity,
+    ) -> Result<(), anyhow::Error> {
+        let mut cxn = ext_cxn
+            .database_cxn()
+            .await
+            .context("Acquiring connection to bulk update events")?;
         let mut all_buildings: Vec<GameLocation> = Vec::new();
         let mut all_rooms: Vec<GameLocation> = Vec::new();
         let mut all_sections: Vec<GameLocation> = Vec::new();
         let mut event_ids_to_remove_location: Vec<i64> = Vec::new();
-        
+
         for (id, update_params) in update_params.iter() {
-            sqlx::query!(r#"
+            sqlx::query!(
+                r#"
                 UPDATE events
                 SET event_type_id = $1
                     , game_system_id = $2
@@ -219,9 +265,10 @@ impl domain::event::driven_ports::EventWriter for DbEventWriter {
                 update_params.website,
                 update_params.group,
                 id,
-            ).execute(cxn.borrow_connection())
-                .await
-                .with_context(|| format!("Updating event ID {id}"))?;
+            )
+            .execute(cxn.borrow_connection())
+            .await
+            .with_context(|| format!("Updating event ID {id}"))?;
 
             if let Some(ref location) = update_params.location {
                 let location_to_save = GameLocation {
@@ -237,12 +284,20 @@ impl domain::event::driven_ports::EventWriter for DbEventWriter {
                 event_ids_to_remove_location.push(*id);
             }
         }
-        
-        upsert_location_refs_chunked(&mut cxn, &all_buildings, RefType::Location).await.context("Event update")?;
-        upsert_location_refs_chunked(&mut cxn, &all_rooms, RefType::Room).await.context("Event update")?;
-        upsert_location_refs_chunked(&mut cxn, &all_sections, RefType::Section).await.context("Event update")?;
-        remove_location_refs_chunked(&mut cxn, &event_ids_to_remove_location).await.context("Event update")?;
-        
+
+        upsert_location_refs_chunked(&mut cxn, &all_buildings, RefType::Location)
+            .await
+            .context("Event update")?;
+        upsert_location_refs_chunked(&mut cxn, &all_rooms, RefType::Room)
+            .await
+            .context("Event update")?;
+        upsert_location_refs_chunked(&mut cxn, &all_sections, RefType::Section)
+            .await
+            .context("Event update")?;
+        remove_location_refs_chunked(&mut cxn, &event_ids_to_remove_location)
+            .await
+            .context("Event update")?;
+
         Ok(())
     }
 }
@@ -250,24 +305,32 @@ impl domain::event::driven_ports::EventWriter for DbEventWriter {
 const LOCATION_UPSERT_PARAMS: usize = 2;
 const LOCATION_UPSERT_CHUNK_SIZE: usize = super::PG_PARAM_LIMIT / LOCATION_UPSERT_PARAMS;
 
-async fn upsert_location_refs_chunked(ext_cxn_handle: &mut impl ConnectionHandle, locations: &[GameLocation], ref_type: RefType) -> Result<(), anyhow::Error> {
+async fn upsert_location_refs_chunked(
+    ext_cxn_handle: &mut impl ConnectionHandle,
+    locations: &[GameLocation],
+    ref_type: RefType,
+) -> Result<(), anyhow::Error> {
     if locations.is_empty() {
         return Ok(());
     }
-    
+
     for chunk in locations.chunks(LOCATION_UPSERT_CHUNK_SIZE) {
         upsert_location_refs(&mut *ext_cxn_handle, chunk, ref_type).await?;
     }
-    
+
     Ok(())
 }
 
 #[tracing::instrument(skip(ext_cxn_handle, locations), fields(first_3_locations = ?locations.get(0..3)))]
-async fn upsert_location_refs(ext_cxn_handle: &mut impl ConnectionHandle, locations: &[GameLocation], ref_type: RefType) -> Result<(), anyhow::Error> {
+async fn upsert_location_refs(
+    ext_cxn_handle: &mut impl ConnectionHandle,
+    locations: &[GameLocation],
+    ref_type: RefType,
+) -> Result<(), anyhow::Error> {
     if locations.is_empty() {
         return Ok(());
     }
-    
+
     let insert_query = match ref_type {
         RefType::Location => "INSERT INTO event_location(event_id, location_id)",
         RefType::Room => "INSERT INTO event_room(event_id, room_id)",
@@ -277,47 +340,66 @@ async fn upsert_location_refs(ext_cxn_handle: &mut impl ConnectionHandle, locati
     let mut insert_builder: sqlx::QueryBuilder<Postgres> = sqlx::QueryBuilder::new(insert_query);
 
     insert_builder.push_values(locations, |mut builder, game_location| {
-        builder.push_bind(game_location.id)
+        builder
+            .push_bind(game_location.id)
             .push_bind(game_location.loc_id);
     });
-    
+
     insert_builder.push(" ON CONFLICT DO NOTHING");
 
-    insert_builder.build().execute(ext_cxn_handle.borrow_connection()).await
+    insert_builder
+        .build()
+        .execute(ext_cxn_handle.borrow_connection())
+        .await
         .with_context(|| format!("Inserting {ref_type} connections into database"))?;
-    
+
     Ok(())
 }
 
-async fn remove_location_refs_chunked(ext_cxn_handle: &mut impl ConnectionHandle, ids_to_remove_location: &[i64]) -> Result<(), anyhow::Error> {
+async fn remove_location_refs_chunked(
+    ext_cxn_handle: &mut impl ConnectionHandle,
+    ids_to_remove_location: &[i64],
+) -> Result<(), anyhow::Error> {
     if ids_to_remove_location.is_empty() {
         return Ok(());
     }
-    
-    for chunk in ids_to_remove_location.chunks(super::PG_PARAM_LIMIT)  {
+
+    for chunk in ids_to_remove_location.chunks(super::PG_PARAM_LIMIT) {
         remove_location_refs(&mut *ext_cxn_handle, chunk).await?;
     }
-    
+
     Ok(())
 }
 
-async fn remove_location_refs(ext_cxn_handle: &mut impl ConnectionHandle, ids_to_remove_location: &[i64]) -> Result<(), anyhow::Error> {
+async fn remove_location_refs(
+    ext_cxn_handle: &mut impl ConnectionHandle,
+    ids_to_remove_location: &[i64],
+) -> Result<(), anyhow::Error> {
     if ids_to_remove_location.is_empty() {
         return Ok(());
     }
-    
-    sqlx::query!("DELETE FROM event_location WHERE event_id = ANY($1)", ids_to_remove_location)
-        .execute(ext_cxn_handle.borrow_connection())
-        .await
-        .context("Removing locations for events")?;
-    sqlx::query!("DELETE FROM event_room WHERE event_id = ANY($1)", ids_to_remove_location)
-        .execute(ext_cxn_handle.borrow_connection())
-        .await
-        .context("Removing rooms for events")?;
-    sqlx::query!("DELETE FROM event_section WHERE event_id = ANY($1)", ids_to_remove_location)
-        .execute(ext_cxn_handle.borrow_connection())
-        .await
-        .context("Removing sections for events")?;
-    
+
+    sqlx::query!(
+        "DELETE FROM event_location WHERE event_id = ANY($1)",
+        ids_to_remove_location
+    )
+    .execute(ext_cxn_handle.borrow_connection())
+    .await
+    .context("Removing locations for events")?;
+    sqlx::query!(
+        "DELETE FROM event_room WHERE event_id = ANY($1)",
+        ids_to_remove_location
+    )
+    .execute(ext_cxn_handle.borrow_connection())
+    .await
+    .context("Removing rooms for events")?;
+    sqlx::query!(
+        "DELETE FROM event_section WHERE event_id = ANY($1)",
+        ids_to_remove_location
+    )
+    .execute(ext_cxn_handle.borrow_connection())
+    .await
+    .context("Removing sections for events")?;
+
     Ok(())
 }

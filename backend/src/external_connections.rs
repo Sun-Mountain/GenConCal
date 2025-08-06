@@ -2,9 +2,7 @@ use sqlx::PgConnection;
 
 use derive_more::{Display, Error};
 use std::fmt::Debug;
-use std::future::Future;
 
-#[expect(dead_code)]
 /// TransactableExternalConnectivity represents an [ExternalConnectivity] that can initiate
 /// a database transaction
 pub trait TransactableExternalConnectivity: ExternalConnectivity + Transactable + Sync {}
@@ -158,9 +156,8 @@ pub mod test_util {
     };
 
     use sqlx::PgConnection;
-    use std::convert::Infallible;
-    use std::sync::atomic::{AtomicBool, Ordering};
     use std::sync::Arc;
+    use std::sync::atomic::{AtomicBool, Ordering};
 
     /// A fake for ExternalConnectivity so unit tests don't actually have to connect to external systems.
     /// Also allows inspection in tests to verify a database transaction was committed

@@ -1,12 +1,12 @@
+use crate::domain::event::FullEvent;
+use chrono_tz::Tz;
 #[cfg(test)]
 use serde::Serialize;
 use std::collections::HashMap;
-use chrono_tz::Tz;
-use crate::domain::event;
-use crate::domain::event::FullEvent;
 
 #[derive(Debug)]
 pub struct EventSummary<'evt> {
+    #[expect(dead_code)]
     pub id: i32,
     pub title: &'evt str,
     pub start_time: chrono::DateTime<Tz>,
@@ -60,14 +60,14 @@ pub struct TournamentSegmentIngest<'evt> {
     pub round_members: Vec<&'evt EventSummary<'evt>>,
 }
 
-pub mod driven_ports {
-    
-}
+pub mod driven_ports {}
 
 #[expect(dead_code)]
 /// Looks through the set of events in an event ingest and attempts to assemble tournaments
 /// based on similarly named events
-pub fn detect_tournaments<'evt>(events: &'evt [RawTournamentIngest]) -> Vec<TournamentIngest<'evt>> {
+pub fn detect_tournaments<'evt>(
+    events: &'evt [RawTournamentIngest],
+) -> Vec<TournamentIngest<'evt>> {
     // Get the set of events that are actually part of a tournament
     let (single_event_tourney, multi_event_tourney): (
         Vec<&RawTournamentIngest>,
@@ -197,9 +197,12 @@ pub fn detect_tournaments<'evt>(events: &'evt [RawTournamentIngest]) -> Vec<Tour
         }
 
         for mut pfx_group in tournament_groups.into_iter() {
-            pfx_group
-                .group_entries
-                .sort_by(|evt1, evt2| evt1.event.event_info.start_time.cmp(&evt2.event.event_info.start_time));
+            pfx_group.group_entries.sort_by(|evt1, evt2| {
+                evt1.event
+                    .event_info
+                    .start_time
+                    .cmp(&evt2.event.event_info.start_time)
+            });
 
             let initial_entry = *pfx_group
                 .group_entries
@@ -255,10 +258,7 @@ pub fn detect_tournaments<'evt>(events: &'evt [RawTournamentIngest]) -> Vec<Tour
                 .collect();
 
             for tournament_event in pfx_group.group_entries.iter() {
-                let event_round = tournament_event
-                    .event
-                    .round_info
-                    .round;
+                let event_round = tournament_event.event.round_info.round;
 
                 tournament_segments[(event_round - 1) as usize]
                     .round_members
@@ -299,11 +299,7 @@ fn common_prefix_length(str1: &str, str2: &str) -> usize {
         prefix_length += 1;
     }
 
-    if space_seen {
-        prefix_length
-    } else {
-        0
-    }
+    if space_seen { prefix_length } else { 0 }
 }
 
 struct SanitizedTitle {

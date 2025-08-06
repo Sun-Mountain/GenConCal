@@ -9,23 +9,6 @@ use sqlx::{FromRow, Postgres};
 
 pub struct DbLocationReader;
 
-struct LocationOnlyDTO {
-    id: i16,
-    location_name: String,
-}
-
-struct RoomOnlyDTO {
-    id: i16,
-    location_id: i16,
-    room_name: String,
-}
-
-struct SectionOnlyDTO {
-    id: i16,
-    room_id: i16,
-    section_name: String,
-}
-
 impl domain::location::driven_ports::LocationReader for DbLocationReader {
     #[tracing::instrument(skip_all, fields(first_3 = ?location_names.get(0..3), total = location_names.len()))]
     async fn read_matching_locations(
@@ -267,6 +250,7 @@ impl domain::location::driven_ports::LocationWriter for DbLocationWriter {
             inserted_data.clear();
         }
 
+        #[allow(clippy::unnecessary_to_owned)]
         Ok(location_names
             .iter()
             .map(|name| {
@@ -386,7 +370,7 @@ impl domain::location::driven_ports::LocationWriter for DbLocationWriter {
                     .build_query_as()
                     .fetch_all(cxn.borrow_connection())
                     .await
-                    .context("Failed to insert sections.")?
+                    .context("Failed to insert sections.")?,
             );
             if inserted_data.len() != chunk.len() {
                 return Err(anyhow!(
@@ -398,10 +382,7 @@ impl domain::location::driven_ports::LocationWriter for DbLocationWriter {
 
             for inserted_data in inserted_data.iter() {
                 section_ref_to_id.insert(
-                    (
-                        inserted_data.room_id,
-                        inserted_data.section_name.clone(),
-                    ),
+                    (inserted_data.room_id, inserted_data.section_name.clone()),
                     inserted_data.id,
                 );
             }

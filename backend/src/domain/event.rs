@@ -1,5 +1,13 @@
 #![expect(dead_code)]
 
+use crate::domain::game_master::driven_ports::GMAssociator;
+use crate::domain::location::driven_ports::{LocationReader, LocationWriter};
+use crate::domain::location::{Location, LocationIngest, Room, Section};
+use crate::domain::metadata::{Metadata, UniqueMetadataToSave};
+use crate::domain::tournament::RoundInfoIngest;
+use crate::domain::unique::driven_ports::UniqueStringSaver;
+use crate::domain::{game_master, location, metadata};
+use crate::external_connections::ExternalConnectivity;
 use anyhow::{Context, anyhow};
 use chrono::{DateTime, Datelike};
 use chrono_tz::Tz;
@@ -7,14 +15,6 @@ use chrono_tz::Tz;
 use serde::Serialize;
 use std::collections::{HashMap, HashSet};
 use tracing::debug_span;
-use crate::domain::location::driven_ports::{LocationReader, LocationWriter};
-use crate::domain::location::{Location, LocationIngest, Room, Section};
-use crate::domain::unique::driven_ports::UniqueStringSaver;
-use crate::domain::metadata::{Metadata, UniqueMetadataToSave};
-use crate::domain::tournament::RoundInfoIngest;
-use crate::domain::{game_master, location, metadata};
-use crate::domain::game_master::driven_ports::GMAssociator;
-use crate::external_connections::ExternalConnectivity;
 
 pub struct FullEvent {
     pub event: Event,
@@ -160,10 +160,10 @@ pub mod driven_ports {
 }
 
 pub mod driving_ports {
+    use super::*;
     use crate::domain::game_master;
     use crate::domain::game_master::driven_ports::GMAssociator;
-    use super::*;
-    
+
     pub trait EventPort: Sync {
         #[allow(clippy::too_many_arguments)]
         async fn import_events(
@@ -183,7 +183,6 @@ pub mod driving_ports {
             event_detector: &impl driven_ports::EventDetector,
             event_writer: &impl driven_ports::EventWriter,
             ext_cxn: &mut impl ExternalConnectivity,
-            
         ) -> Result<Vec<i64>, anyhow::Error>;
     }
 }
@@ -301,14 +300,15 @@ impl driving_ports::EventPort for EventService {
             let evt_assembly = debug_span!("event_assembly");
             let _enter = evt_assembly.enter();
 
-            for (found_event_id, event_ingest) in event_existence.iter().cloned().zip(events_to_import.iter())
+            for (found_event_id, event_ingest) in
+                event_existence.iter().cloned().zip(events_to_import.iter())
             {
                 let Some(&event_type_id) = type_ids_by_name.get(event_ingest.event_type.as_str())
                 else {
                     return Err(anyhow!(
-                    "Unexpected error: did not receive ID for event type {} during ingest",
-                    event_ingest.event_type
-                ));
+                        "Unexpected error: did not receive ID for event type {} during ingest",
+                        event_ingest.event_type
+                    ));
                 };
                 let game_system_id = find_id_for_optional_str(
                     event_ingest.game_system.as_deref(),
@@ -337,7 +337,10 @@ impl driving_ports::EventPort for EventService {
                 )?;
                 let location_ref = if let Some(ref event_location) = event_ingest.location {
                     let Some(fetched_location) = location_ingest_to_ref.get(event_location) else {
-                        return Err(anyhow!("Unexpected error: previously saved location {:?} but failed to retrieve its ID", event_location));
+                        return Err(anyhow!(
+                            "Unexpected error: previously saved location {:?} but failed to retrieve its ID",
+                            event_location
+                        ));
                     };
                     Some((*fetched_location).clone())
                 } else {
@@ -393,12 +396,18 @@ impl driving_ports::EventPort for EventService {
             }
         }
 
-        let created_ids = event_writer.bulk_save_events(&event_creates, &mut *ext_cxn).await.context("Creating events")?;
-        event_writer.bulk_update_events(&event_updates, &mut *ext_cxn).await.context("Updating events")?;
-        
+        let created_ids = event_writer
+            .bulk_save_events(&event_creates, &mut *ext_cxn)
+            .await
+            .context("Creating events")?;
+        event_writer
+            .bulk_update_events(&event_updates, &mut *ext_cxn)
+            .await
+            .context("Updating events")?;
+
         let mut all_event_ids: Vec<i64> = Vec::new();
         let mut create_idx = 0;
-        
+
         for existing_event_id in event_existence.iter().cloned() {
             match existing_event_id {
                 None => {
@@ -416,9 +425,12 @@ impl driving_ports::EventPort for EventService {
             .map(|(event_id, event_data)| game_master::GameMastersForEvent {
                 event_id,
                 game_masters: event_data.game_masters.clone(),
-            }).collect();
+            })
+            .collect();
 
-        game_master::save_game_masters(&gm_associations, gm_saver, gm_assoc, ext_cxn).await.context("Saving game masters")?;
+        game_master::save_game_masters(&gm_associations, gm_saver, gm_assoc, ext_cxn)
+            .await
+            .context("Saving game masters")?;
 
         Ok(all_event_ids)
     }

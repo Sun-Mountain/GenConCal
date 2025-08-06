@@ -1,12 +1,12 @@
 #![expect(dead_code)]
 
 use crate::domain::event::IngestEvent;
+use crate::domain::unique;
+use crate::domain::unique::ConstructUniqueStr;
 use crate::domain::unique::driven_ports::UniqueStringSaver;
 use crate::external_connections::ExternalConnectivity;
 use anyhow::Context;
 use std::collections::HashSet;
-use crate::domain::unique;
-use crate::domain::unique::ConstructUniqueStr;
 
 pub struct EventType {
     pub id: i32,
@@ -88,27 +88,30 @@ pub struct UniqueMetadataToSave<'incoming_data> {
     materials: Vec<&'incoming_data str>,
 }
 
-impl <'ie> From<&'ie [IngestEvent]> for UniqueMetadataToSave<'ie> {
-    fn from(events: &'ie[IngestEvent]) -> Self {
-        let event_types: HashSet<&str> = events.iter()
-            .map(|evt| evt.event_type.as_str())
+impl<'ie> From<&'ie [IngestEvent]> for UniqueMetadataToSave<'ie> {
+    fn from(events: &'ie [IngestEvent]) -> Self {
+        let event_types: HashSet<&str> = events.iter().map(|evt| evt.event_type.as_str()).collect();
+        let game_systems: HashSet<&str> = events
+            .iter()
+            .filter_map(|evt| evt.game_system.as_deref())
             .collect();
-        let game_systems: HashSet<&str> = events.iter()
-            .filter_map(|evt| evt.game_system.as_ref().map(String::as_str))
+        let contacts: HashSet<&str> = events
+            .iter()
+            .filter_map(|evt| evt.contact.as_deref())
             .collect();
-        let contacts: HashSet<&str> = events.iter()
-            .filter_map(|evt| evt.contact.as_ref().map(String::as_str))
+        let groups: HashSet<&str> = events
+            .iter()
+            .filter_map(|evt| evt.group.as_deref())
             .collect();
-        let groups: HashSet<&str> = events.iter()
-            .filter_map(|evt| evt.group.as_ref().map(String::as_str))
+        let websites: HashSet<&str> = events
+            .iter()
+            .filter_map(|evt| evt.website.as_deref())
             .collect();
-        let websites: HashSet<&str> = events.iter()
-            .filter_map(|evt| evt.website.as_ref().map(String::as_str))
+        let materials: HashSet<&str> = events
+            .iter()
+            .filter_map(|evt| evt.materials.as_deref())
             .collect();
-        let materials: HashSet<&str> = events.iter()
-            .filter_map(|evt| evt.materials.as_ref().map(String::as_str))
-            .collect();
-        
+
         Self {
             event_types: Vec::from_iter(event_types),
             game_systems: Vec::from_iter(game_systems),
@@ -150,20 +153,28 @@ pub(super) async fn save_metadata(
     materials_saver: &impl UniqueStringSaver<i64, Materials>,
     ext_cxn: &mut impl ExternalConnectivity,
 ) -> Result<SavedMetadata, anyhow::Error> {
-    let event_types =
-        unique::save_or_get_unique_str(metadata.event_types.as_ref(), evt_type_saver, &mut *ext_cxn)
+    let event_types = unique::save_or_get_unique_str(
+        metadata.event_types.as_ref(),
+        evt_type_saver,
+        &mut *ext_cxn,
+    )
+    .await
+    .context("saving event types")?;
+    let game_systems = unique::save_or_get_unique_str(
+        metadata.game_systems.as_ref(),
+        gamesys_saver,
+        &mut *ext_cxn,
+    )
+    .await
+    .context("saving game systems")?;
+    let contacts =
+        unique::save_or_get_unique_str(metadata.contacts.as_ref(), contact_saver, &mut *ext_cxn)
             .await
-            .context("saving event types")?;
-    let game_systems =
-        unique::save_or_get_unique_str(metadata.game_systems.as_ref(), gamesys_saver, &mut *ext_cxn)
+            .context("saving contacts")?;
+    let groups =
+        unique::save_or_get_unique_str(metadata.groups.as_ref(), group_saver, &mut *ext_cxn)
             .await
-            .context("saving game systems")?;
-    let contacts = unique::save_or_get_unique_str(metadata.contacts.as_ref(), contact_saver, &mut *ext_cxn)
-        .await
-        .context("saving contacts")?;
-    let groups = unique::save_or_get_unique_str(metadata.groups.as_ref(), group_saver, &mut *ext_cxn)
-        .await
-        .context("saving groups")?;
+            .context("saving groups")?;
     let websites =
         unique::save_or_get_unique_str(metadata.websites.as_ref(), websites_saver, &mut *ext_cxn)
             .await

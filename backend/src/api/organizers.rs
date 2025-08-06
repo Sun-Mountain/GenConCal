@@ -1,10 +1,10 @@
 use crate::external_connections::ExternalConnectivity;
 use crate::routing_utils::Json;
-use crate::{dto, AppState, SharedData};
+use crate::{AppState, SharedData, dto};
+use axum::Router;
 use axum::extract::State;
 use axum::response::ErrorResponse;
 use axum::routing::get;
-use axum::Router;
 use fake::{Fake, Faker};
 use std::sync::{Arc, OnceLock};
 use tracing::*;
@@ -29,7 +29,7 @@ pub fn organizers_routes() -> Router<Arc<SharedData>> {
 
 pub(super) fn sample_organizer_groups() -> &'static [dto::Group] {
     static ORGANIZER_GROUPS: OnceLock<[dto::Group; 5]> = OnceLock::new();
-    let groups_ref = ORGANIZER_GROUPS.get_or_init(|| {
+    ORGANIZER_GROUPS.get_or_init(|| {
         info_span!("generating_groups", total_groups = 5).in_scope(|| {
             [
                 Faker.fake(),
@@ -39,9 +39,7 @@ pub(super) fn sample_organizer_groups() -> &'static [dto::Group] {
                 Faker.fake(),
             ]
         })
-    });
-
-    groups_ref
+    })
 }
 
 #[utoipa::path(

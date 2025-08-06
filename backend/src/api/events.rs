@@ -4,11 +4,11 @@ use std::fs::File;
 use std::io::BufReader;
 use std::sync::{Arc, Mutex, MutexGuard, OnceLock};
 
+use axum::Router;
 use axum::extract::{Path, Query, State};
 use axum::http::StatusCode;
 use axum::response::ErrorResponse;
 use axum::routing::get;
-use axum::Router;
 use chrono::NaiveTime;
 use fake::Fake;
 use serde::Deserialize;
@@ -16,14 +16,14 @@ use tracing::*;
 use utoipa::{IntoParams, OpenApi};
 use validator::{Validate, ValidationError};
 
-use crate::api::{determine_page_limits, PageRange};
+use crate::api::{PageRange, determine_page_limits};
 use crate::dto::{
     CommaSeparated, EventBlock, EventDay, EventDetailResponse, EventSummary, GameSystem, Location,
     TimeDto,
 };
 use crate::external_connections::ExternalConnectivity;
 use crate::routing_utils::{Json, ValidationErrorResponse};
-use crate::{dto, AppState, SharedData};
+use crate::{AppState, SharedData, dto};
 
 #[derive(OpenApi)]
 #[openapi(paths(
@@ -339,7 +339,7 @@ fn gen_day_blocks() -> Vec<dto::EventBlock> {
 #[instrument]
 pub(super) fn event_data() -> &'static dto::DailyTimeBlockedEventsResponse {
     static EVENTS_CELL: OnceLock<dto::DailyTimeBlockedEventsResponse> = OnceLock::new();
-    let events = EVENTS_CELL.get_or_init(|| {
+    EVENTS_CELL.get_or_init(|| {
         info_span!("events_generation").in_scope(|| dto::DailyTimeBlockedEventsResponse {
             events_by_day: HashMap::from([
                 (20240731, gen_day_blocks()),
@@ -348,15 +348,13 @@ pub(super) fn event_data() -> &'static dto::DailyTimeBlockedEventsResponse {
                 (20240803, gen_day_blocks()),
             ]),
         })
-    });
-
-    events
+    })
 }
 
 #[instrument]
 fn game_systems() -> &'static [dto::GameSystem] {
     static SYSTEMS_CELL: OnceLock<Vec<dto::GameSystem>> = OnceLock::new();
-    let game_systems = SYSTEMS_CELL.get_or_init(|| {
+    SYSTEMS_CELL.get_or_init(|| {
         let file_reader = File::open("./unique-games.json")
             .expect("unique-games.json should exist and be readable!");
         let buf_reader = BufReader::new(file_reader);
@@ -371,15 +369,13 @@ fn game_systems() -> &'static [dto::GameSystem] {
                 name,
             })
             .collect()
-    });
-
-    game_systems
+    })
 }
 
 #[instrument]
 fn locations() -> &'static [dto::Location] {
     static LOCATIONS_CELL: OnceLock<[dto::Location; 3]> = OnceLock::new();
-    let locations = LOCATIONS_CELL.get_or_init(|| {
+    LOCATIONS_CELL.get_or_init(|| {
         [
             Location {
                 building: Some(dto::LocationPart {
@@ -421,15 +417,13 @@ fn locations() -> &'static [dto::Location] {
                 table_num: None,
             },
         ]
-    });
-
-    locations
+    })
 }
 
 #[instrument]
 fn event_types() -> &'static [String] {
     static EVT_TYPE_CELL: OnceLock<[String; 5]> = OnceLock::new();
-    let events = EVT_TYPE_CELL.get_or_init(|| {
+    EVT_TYPE_CELL.get_or_init(|| {
         [
             "BGM".to_owned(),
             "RPG".to_owned(),
@@ -437,9 +431,7 @@ fn event_types() -> &'static [String] {
             "MHE".to_owned(),
             "ENT".to_owned(),
         ]
-    });
-
-    events
+    })
 }
 
 #[instrument]
@@ -575,7 +567,7 @@ async fn retrieve_event_detail(
         Some(evt) => evt.clone(),
         None => {
             let newly_created_detail: EventDetailResponse = dto::DetailFromBlock {
-                event_date: evt_ref.0 .0,
+                event_date: evt_ref.0.0,
                 summary: evt_ref.1,
                 event_types: event_types(),
                 event_locations: locations(),

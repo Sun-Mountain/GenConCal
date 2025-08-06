@@ -1,14 +1,14 @@
+use axum::Router;
 use axum::body::{Body, HttpBody};
 use axum::extract::State;
 use axum::http::{Request, Response};
-use axum::Router;
 use dotenv::dotenv;
 use std::env;
 use std::sync::Arc;
 use std::time::Duration;
 use tokio::net::TcpListener;
 use tower::ServiceBuilder;
-use tower_http::trace::{DefaultMakeSpan, TraceLayer};
+use tower_http::trace::TraceLayer;
 use tracing::*;
 
 mod api;
@@ -56,12 +56,11 @@ async fn main() {
         .nest("/api/days", api::days::day_routes())
         .nest("/api/events", api::events::events_routes())
         .nest("/api/organizers", api::organizers::organizers_routes())
-        .layer(
-            ServiceBuilder::new().layer(
-                api::cors::cors_config()
-            )
+        .layer(ServiceBuilder::new().layer(api::cors::cors_config()))
+        .nest(
+            "/api/data-ingests",
+            api::event_import::event_import_routes(),
         )
-        .nest("/api/data-ingests", api::event_import::event_import_routes())
         .merge(api::swagger_main::build_documentation())
         .layer(
             ServiceBuilder::new().layer(

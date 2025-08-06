@@ -1,13 +1,13 @@
-use crate::api::{events, PaginationQueryParams};
+use crate::api::{PaginationQueryParams, events};
 use crate::dto::TimeBlockedEventsResponse;
 use crate::external_connections::ExternalConnectivity;
 use crate::routing_utils::{Json, ValidationErrorResponse};
-use crate::{api, dto, AppState, SharedData};
+use crate::{AppState, SharedData, api, dto};
+use axum::Router;
 use axum::extract::{Path, Query, State};
 use axum::http::StatusCode;
 use axum::response::ErrorResponse;
 use axum::routing::get;
-use axum::Router;
 use chrono::NaiveTime;
 use tracing::*;
 
@@ -25,21 +25,19 @@ pub fn day_routes() -> Router<Arc<SharedData>> {
     Router::new()
         .route(
             "/:day_id/time-info",
-            get(
-                async |State(app_data): AppState, Path(day_id): Path<u32>| {
-                    let mut ext_cxn = app_data.ext_cxn.clone();
+            get(async |State(app_data): AppState, Path(day_id): Path<u32>| {
+                let mut ext_cxn = app_data.ext_cxn.clone();
 
-                    day_time_info(day_id, &mut ext_cxn).await
-                },
-            ),
+                day_time_info(day_id, &mut ext_cxn).await
+            }),
         )
         .route(
             "/:day_id/events",
             get(
                 async |State(app_data): AppState,
-                 Path(day_id): Path<u32>,
-                 Query(filter): Query<events::EventListQueryParams>,
-                 Query(pagination): Query<api::PaginationQueryParams>| {
+                       Path(day_id): Path<u32>,
+                       Query(filter): Query<events::EventListQueryParams>,
+                       Query(pagination): Query<api::PaginationQueryParams>| {
                     let mut ext_cxn = app_data.ext_cxn.clone();
 
                     list_events_by_day(day_id, &filter, &pagination, &mut ext_cxn).await
