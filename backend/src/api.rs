@@ -19,6 +19,8 @@ struct PageRange {
 }
 
 #[instrument]
+/// Calculates the start and end indices of a set of results based on
+/// the requested page and the number of results per page
 fn determine_page_limits(page: u16, results_per_page: u16) -> PageRange {
     let page_start = (page as usize - 1) * results_per_page as usize;
     let page_end = page_start + results_per_page as usize;

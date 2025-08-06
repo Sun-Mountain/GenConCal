@@ -33,8 +33,10 @@ use crate::{AppState, SharedData, dto};
     retrieve_event_types,
     retrieve_locations
 ))]
+/// OpenAPI struct which registers documentation for "event" API endpoints with swagger
 pub struct EventsApi;
 
+/// Constant string which defines the API group for "event" endpoints in swagger
 pub const EVENTS_API_GROUP: &str = "Events";
 
 #[derive(Validate, Deserialize, IntoParams)]
@@ -42,6 +44,7 @@ pub const EVENTS_API_GROUP: &str = "Events";
 #[validate(schema(function = "validate_eventlist_query"))]
 #[serde(rename_all = "kebab-case")]
 #[expect(dead_code)]
+/// Query parameters for filtering events in the event list
 pub struct EventListQueryParams {
     /// Lower bound for available tickets in returned events (default 0)
     pub min_available_tickets: Option<u16>,
@@ -81,6 +84,7 @@ pub struct EventListQueryParams {
 }
 
 #[instrument(skip(query_params))]
+/// Performs custom validation to ensure the validity of event filters
 fn validate_eventlist_query(query_params: &EventListQueryParams) -> Result<(), ValidationError> {
     // Validate start_time <= end_time
     if let (Some(TimeDto(start_time)), Some(TimeDto(end_time))) =
@@ -120,6 +124,7 @@ fn validate_eventlist_query(query_params: &EventListQueryParams) -> Result<(), V
 }
 
 #[instrument]
+/// Validates experience requirement values
 fn validate_experience_list(type_list: &CommaSeparated<String>) -> Result<(), ValidationError> {
     for str_to_check in type_list.0.iter() {
         match str_to_check.as_str() {
@@ -133,6 +138,7 @@ fn validate_experience_list(type_list: &CommaSeparated<String>) -> Result<(), Va
 }
 
 #[instrument]
+/// Validates age requirement values
 fn validate_age_list(age_list: &CommaSeparated<String>) -> Result<(), ValidationError> {
     for str_to_check in age_list.0.iter() {
         match str_to_check.as_str() {
@@ -145,6 +151,8 @@ fn validate_age_list(age_list: &CommaSeparated<String>) -> Result<(), Validation
     Ok(())
 }
 
+/// Performs filtering on generated event data. This will eventually be moved into database queries
+/// once we remove the current API stubs.
 pub(super) fn matches_event_filter(
     evt_summary: &dto::EventSummary,
     filter: &EventListQueryParams,
@@ -203,6 +211,11 @@ pub(super) fn matches_event_filter(
 }
 
 #[instrument(skip(blocks))]
+/// Removes events from event blocks if they are outside the range of the requested page, skipping
+/// [results_already_processed] events if a previous pagination already ran on the set of blocks.
+/// Returns the total number of events that were examined during the pagination process.
+/// This function is temporary and will be replaced with database filters once we remove the event
+/// stubs.
 pub(super) fn paginate_additional_events(
     blocks: &mut [EventBlock],
     page: u16,
@@ -255,6 +268,9 @@ pub(super) fn paginate_additional_events(
 }
 
 #[instrument(skip(blocks))]
+/// Removes events outside the requested page starting from the beginning, assuming no events
+/// have already been processed. Returns the number of total events encountered across all blocks.
+/// This will be replaced with database filters once we remove the stubbed out APIs.
 pub(super) fn paginate_events(
     blocks: &mut [EventBlock],
     page: u16,
@@ -263,6 +279,7 @@ pub(super) fn paginate_events(
     paginate_additional_events(blocks, page, results_per_page, 0)
 }
 
+/// Returns a router containing all "/api/events" routes
 pub fn events_routes() -> Router<Arc<SharedData>> {
     Router::new()
         .route(
@@ -311,6 +328,7 @@ pub fn events_routes() -> Router<Arc<SharedData>> {
         )
 }
 
+/// Generates and caches a random set of events for a day for the stubbed out APIs.
 fn gen_day_blocks() -> Vec<dto::EventBlock> {
     let mut ten_am_events: Vec<dto::EventSummary> = (dto::event_in_time_slot(10), 5..20).fake();
     let mut eleven_am_events: Vec<dto::EventSummary> = (dto::event_in_time_slot(11), 10..40).fake();
@@ -337,6 +355,7 @@ fn gen_day_blocks() -> Vec<dto::EventBlock> {
 }
 
 #[instrument]
+/// Generates and caches all event data to be returned by the stubbed out APIs.
 pub(super) fn event_data() -> &'static dto::DailyTimeBlockedEventsResponse {
     static EVENTS_CELL: OnceLock<dto::DailyTimeBlockedEventsResponse> = OnceLock::new();
     EVENTS_CELL.get_or_init(|| {
@@ -352,6 +371,7 @@ pub(super) fn event_data() -> &'static dto::DailyTimeBlockedEventsResponse {
 }
 
 #[instrument]
+/// Caches unique game systems for data generation from the "unique-games.json" file.
 fn game_systems() -> &'static [dto::GameSystem] {
     static SYSTEMS_CELL: OnceLock<Vec<dto::GameSystem>> = OnceLock::new();
     SYSTEMS_CELL.get_or_init(|| {
@@ -373,6 +393,7 @@ fn game_systems() -> &'static [dto::GameSystem] {
 }
 
 #[instrument]
+/// Generates and caches a set of locations for sample data to pull from.
 fn locations() -> &'static [dto::Location] {
     static LOCATIONS_CELL: OnceLock<[dto::Location; 3]> = OnceLock::new();
     LOCATIONS_CELL.get_or_init(|| {
@@ -421,6 +442,7 @@ fn locations() -> &'static [dto::Location] {
 }
 
 #[instrument]
+/// Creates and caches a set of event types that can be used by sample event data.
 fn event_types() -> &'static [String] {
     static EVT_TYPE_CELL: OnceLock<[String; 5]> = OnceLock::new();
     EVT_TYPE_CELL.get_or_init(|| {
@@ -435,6 +457,8 @@ fn event_types() -> &'static [String] {
 }
 
 #[instrument]
+/// Returns a mutex which caches details for individual events. This is performed on the fly
+/// as individual events are requested.
 fn event_detail_cache() -> MutexGuard<'static, HashMap<u32, dto::EventDetailResponse>> {
     static DETAIL_MUTEX: OnceLock<Mutex<HashMap<u32, dto::EventDetailResponse>>> = OnceLock::new();
     let retrieved_mutex = DETAIL_MUTEX.get_or_init(|| Mutex::new(HashMap::new()));

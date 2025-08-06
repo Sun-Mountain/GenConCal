@@ -17,10 +17,13 @@ use utoipa::OpenApi;
 
 #[derive(OpenApi)]
 #[openapi(paths(import_events,))]
+/// OpenAPI struct which registers event import APIs with swagger
 pub struct EventImportApi;
 
+/// Constant for the title of all event import endpoints
 pub const EVENT_IMPORT_GROUP: &str = "Event Import";
 
+/// Returns a router which contains all "event import" API routes
 pub fn event_import_routes() -> Router<Arc<SharedData>> {
     Router::new()
         .route(
@@ -88,6 +91,7 @@ pub fn event_import_routes() -> Router<Arc<SharedData>> {
     )
 )]
 #[tracing::instrument(skip_all, fields(total_events = import_request.event_data.len()))]
+/// Import GenCon events into the GenConCal API
 async fn import_events(
     import_request: dto::EventImportRequest,
     event_port: &impl domain::event::driving_ports::EventPort,

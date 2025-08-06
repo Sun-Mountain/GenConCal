@@ -17,10 +17,13 @@ use validator::Validate;
 
 #[derive(OpenApi)]
 #[openapi(paths(list_events_by_day, day_time_info,))]
+/// OpenAPI struct which registers API docs with swagger
 pub struct DaysApi;
 
+/// Constant which defines the "days" group of API endpoints
 pub const DAYS_API_GROUP: &str = "Days";
 
+/// Returns a router containing all routes for the "/api/days" set of endpoints
 pub fn day_routes() -> Router<Arc<SharedData>> {
     Router::new()
         .route(
