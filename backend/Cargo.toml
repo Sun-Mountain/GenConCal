@@ -30,7 +30,7 @@ opentelemetry-otlp = { version = "0.27", features = ["metrics", "serialize", "gz
 opentelemetry_sdk = { version = "0.27", features = ["rt-tokio"]}
 opentelemetry = "0.27"
 tower = "0.5"
-tower-http = {version = "0.6", features = ["trace"]}
+tower-http = { version = "0.6", features = ["trace", "cors"] }
 paste = "1.0.15"
 
 [dev-dependencies]

@@ -5,6 +5,7 @@ use validator::Validate;
 
 pub mod swagger_main;
 
+pub mod cors;
 pub mod days;
 pub mod event_import;
 pub mod events;

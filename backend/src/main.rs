@@ -56,6 +56,11 @@ async fn main() {
         .nest("/api/days", api::days::day_routes())
         .nest("/api/events", api::events::events_routes())
         .nest("/api/organizers", api::organizers::organizers_routes())
+        .layer(
+            ServiceBuilder::new().layer(
+                api::cors::cors_config()
+            )
+        )
         .nest("/api/data-ingests", api::event_import::event_import_routes())
         .merge(api::swagger_main::build_documentation())
         .layer(
