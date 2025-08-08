@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "DELETE FROM event_game_masters WHERE event_game_masters.event_id = $1 AND event_game_masters.gm_id = $2",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int8",
+        "Int8"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "54b914500ddb3dbe7edaf08001118cf737f79e8d9242ff15207d9b8d9eefb03a"
+}

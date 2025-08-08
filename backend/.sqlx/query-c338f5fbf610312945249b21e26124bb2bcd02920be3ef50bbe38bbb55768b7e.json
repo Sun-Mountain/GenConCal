@@ -1,17 +1,16 @@
 {
   "db_name": "PostgreSQL",
-  "query": "INSERT INTO todo_item(user_id, item_desc) VALUES ($1, $2) RETURNING todo_item.id",
+  "query": "SELECT id FROM game_systems WHERE system_name = $1",
   "describe": {
     "columns": [
       {
         "ordinal": 0,
         "name": "id",
-        "type_info": "Int4"
+        "type_info": "Int8"
       }
     ],
     "parameters": {
       "Left": [
-        "Int4",
         "Text"
       ]
     },
@@ -19,5 +18,5 @@
       false
     ]
   },
-  "hash": "39a7bae5028672bb027cdad6c9c0285924e1856cf550d12a84738eac6dad1b3b"
+  "hash": "c338f5fbf610312945249b21e26124bb2bcd02920be3ef50bbe38bbb55768b7e"
 }

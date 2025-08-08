@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "INSERT INTO todo_user(first_name, last_name) VALUES ($1, $2) RETURNING todo_user.id",
+  "query": "SELECT id FROM rooms WHERE room_name = $1 AND location_id = $2",
   "describe": {
     "columns": [
       {
@@ -11,13 +11,13 @@
     ],
     "parameters": {
       "Left": [
-        "Varchar",
-        "Varchar"
+        "Text",
+        "Int2"
       ]
     },
     "nullable": [
       false
     ]
   },
-  "hash": "7ef65c00695274e87ddb7fda4dac341d5a765d6a4091321b42da5a203612883c"
+  "hash": "db9a7530c6ac8ba2d162b2430b1f89b8d80bde79b16dff9a49824d5e78180857"
 }

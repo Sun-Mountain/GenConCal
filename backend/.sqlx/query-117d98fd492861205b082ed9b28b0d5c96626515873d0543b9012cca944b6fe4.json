@@ -1,23 +1,22 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT count(*) from todo_user tu WHERE tu.first_name = $1 AND tu.last_name = $2",
+  "query": "SELECT id FROM materials WHERE summary = $1",
   "describe": {
     "columns": [
       {
         "ordinal": 0,
-        "name": "count",
+        "name": "id",
         "type_info": "Int8"
       }
     ],
     "parameters": {
       "Left": [
-        "Text",
         "Text"
       ]
     },
     "nullable": [
-      null
+      false
     ]
   },
-  "hash": "1ddd6e803d254afe113618d1e6a91271493aad0f4b66c55c89398cb13aab5c20"
+  "hash": "117d98fd492861205b082ed9b28b0d5c96626515873d0543b9012cca944b6fe4"
 }
