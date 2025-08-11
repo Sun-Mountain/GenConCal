@@ -7,6 +7,7 @@ use crate::external_connections::{ConnectionHandle, ExternalConnectivity};
 use anyhow::{Context, Error, anyhow};
 use sqlx::{FromRow, Postgres};
 
+/// Reads locations from the database
 pub struct DbLocationReader;
 
 impl domain::location::driven_ports::LocationReader for DbLocationReader {
@@ -194,6 +195,7 @@ impl<'dto> From<&'dto InsertedSectionDTO> for SectionOnlyRef<'dto> {
     }
 }
 
+/// Writes locations to the database
 pub struct DbLocationWriter;
 
 impl domain::location::driven_ports::LocationWriter for DbLocationWriter {

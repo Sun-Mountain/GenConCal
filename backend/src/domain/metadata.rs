@@ -8,6 +8,7 @@ use crate::external_connections::ExternalConnectivity;
 use anyhow::Context;
 use std::collections::HashSet;
 
+/// Represents a unique GenCon event type (e.g., RPG, BGM)
 pub struct EventType {
     pub id: i32,
     pub name: String,
@@ -19,6 +20,7 @@ impl ConstructUniqueStr<i32> for EventType {
     }
 }
 
+/// Represents a unique game system referenced by events (e.g., D&D 5e)
 pub struct GameSystem {
     pub id: i64,
     pub system_name: String,
@@ -34,6 +36,7 @@ impl ConstructUniqueStr<i64> for GameSystem {
 }
 
 #[cfg_attr(test, derive(PartialEq, Eq, Debug))]
+/// Represents a unique contact email address associated with events
 pub struct Contact {
     pub id: i64,
     pub email: String,
@@ -45,6 +48,7 @@ impl ConstructUniqueStr<i64> for Contact {
     }
 }
 
+/// Represents a unique organizing group associated with events
 pub struct Group {
     pub id: i64,
     pub name: String,
@@ -56,6 +60,7 @@ impl ConstructUniqueStr<i64> for Group {
     }
 }
 
+/// Represents a unique website URL associated with events
 pub struct Website {
     pub id: i64,
     pub url: String,
@@ -67,6 +72,7 @@ impl ConstructUniqueStr<i64> for Website {
     }
 }
 
+/// Represents a unique materials list/description referenced by events
 pub struct Materials {
     pub id: i64,
     pub summary: String,
@@ -79,6 +85,7 @@ impl ConstructUniqueStr<i64> for Materials {
 }
 
 #[derive(Clone, Debug)]
+/// A de-duplicated collection of string metadata extracted from incoming events
 pub struct UniqueMetadataToSave<'incoming_data> {
     event_types: Vec<&'incoming_data str>,
     game_systems: Vec<&'incoming_data str>,
@@ -123,6 +130,7 @@ impl<'ie> From<&'ie [IngestEvent]> for UniqueMetadataToSave<'ie> {
     }
 }
 
+/// The set of metadata records that were ensured to exist during an import
 pub struct SavedMetadata {
     pub event_types: Vec<EventType>,
     pub game_systems: Vec<GameSystem>,
@@ -132,6 +140,7 @@ pub struct SavedMetadata {
     pub materials: Vec<Materials>,
 }
 
+/// Aggregated metadata associated with a specific event
 pub struct Metadata {
     pub event_type: EventType,
     pub game_system: Option<GameSystem>,
@@ -143,6 +152,7 @@ pub struct Metadata {
 
 #[allow(clippy::too_many_arguments)]
 #[tracing::instrument(skip_all)]
+/// Ensures referenced metadata strings exist (creating as needed) and returns their records
 pub(super) async fn save_metadata(
     metadata: UniqueMetadataToSave<'_>,
     evt_type_saver: &impl UniqueStringSaver<i32, EventType>,

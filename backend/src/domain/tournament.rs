@@ -5,6 +5,7 @@ use serde::Serialize;
 use std::collections::HashMap;
 
 #[derive(Debug)]
+/// Lightweight view of an event used when assembling tournaments
 pub struct EventSummary<'evt> {
     #[expect(dead_code)]
     pub id: i32,
@@ -13,11 +14,13 @@ pub struct EventSummary<'evt> {
 }
 
 #[derive(Debug)]
+/// Input representing a single tournament-related event used for detection
 pub struct RawTournamentIngest<'evt> {
     event_info: EventSummary<'evt>,
     round_info: RoundInfoIngest,
 }
 
+/// Represents a tournament composed of one or more rounds
 #[expect(dead_code)]
 pub struct Tournament {
     pub id: i32,
@@ -25,12 +28,14 @@ pub struct Tournament {
     pub total_rounds: u8,
 }
 
+/// A single round of a tournament with its member events
 #[expect(dead_code)]
 pub struct TournamentSegment {
     pub round: u8,
     pub segment_events: Vec<FullEvent>,
 }
 
+/// A segment reference storing event IDs instead of full events
 #[expect(dead_code)]
 pub struct TournamentSegmentRef {
     pub round: u8,
@@ -38,6 +43,7 @@ pub struct TournamentSegmentRef {
 }
 
 #[derive(Debug)]
+/// Round metadata for a tournament event (current and total rounds)
 pub struct RoundInfoIngest {
     pub round: u8,
     pub total_rounds: u8,

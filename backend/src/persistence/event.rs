@@ -13,6 +13,7 @@ struct GameIdAndId {
     id: i64,
 }
 
+/// Detects whether events already exist in the database
 pub struct DbEventDetector;
 
 impl domain::event::driven_ports::EventDetector for DbEventDetector {
@@ -97,6 +98,7 @@ impl From<ExperienceLevel> for ExperienceLevelDTO {
     }
 }
 
+/// Writes and updates event records in the database
 pub struct DbEventWriter;
 
 const SINGLE_EVENT_INSERT_PARAMS_LEN: usize = 19;

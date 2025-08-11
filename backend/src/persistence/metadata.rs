@@ -5,6 +5,7 @@ use crate::persistence::PG_PARAM_LIMIT;
 use anyhow::{Context, Error};
 use sqlx::{Postgres, Row};
 
+/// Persists or retrieves unique event type strings
 pub struct DbEventTypeSaver;
 
 impl domain::unique::driven_ports::UniqueStringSaver<i32, EventType> for DbEventTypeSaver {
@@ -74,6 +75,7 @@ impl domain::unique::driven_ports::UniqueStringSaver<i32, EventType> for DbEvent
     }
 }
 
+/// Persists or retrieves unique game system strings
 pub struct DbGameSystemSaver;
 
 impl domain::unique::driven_ports::UniqueStringSaver<i64, GameSystem> for DbGameSystemSaver {
@@ -143,6 +145,7 @@ impl domain::unique::driven_ports::UniqueStringSaver<i64, GameSystem> for DbGame
     }
 }
 
+/// Persists or retrieves unique contact email strings
 pub struct DbContactSaver;
 
 impl domain::unique::driven_ports::UniqueStringSaver<i64, Contact> for DbContactSaver {

@@ -16,12 +16,14 @@ use serde::Serialize;
 use std::collections::{HashMap, HashSet};
 use tracing::debug_span;
 
+/// Complete event with optional location and associated metadata
 pub struct FullEvent {
     pub event: Event,
     pub location: Option<Location>,
     pub metadata: Metadata,
 }
 
+/// Core event domain model stored in the system
 pub struct Event {
     pub id: i32,
     pub game_id: String,
@@ -42,6 +44,7 @@ pub struct Event {
 }
 
 #[derive(Debug)]
+/// Event data received during ingestion from external sources
 pub struct IngestEvent {
     pub game_id: String,
 
@@ -73,6 +76,7 @@ pub struct IngestEvent {
 }
 
 #[derive(PartialEq, Eq, Ord, PartialOrd, Debug, Clone, Copy)]
+/// Minimum age requirement for participants
 pub enum AgeRequirement {
     Everyone,
     KidsOnly,
@@ -82,6 +86,7 @@ pub enum AgeRequirement {
 }
 
 #[derive(PartialEq, Eq, Ord, PartialOrd, Debug, Clone, Copy)]
+/// Required experience level for participants
 pub enum ExperienceLevel {
     None,
     Some,
@@ -89,6 +94,7 @@ pub enum ExperienceLevel {
 }
 
 #[derive(Debug)]
+/// Parameters used to create a new Event record
 pub struct CreateParams<'items> {
     pub game_id: &'items str,
     pub event_type_id: i32,
@@ -112,6 +118,7 @@ pub struct CreateParams<'items> {
 }
 
 #[derive(Debug)]
+/// Parameters used to update an existing Event record
 pub struct UpdateParams<'items> {
     pub event_type_id: i32,
     pub game_system_id: Option<i64>,
@@ -136,7 +143,10 @@ pub struct UpdateParams<'items> {
 pub mod driven_ports {
     use super::*;
 
+    /// Detects existing events in the persistence layer
     pub trait EventDetector {
+        /// Returns a list whose entries correspond to the passed GenCon event IDs, with
+        /// Some(id) for events that already exist (by database ID) and None for events that don't.
         async fn bulk_event_id_exists(
             &self,
             gencon_event_id: &[&str],
@@ -145,12 +155,15 @@ pub mod driven_ports {
         ) -> Result<Vec<Option<i64>>, anyhow::Error>;
     }
 
+    /// Persists new events and updates existing ones in bulk
     pub trait EventWriter {
+        /// Creates events for the provided create parameters and returns the created IDs
         async fn bulk_save_events(
             &self,
             create_params: &[CreateParams<'_>],
             ext_cxn: &mut impl ExternalConnectivity,
         ) -> Result<Vec<i64>, anyhow::Error>;
+        /// Updates the provided events (id, parameters)
         async fn bulk_update_events(
             &self,
             update_params: &[(i64, UpdateParams<'_>)],
@@ -164,6 +177,7 @@ pub mod driving_ports {
     use crate::domain::game_master;
     use crate::domain::game_master::driven_ports::GMAssociator;
 
+    /// Primary domain port for event ingestion operations
     pub trait EventPort: Sync {
         #[allow(clippy::too_many_arguments)]
         async fn import_events(
@@ -187,6 +201,7 @@ pub mod driving_ports {
     }
 }
 
+/// Service implementation of the EventPort for importing events
 pub struct EventService;
 
 impl driving_ports::EventPort for EventService {
