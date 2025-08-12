@@ -50,6 +50,7 @@ pub struct RoundInfoIngest {
 }
 
 #[derive(Debug)]
+/// A detected tournament with overall metadata and grouped segments by round.
 pub struct TournamentIngest<'evt> {
     #[expect(dead_code)]
     pub total_rounds: u8,
@@ -61,6 +62,7 @@ pub struct TournamentIngest<'evt> {
 
 #[derive(Debug)]
 #[expect(dead_code)]
+/// A tournament segment containing all events that belong to a particular round.
 pub struct TournamentSegmentIngest<'evt> {
     pub round: u8,
     pub round_members: Vec<&'evt EventSummary<'evt>>,
@@ -308,6 +310,7 @@ fn common_prefix_length(str1: &str, str2: &str) -> usize {
     if space_seen { prefix_length } else { 0 }
 }
 
+/// Result of sanitizing a title: lowercase, punctuation-stripped text plus indices removed from the original string.
 struct SanitizedTitle {
     new_title: String,
     removed_indices: Vec<usize>,

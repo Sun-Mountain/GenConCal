@@ -124,7 +124,7 @@ fn validate_eventlist_query(query_params: &EventListQueryParams) -> Result<(), V
 }
 
 #[instrument]
-/// Validates experience requirement values
+/// Validates experience requirement values in filters
 fn validate_experience_list(type_list: &CommaSeparated<String>) -> Result<(), ValidationError> {
     for str_to_check in type_list.0.iter() {
         match str_to_check.as_str() {
@@ -138,7 +138,7 @@ fn validate_experience_list(type_list: &CommaSeparated<String>) -> Result<(), Va
 }
 
 #[instrument]
-/// Validates age requirement values
+/// Validates age requirement values in filters
 fn validate_age_list(age_list: &CommaSeparated<String>) -> Result<(), ValidationError> {
     for str_to_check in age_list.0.iter() {
         match str_to_check.as_str() {

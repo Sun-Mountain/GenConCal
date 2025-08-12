@@ -4,12 +4,15 @@ use driven_ports::UniqueStringSaver;
 pub mod driven_ports {
     use crate::external_connections::ExternalConnectivity;
 
+    /// Port for reading/saving unique string-backed domain records (e.g., names, URLs).
     pub trait UniqueStringSaver<IDType, DomainType>: Sync {
+        /// Returns existing domain objects for each input name (None if missing).
         async fn read_matching(
             &self,
             names: &[&str],
             ext_cxn: &mut impl ExternalConnectivity,
         ) -> Result<Vec<Option<DomainType>>, anyhow::Error>;
+        /// Persists any new names and returns their generated IDs in input order.
         async fn bulk_save(
             &self,
             new_names: &[&str],
@@ -18,11 +21,14 @@ pub mod driven_ports {
     }
 }
 
+/// Helper for constructing domain objects from an ID and its unique string value.
 pub trait ConstructUniqueStr<IDType> {
+    /// Creates a new domain object instance with the generated ID and original string value.
     fn new_with_id(id: IDType, value: String) -> Self;
 }
 
 #[tracing::instrument(skip_all, fields(first_5 = ?values.get(0..5), total = values.len()))]
+/// Reads existing unique strings and creates any missing ones, returning domain objects in input order.
 pub async fn save_or_get_unique_str<IDType: Copy, DomainType: ConstructUniqueStr<IDType>>(
     values: &[&str],
     saver: &impl UniqueStringSaver<IDType, DomainType>,
@@ -142,6 +148,7 @@ pub mod test_util {
     use std::sync::Mutex;
 
     #[derive(Debug, PartialEq, Eq)]
+    /// Test-only domain object representing a unique string with an ID.
     pub struct UniqueStr {
         pub id: i64,
         pub value: String,
@@ -153,11 +160,13 @@ pub mod test_util {
         }
     }
 
+    /// In-memory fake UniqueStringSaver used in tests; stores saved strings and simulates connectivity.
     pub struct FakeStringSaver<IDType: Copy> {
         pub connectivity: Connectivity,
         pub saved_strings: Vec<(IDType, String)>,
     }
 
+    /// Ensures all strings in the slice are unique; returns an error if any duplicates are found.
     fn assert_unique_strings(strings: &[&str]) -> Result<(), anyhow::Error> {
         let mut seen_strings: HashSet<&str> = HashSet::new();
 
@@ -172,7 +181,9 @@ pub mod test_util {
         Ok(())
     }
 
+    /// Test helper trait for incrementing ID-like numeric types.
     trait NextValue {
+        /// Returns the next sequential value.
         fn next_val(&self) -> Self;
     }
 

@@ -451,6 +451,8 @@ impl driving_ports::EventPort for EventService {
     }
 }
 
+/// Builds a map from the original ingest location specification to the persisted location reference.
+/// Uses the most specific part (location/room/section) of each saved Location to construct the Ref.
 fn incoming_locations_to_refs(
     saved_unique_locations: Vec<Location>,
 ) -> HashMap<LocationIngest, location::Ref> {
@@ -501,6 +503,9 @@ fn incoming_locations_to_refs(
         .collect()
 }
 
+/// Helper to resolve an optional string to its ID using the provided map.
+/// Returns Ok(Some(id)) if name is present and found, Ok(None) if no name provided,
+/// and an error if a name was provided but not present in the map.
 fn find_id_for_optional_str<T: Copy>(
     maybe_name: Option<&str>,
     name_to_id: &HashMap<&str, T>,

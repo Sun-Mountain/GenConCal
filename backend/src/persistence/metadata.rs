@@ -215,6 +215,7 @@ impl domain::unique::driven_ports::UniqueStringSaver<i64, Contact> for DbContact
     }
 }
 
+/// UniqueStringSaver implementation for organizing groups.
 pub struct DbGroupSaver;
 
 impl domain::unique::driven_ports::UniqueStringSaver<i64, Group> for DbGroupSaver {
@@ -284,6 +285,7 @@ impl domain::unique::driven_ports::UniqueStringSaver<i64, Group> for DbGroupSave
     }
 }
 
+/// UniqueStringSaver implementation for event websites.
 pub struct DbWebsiteSaver;
 
 impl domain::unique::driven_ports::UniqueStringSaver<i64, Website> for DbWebsiteSaver {
@@ -353,6 +355,7 @@ impl domain::unique::driven_ports::UniqueStringSaver<i64, Website> for DbWebsite
     }
 }
 
+/// UniqueStringSaver implementation for required materials at events.
 pub struct DbMaterialsSaver;
 
 impl domain::unique::driven_ports::UniqueStringSaver<i64, Materials> for DbMaterialsSaver {

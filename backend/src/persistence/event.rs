@@ -8,6 +8,7 @@ use chrono::Datelike;
 use sqlx::{Postgres, Row};
 use std::collections::HashMap;
 
+/// DTO for mapping a Gen Con game ID to its database primary key.
 struct GameIdAndId {
     game_id: String,
     id: i64,
@@ -59,6 +60,7 @@ impl domain::event::driven_ports::EventDetector for DbEventDetector {
 #[derive(sqlx::Type)]
 #[sqlx(type_name = "agerequirement")]
 #[sqlx(rename_all = "PascalCase")]
+/// Database enum mapping for AgeRequirement domain values.
 enum AgeRequirementDTO {
     Everyone,
     KidsOnly,
@@ -82,6 +84,7 @@ impl From<AgeRequirement> for AgeRequirementDTO {
 #[derive(sqlx::Type)]
 #[sqlx(type_name = "experiencerequirement")]
 #[sqlx(rename_all = "PascalCase")]
+/// Database enum mapping for ExperienceLevel domain values.
 enum ExperienceLevelDTO {
     Some,
     None,
@@ -101,10 +104,13 @@ impl From<ExperienceLevel> for ExperienceLevelDTO {
 /// Writes and updates event records in the database
 pub struct DbEventWriter;
 
+/// Number of SQL bind parameters required to insert a single event row.
 const SINGLE_EVENT_INSERT_PARAMS_LEN: usize = 19;
+/// Maximum number of events per insert batch without exceeding PostgreSQL's parameter limit.
 const EVENT_INSERT_CHUNK_SIZE: usize = super::PG_PARAM_LIMIT / SINGLE_EVENT_INSERT_PARAMS_LEN;
 
 #[derive(Debug)]
+/// Helper record linking an event (id) to a specific location/room/section id for association tables.
 struct GameLocation {
     id: i64,
     loc_id: i32,
@@ -304,9 +310,12 @@ impl domain::event::driven_ports::EventWriter for DbEventWriter {
     }
 }
 
+/// Number of bind parameters per upsert into association tables (event_id, location-like id).
 const LOCATION_UPSERT_PARAMS: usize = 2;
+/// Maximum number of association rows per batch respecting the PostgreSQL parameter limit.
 const LOCATION_UPSERT_CHUNK_SIZE: usize = super::PG_PARAM_LIMIT / LOCATION_UPSERT_PARAMS;
 
+/// Chunks and upserts event-to-location references to avoid exceeding parameter limits.
 async fn upsert_location_refs_chunked(
     ext_cxn_handle: &mut impl ConnectionHandle,
     locations: &[GameLocation],
@@ -324,6 +333,8 @@ async fn upsert_location_refs_chunked(
 }
 
 #[tracing::instrument(skip(ext_cxn_handle, locations), fields(first_3_locations = ?locations.get(0..3)))]
+/// Inserts event-to-location/room/section links with ON CONFLICT DO NOTHING semantics. Database
+/// triggers will automatically resolve an event moving from a room to a section.
 async fn upsert_location_refs(
     ext_cxn_handle: &mut impl ConnectionHandle,
     locations: &[GameLocation],
@@ -333,6 +344,8 @@ async fn upsert_location_refs(
         return Ok(());
     }
 
+    // TODO add code to resolve the situation where an event moves between locations of the same type.
+    //   this will still result in a conflict but the data won't get updated.
     let insert_query = match ref_type {
         RefType::Location => "INSERT INTO event_location(event_id, location_id)",
         RefType::Room => "INSERT INTO event_room(event_id, room_id)",
@@ -358,6 +371,7 @@ async fn upsert_location_refs(
     Ok(())
 }
 
+/// Chunks deletions of all location associations for the given event IDs.
 async fn remove_location_refs_chunked(
     ext_cxn_handle: &mut impl ConnectionHandle,
     ids_to_remove_location: &[i64],
@@ -373,6 +387,8 @@ async fn remove_location_refs_chunked(
     Ok(())
 }
 
+/// Removes all location/room/section associations for the provided event IDs. Used in the event
+/// an event removes its location entirely.
 async fn remove_location_refs(
     ext_cxn_handle: &mut impl ConnectionHandle,
     ids_to_remove_location: &[i64],

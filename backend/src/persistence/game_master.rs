@@ -9,6 +9,7 @@ use anyhow::{Context, Error};
 use sqlx::{Postgres, Row};
 use std::collections::{HashMap, HashSet};
 
+/// UniqueStringSaver implementation for reading/saving game master names.
 pub struct GameMasterDbSaver;
 
 impl UniqueStringSaver<i64, GameMaster> for GameMasterDbSaver {
@@ -73,8 +74,10 @@ impl UniqueStringSaver<i64, GameMaster> for GameMasterDbSaver {
     }
 }
 
+/// Persistence implementation of GMAssociator using a PostgreSQL database.
 pub struct GameMasterDbAssociator;
 
+/// DTO for aggregating GM IDs by event when querying associations.
 struct EventIdDTO {
     event_id: i64,
     gm_ids: Vec<i64>,

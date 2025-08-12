@@ -8,6 +8,7 @@ use anyhow::Context;
 use derive_more::{Display, Error};
 
 #[derive(Clone)]
+/// Domain model for a game master (GM) represented as a unique string value.
 pub struct GameMaster {
     pub id: i64,
     pub name: String,
@@ -20,6 +21,7 @@ impl ConstructUniqueStr<i64> for GameMaster {
 }
 
 #[derive(Debug, Display, Error)]
+/// Errors that can occur while creating/removing associations between GMs and events.
 pub enum GameMasterAssociationError {
     #[display(
         "When requesting existing associations, only {existing_games} of {requested_games} actually exist"
@@ -61,6 +63,7 @@ impl From<driven_ports::NewAssociationError> for GameMasterAssociationError {
 }
 
 #[derive(Debug)]
+/// Input mapping of an event to the list of GM names to be associated.
 pub struct GameMastersForEvent {
     pub event_id: i64,
     pub game_masters: Vec<String>,
@@ -71,6 +74,7 @@ pub mod driven_ports {
     use crate::domain::BulkLookupResult;
 
     #[derive(Debug, Display, Error)]
+    /// Errors when retrieving existing GM associations for events.
     pub enum ExistingAssociationError {
         #[display(
             "When requesting existing associations, only {existing_games} of {requested_games} actually exist"
@@ -83,6 +87,7 @@ pub mod driven_ports {
     }
 
     #[derive(Debug, Display, Error)]
+    /// Errors when creating or validating new GM associations for an event.
     pub enum NewAssociationError {
         #[display("Game with ID {} does not exist", _0)]
         GameDoesNotExist(#[error(not(source))] i64),
@@ -91,13 +96,16 @@ pub mod driven_ports {
         PortError(anyhow::Error),
     }
 
+    /// Port for associating game masters with events in the persistence layer.
     pub trait GMAssociator {
+        /// Returns existing GM IDs for each requested event (None if event has no GMs).
         async fn existing_gm_associations(
             &self,
             game_ids: &[i64],
             ext_cxn: &mut impl ExternalConnectivity,
         ) -> BulkLookupResult<Vec<i64>, ExistingAssociationError>;
 
+        /// Associates the specified GM IDs with the given event, validating existence.
         async fn associate_gms_with_game(
             &self,
             game_id: i64,
@@ -105,6 +113,7 @@ pub mod driven_ports {
             ext_cxn: &mut impl ExternalConnectivity,
         ) -> Result<(), NewAssociationError>;
 
+        /// Removes the specified GM IDs from the given event.
         async fn remove_gms_from_game(
             &self,
             game_id: i64,
@@ -115,6 +124,7 @@ pub mod driven_ports {
 }
 
 #[tracing::instrument(skip_all, fields(total_game_assocs = game_masters.len(), first_5_assocs = ?game_masters.get(0..5)))]
+/// Ensures GM names exist and synchronizes GM associations for each event.
 pub async fn save_game_masters(
     game_masters: &[GameMastersForEvent],
 
@@ -411,6 +421,7 @@ pub mod test_util {
     use std::collections::{HashMap, HashSet};
     use std::sync::Mutex;
 
+    /// In-memory fake GMAssociator for tests with configurable validity and existing associations.
     pub struct FakeGmAssociator {
         pub existing_gms: HashMap<i64, Vec<i64>>,
         pub valid_games: HashSet<i64>,
@@ -419,6 +430,7 @@ pub mod test_util {
     }
 
     impl FakeGmAssociator {
+        /// Creates a default FakeGmAssociator with no data and connected state.
         fn new() -> Self {
             Self {
                 existing_gms: HashMap::new(),
@@ -428,6 +440,7 @@ pub mod test_util {
             }
         }
 
+        /// Builds and returns a Mutex-wrapped FakeGmAssociator after applying the provided builder.
         pub fn build_locked(
             builder: impl FnOnce(&mut FakeGmAssociator),
         ) -> Mutex<FakeGmAssociator> {

@@ -13,6 +13,7 @@ pub mod organizers;
 #[cfg(test)]
 pub mod test_util;
 
+/// Represents an inclusive start (page_start) and exclusive end (page_end) index range for paginated results.
 struct PageRange {
     pub page_start: usize,
     pub page_end: usize,
@@ -32,6 +33,7 @@ fn determine_page_limits(page: u16, results_per_page: u16) -> PageRange {
 }
 
 #[instrument]
+/// Calculates the total number of pages given the page size and total result count.
 fn total_pages(results_per_page: u16, total_results: usize) -> u16 {
     let rpp_usize = results_per_page as usize;
     let pages = if total_results % rpp_usize != 0 {
@@ -56,4 +58,5 @@ pub struct PaginationQueryParams {
     pub limit: Option<u16>,
 }
 
+/// Size of one mebibyte (MiB) in bytes.
 static MEBIBYTE: usize = 1024 * 1024;

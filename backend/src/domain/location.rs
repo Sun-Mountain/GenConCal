@@ -7,6 +7,7 @@ use serde::Serialize;
 use std::collections::HashMap;
 
 #[derive(Debug, PartialEq, Eq, Clone)]
+/// A fully qualified location, which may be a venue, a room within a venue, or a section within a room.
 pub struct Location {
     pub id: i32,
     pub name: String,
@@ -14,6 +15,7 @@ pub struct Location {
 }
 
 impl Location {
+    /// Returns a minimal reference (id and type) representing the most specific part of this location.
     pub fn as_location_ref(&self) -> Ref {
         match self {
             Location {
@@ -47,6 +49,7 @@ impl Location {
 }
 
 #[derive(Debug, PartialEq, Eq, Clone)]
+/// A room within a venue. May optionally contain a section.
 pub struct Room {
     pub id: i32,
     pub name: String,
@@ -54,18 +57,21 @@ pub struct Room {
 }
 
 #[derive(Debug, PartialEq, Eq, Clone)]
+/// A section within a room.
 pub struct Section {
     pub id: i32,
     pub name: String,
 }
 
 #[derive(Clone, Debug)]
+/// A compact reference to a location entity, indicating the id and the kind of entity it refers to.
 pub struct Ref {
     pub id: i32,
     pub ref_type: RefType,
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Display, Debug)]
+/// The kind of location entity referenced by Ref.
 pub enum RefType {
     Location,
     Room,
@@ -73,6 +79,7 @@ pub enum RefType {
 }
 
 #[derive(Debug, PartialEq, Eq, Clone, Hash)]
+/// Incoming location specification used during ingest before IDs are known.
 pub enum LocationIngest {
     Location {
         name: String,
@@ -91,12 +98,14 @@ pub enum LocationIngest {
 }
 
 #[derive(Clone, PartialEq, Eq, Debug)]
+/// A location with only its own fields (no nested room/section), typically used for lookups.
 pub struct LocationOnly {
     pub id: i32,
     pub name: String,
 }
 
 #[derive(Clone, PartialEq, Eq, Debug)]
+/// A room with only its own fields (no nested section), typically used for lookups.
 pub struct RoomOnly {
     pub id: i32,
     pub location_id: i32,
@@ -104,12 +113,14 @@ pub struct RoomOnly {
 }
 
 #[derive(PartialEq, Eq, Hash, Debug, Clone)]
+/// A borrowed reference identifying a room by location id and room name.
 pub struct RoomOnlyRef<'room> {
     pub location_id: i32,
     pub name: &'room str,
 }
 
 #[derive(Clone, PartialEq, Eq, Debug)]
+/// A section with only its own fields, typically used for lookups.
 pub struct SectionOnly {
     pub id: i32,
     pub room_id: i32,
@@ -117,6 +128,7 @@ pub struct SectionOnly {
 }
 
 #[derive(PartialEq, Eq, Hash, Debug)]
+/// A borrowed reference identifying a section by room id and section name.
 pub struct SectionOnlyRef<'section> {
     pub room_id: i32,
     pub name: &'section str,
@@ -127,19 +139,26 @@ pub mod driven_ports {
     use crate::domain::BulkLookupResult;
     use crate::external_connections::ExternalConnectivity;
 
+    /// Driven port for reading locations, rooms, and sections.
     pub trait LocationReader {
+        /// Finds existing locations by name; returns one Option per requested name in the same
+        /// order as the request.
         async fn read_matching_locations(
             &self,
             location_names: &[&str],
             ext_cxn: &mut impl ExternalConnectivity,
         ) -> BulkLookupResult<LocationOnly, anyhow::Error>;
 
+        /// Finds existing rooms by (location_id, room_name); returns one Option per requested ref
+        /// in the same order as the request.
         async fn read_matching_rooms(
             &self,
             room_refs: &[RoomOnlyRef<'_>],
             ext_cxn: &mut impl ExternalConnectivity,
         ) -> BulkLookupResult<RoomOnly, anyhow::Error>;
 
+        /// Finds existing sections by (room_id, section_name); returns one Option per requested ref
+        /// in the same order as the request.
         async fn read_matching_sections(
             &self,
             section_refs: &[SectionOnlyRef<'_>],
@@ -147,19 +166,23 @@ pub mod driven_ports {
         ) -> BulkLookupResult<SectionOnly, anyhow::Error>;
     }
 
+    /// Driven port for creating new locations, rooms, and sections.
     pub trait LocationWriter {
+        /// Inserts any missing locations by name, returning their newly created IDs.
         async fn bulk_save_locations(
             &self,
             location_names: &[&str],
             ext_cxn: &mut impl ExternalConnectivity,
         ) -> Result<Vec<i32>, anyhow::Error>;
 
+        /// Inserts any missing rooms for the specified (location_id, room_name) pairs; returns created room IDs.
         async fn bulk_save_rooms(
             &self,
             room_refs: &[&RoomOnlyRef<'_>],
             ext_cxn: &mut impl ExternalConnectivity,
         ) -> Result<Vec<i32>, anyhow::Error>;
 
+        /// Inserts any missing sections for the specified (room_id, section_name) pairs; returns created section IDs.
         async fn bulk_save_sections(
             &self,
             section_refs: &[&SectionOnlyRef<'_>],
@@ -169,6 +192,8 @@ pub mod driven_ports {
 }
 
 #[tracing::instrument(skip_all, fields(first_10 = ?incoming_locations.get(0..10), total = incoming_locations.len()))]
+/// Ensures locations/rooms/sections referenced by ingest exist; creates missing ones and returns synthesized Locations
+/// in the same order as [incoming_locations].
 pub(super) async fn save_locations(
     incoming_locations: &[LocationIngest],
     reader: &impl LocationReader,
@@ -378,6 +403,7 @@ pub(super) async fn save_locations(
     Ok(created_locations)
 }
 
+/// Builds a fully qualified Location from ingest data using lookup maps of persisted IDs.
 fn location_from_ingest(
     ingest_loc: LocationIngest,
     location_id_by_name: &HashMap<&str, i32>,
@@ -708,6 +734,7 @@ mod test_util {
     use std::ops::Deref;
     use std::sync::Mutex;
 
+    /// Test hook container for configuring fake read/write location port behaviors and injected errors.
     pub struct LocationStorageFuncs {
         pub location_read_err:
             domain::test_util::FakeImpl<Vec<String>, BulkLookupResult<LocationOnly, anyhow::Error>>,
@@ -741,6 +768,7 @@ mod test_util {
         }
     }
 
+    /// In-memory fake implementing LocationReader/Writer for tests with controllable behavior.
     pub struct FakeLocationStorage {
         pub locations: Vec<LocationOnly>,
         pub rooms: Vec<RoomOnly>,

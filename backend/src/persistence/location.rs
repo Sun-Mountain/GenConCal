@@ -149,21 +149,29 @@ impl domain::location::driven_ports::LocationReader for DbLocationReader {
     }
 }
 
+/// Number of bind parameters per location insert (location_name).
 static LOCATION_INSERT_PARAMS: usize = 1;
+/// Number of bind parameters per room insert (location_id, room_name).
 static ROOM_INSERT_PARAMS: usize = 2;
+/// Number of bind parameters per section insert (room_id, section_name).
 static SECTION_INSERT_PARAMS: usize = 2;
 
+/// Maximum number of locations per batch insert given PostgreSQL parameter limit.
 static LOCATION_INSERT_CHUNK_SIZE: usize = super::PG_PARAM_LIMIT / LOCATION_INSERT_PARAMS;
+/// Maximum number of rooms per batch insert given PostgreSQL parameter limit.
 static ROOM_INSERT_CHUNK_SIZE: usize = super::PG_PARAM_LIMIT / ROOM_INSERT_PARAMS;
+/// Maximum number of sections per batch insert given PostgreSQL parameter limit.
 static SECTION_INSERT_CHUNK_SIZE: usize = super::PG_PARAM_LIMIT / SECTION_INSERT_PARAMS;
 
 #[derive(FromRow)]
+/// Row returned when inserting into locations, used to map names to generated IDs.
 struct InsertedLocationDTO {
     id: i16,
     location_name: String,
 }
 
 #[derive(FromRow)]
+/// Row returned when inserting into rooms with their owning location IDs.
 struct InsertedRoomDTO {
     id: i32,
     location_id: i16,
@@ -180,6 +188,7 @@ impl<'dto> From<&'dto InsertedRoomDTO> for RoomOnlyRef<'dto> {
 }
 
 #[derive(FromRow)]
+/// Row returned when inserting into sections with their owning room IDs.
 struct InsertedSectionDTO {
     id: i32,
     room_id: i32,
