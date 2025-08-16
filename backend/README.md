@@ -1,74 +1,22 @@
-# Rust REST Server Template
+# GenConCal Backend
 
-This repository contains a starting point for a testable Rust microservice using Hexagonal Architecture. Here's how to get started:
+The GenCon Calendar API is a Rust-based backend service for tracking GenCon events and schedules.
 
-1. Run `docker compose up` to start the PostgeSQL server that the microservice depends on.
-2. Run `cargo run` to start the microservice.
+## Getting Started
 
-Additional documentation and "getting started" material can be found in the [template documentation](./doc/README.md).
+1. Run `docker compose up` to start the PostgreSQL database and monitoring services (Grafana, Tempo, Prometheus).
+2. Run `cargo run` to start the GenConCal backend service.
 
-This template includes:
-* Unit testing for both HTTP routers and business logic
-* Integration tests against a real Postgres database
-* CI via CircleCI which runs unit and integration tests, lints the code, and verifies formatting
-* OpenAPI documentation via Swagger UI
-* A configurable logger
-* Validation for incoming HTTP request DTOs
-* Tons of documentation on the coding patterns used in the template
+The service will be available at `http://localhost:8080`.
 
-Try it out for yourself, contributions are welcome!
+## Useful Links
 
-## Benchmark
+When running the full stack with `docker compose up`, the following interfaces are available:
 
-Did a quick load test on the server using `oha` running for 5 minutes:
+* **API Documentation**: [http://localhost:8080/swagger-ui](http://localhost:8080/swagger-ui) - Interactive OpenAPI documentation
+* **Grafana Dashboard**: [http://localhost:3000](http://localhost:3000) - Monitoring, metrics, and observability
 
-```
-❯ oha -z 5m http://localhost:8080/users/1/tasks
-Summary:
-  Success rate:	1.0000
-  Total:	300.0010 secs
-  Slowest:	0.6709 secs
-  Fastest:	0.0054 secs
-  Average:	0.0324 secs
-  Requests/sec:	1543.8113
-
-  Total data:	63.60 MiB
-  Size/request:	144 B
-  Size/sec:	217.10 KiB
-
-Response time histogram:
-  0.014 [1972]   |
-  0.022 [16050]  |■■
-  0.030 [169591] |■■■■■■■■■■■■■■■■■■■■■■■■■
-  0.039 [212188] |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
-  0.047 [46930]  |■■■■■■■
-  0.055 [11667]  |■
-  0.064 [3211]   |
-  0.072 [952]    |
-  0.080 [289]    |
-  0.089 [49]     |
-  0.097 [246]    |
-
-Latency distribution:
-  10% in 0.0245 secs
-  25% in 0.0279 secs
-  50% in 0.0317 secs
-  75% in 0.0353 secs
-  90% in 0.0409 secs
-  95% in 0.0451 secs
-  99% in 0.0556 secs
-
-Details (average, fastest, slowest):
-  DNS+dialup:	0.0012 secs, 0.0007 secs, 0.0014 secs
-  DNS-lookup:	0.0000 secs, 0.0000 secs, 0.0001 secs
-
-Status code distribution:
-  [200] 463145 responses
-```
-
-Most frequently, the server responds in about 39ms and it was able to process 463k requests in 5 minutes. Needless to say Rust web servers are FAST.
-
-## Swagger Docs
+## API Documentation
 
 The Swagger UI (provided by the [utoipa](https://github.com/juhaku/utoipa) crate) can be accessed at http://localhost:8080/swagger-ui when starting the application.
 
@@ -90,8 +38,3 @@ cargo test --features integration_test
 ```
 
 More information on integration testing can be found in the [testing documentation](./doc/testing.md#writing-integration-tests).
-
-## Latency + Log Data
-
-The docker-compose file included with this repository runs a Jaeger instance which collects latency and log data
-from the running application. You can view the Jaeger UI at http://localhost:16686.
