@@ -1,10 +1,17 @@
+pub mod event;
+pub mod game_master;
+pub mod location;
+pub mod metadata;
+
 use crate::external_connections;
 use crate::external_connections::ConnectionHandle;
-use anyhow::{anyhow, Context};
+use anyhow::{Context, anyhow};
 use std::fmt::{Debug, Display};
 
 use sqlx::pool::PoolConnection;
 use sqlx::{Acquire, PgConnection, PgPool, Postgres, Transaction};
+
+const PG_PARAM_LIMIT: usize = 65535;
 
 /// Data structure which owns clients for connecting to external systems.
 /// Allows business logic to be agnostic of the external systems it communicates with
@@ -35,9 +42,8 @@ impl ConnectionHandle for PoolConnectionHandle {
 
 impl external_connections::ExternalConnectivity for ExternalConnectivity {
     type Handle<'cxn_borrow> = PoolConnectionHandle;
-    type Error = anyhow::Error;
 
-    async fn database_cxn(&mut self) -> Result<Self::Handle<'_>, Self::Error> {
+    async fn database_cxn(&mut self) -> Result<Self::Handle<'_>, anyhow::Error> {
         let handle = PoolConnectionHandle {
             active_connection: self.db.acquire().await?,
         };
@@ -47,10 +53,9 @@ impl external_connections::ExternalConnectivity for ExternalConnectivity {
 }
 
 impl external_connections::Transactable for ExternalConnectivity {
-    type Handle<'handle> = ExternalConnectionsInTransaction<'handle>;
-    type Error = anyhow::Error;
+    type Handle = ExternalConnectionsInTransaction;
 
-    async fn start_transaction(&self) -> Result<Self::Handle<'_>, Self::Error> {
+    async fn start_transaction(&self) -> Result<Self::Handle, anyhow::Error> {
         let transaction = self
             .db
             .begin()
@@ -63,8 +68,8 @@ impl external_connections::Transactable for ExternalConnectivity {
 
 /// A variant of ExternalConnectivity where the database client has an active database transaction
 /// which can later be committed
-pub struct ExternalConnectionsInTransaction<'tx> {
-    txn: Transaction<'tx, Postgres>,
+pub struct ExternalConnectionsInTransaction {
+    txn: Transaction<'static, Postgres>,
 }
 
 /// A handle from ExternalConnectionsInTransaction which can connect to a database
@@ -72,14 +77,13 @@ pub struct TransactionHandle<'tx> {
     active_transaction: &'tx mut PgConnection,
 }
 
-impl<'tx> external_connections::ExternalConnectivity for ExternalConnectionsInTransaction<'tx> {
+impl external_connections::ExternalConnectivity for ExternalConnectionsInTransaction {
     type Handle<'tx_borrow>
         = TransactionHandle<'tx_borrow>
     where
         Self: 'tx_borrow;
-    type Error = anyhow::Error;
 
-    async fn database_cxn(&mut self) -> Result<TransactionHandle<'_>, Self::Error> {
+    async fn database_cxn(&mut self) -> Result<TransactionHandle<'_>, anyhow::Error> {
         let handle = self
             .txn
             .acquire()
@@ -98,10 +102,8 @@ impl ConnectionHandle for TransactionHandle<'_> {
     }
 }
 
-impl<'tx> external_connections::TransactionHandle for ExternalConnectionsInTransaction<'tx> {
-    type Error = anyhow::Error;
-
-    async fn commit(self) -> Result<(), Self::Error> {
+impl external_connections::TransactionHandle for ExternalConnectionsInTransaction {
+    async fn commit(self) -> Result<(), anyhow::Error> {
         self.txn
             .commit()
             .await
@@ -125,10 +127,9 @@ impl Count {
     }
 }
 
-#[expect(dead_code)]
 /// Utility DTO for retrieving the ID of a newly inserted record to PostgreSQL
-struct NewId {
-    id: i32,
+struct NewId<IdType> {
+    id: IdType,
 }
 
 #[expect(dead_code)]
@@ -136,3 +137,18 @@ struct NewId {
 fn anyhowify<T: Debug + Display>(errorish: T) -> anyhow::Error {
     anyhow!(format!("{}", errorish))
 }
+
+macro_rules! num_conv_func {
+    ($from:ty, $to:ty) => {
+        paste::item! {
+            fn [<$from _as_ $to>](original: $from) -> $to {
+                original as $to
+            }
+        }
+    };
+}
+
+// Generates u16_as_i16
+num_conv_func!(u16, i16);
+// Generates u32_as_i32
+num_conv_func!(u32, i32);

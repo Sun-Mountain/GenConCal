@@ -5,19 +5,23 @@ use validator::Validate;
 
 pub mod swagger_main;
 
+pub mod cors;
 pub mod days;
-mod event_import;
+pub mod event_import;
 pub mod events;
 pub mod organizers;
 #[cfg(test)]
 pub mod test_util;
 
+/// Represents an inclusive start (page_start) and exclusive end (page_end) index range for paginated results.
 struct PageRange {
     pub page_start: usize,
     pub page_end: usize,
 }
 
 #[instrument]
+/// Calculates the start and end indices of a set of results based on
+/// the requested page and the number of results per page
 fn determine_page_limits(page: u16, results_per_page: u16) -> PageRange {
     let page_start = (page as usize - 1) * results_per_page as usize;
     let page_end = page_start + results_per_page as usize;
@@ -29,6 +33,7 @@ fn determine_page_limits(page: u16, results_per_page: u16) -> PageRange {
 }
 
 #[instrument]
+/// Calculates the total number of pages given the page size and total result count.
 fn total_pages(results_per_page: u16, total_results: usize) -> u16 {
     let rpp_usize = results_per_page as usize;
     let pages = if total_results % rpp_usize != 0 {
@@ -52,3 +57,6 @@ pub struct PaginationQueryParams {
     /// The number of results to return per page
     pub limit: Option<u16>,
 }
+
+/// Size of one mebibyte (MiB) in bytes.
+static MEBIBYTE: usize = 1024 * 1024;

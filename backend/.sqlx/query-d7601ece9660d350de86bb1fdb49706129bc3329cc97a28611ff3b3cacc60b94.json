@@ -1,22 +1,22 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT count(*) FROM todo_user tu WHERE tu.id = $1",
+  "query": "SELECT id FROM game_masters WHERE game_masters.id = ANY($1)",
   "describe": {
     "columns": [
       {
         "ordinal": 0,
-        "name": "count",
+        "name": "id",
         "type_info": "Int8"
       }
     ],
     "parameters": {
       "Left": [
-        "Int4"
+        "Int8Array"
       ]
     },
     "nullable": [
-      null
+      false
     ]
   },
-  "hash": "714c1429fd0b7c3fb8d6a6a9eec9acbb7397821d281268054cd6a9c39f47e2c4"
+  "hash": "d7601ece9660d350de86bb1fdb49706129bc3329cc97a28611ff3b3cacc60b94"
 }

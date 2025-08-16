@@ -1,9 +1,9 @@
 use crate::persistence::ExternalConnectivity;
-use crate::{app_env, db, logging, SharedData};
+use crate::{SharedData, app_env, db, logging};
 use axum::Router;
 use dotenv::dotenv;
 use lazy_static::lazy_static;
-use rand::{thread_rng, Rng};
+use rand::{Rng, thread_rng};
 use sqlx::{Connection, PgConnection, Row};
 use std::env;
 use std::sync::Arc;
@@ -27,7 +27,9 @@ async fn clear_old_dbs(db_base_url: &str) {
     let test_dbs = match test_dbs {
         Ok(results) => results.into_iter().map(|row| row.get::<String, _>(0)),
         Err(error) => {
-            println!("Warning: failed to drop old test databases. You may );need to delete them manually. Error: {error}");
+            println!(
+                "Warning: failed to drop old test databases. You may );need to delete them manually. Error: {error}"
+            );
             return;
         }
     };

@@ -1,13 +1,13 @@
-use crate::api::{events, PaginationQueryParams};
+use crate::api::{PaginationQueryParams, events};
 use crate::dto::TimeBlockedEventsResponse;
 use crate::external_connections::ExternalConnectivity;
 use crate::routing_utils::{Json, ValidationErrorResponse};
-use crate::{api, dto, AppState, SharedData};
+use crate::{AppState, SharedData, api, dto};
+use axum::Router;
 use axum::extract::{Path, Query, State};
 use axum::http::StatusCode;
 use axum::response::ErrorResponse;
 use axum::routing::get;
-use axum::Router;
 use chrono::NaiveTime;
 use tracing::*;
 
@@ -17,29 +17,30 @@ use validator::Validate;
 
 #[derive(OpenApi)]
 #[openapi(paths(list_events_by_day, day_time_info,))]
+/// OpenAPI struct which registers API docs with swagger
 pub struct DaysApi;
 
+/// Constant which defines the "days" group of API endpoints
 pub const DAYS_API_GROUP: &str = "Days";
 
+/// Returns a router containing all routes for the "/api/days" set of endpoints
 pub fn day_routes() -> Router<Arc<SharedData>> {
     Router::new()
         .route(
             "/:day_id/time-info",
-            get(
-                |State(app_data): AppState, Path(day_id): Path<u32>| async move {
-                    let mut ext_cxn = app_data.ext_cxn.clone();
+            get(async |State(app_data): AppState, Path(day_id): Path<u32>| {
+                let mut ext_cxn = app_data.ext_cxn.clone();
 
-                    day_time_info(day_id, &mut ext_cxn).await
-                },
-            ),
+                day_time_info(day_id, &mut ext_cxn).await
+            }),
         )
         .route(
             "/:day_id/events",
             get(
-                |State(app_data): AppState,
-                 Path(day_id): Path<u32>,
-                 Query(filter): Query<events::EventListQueryParams>,
-                 Query(pagination): Query<api::PaginationQueryParams>| async move {
+                async |State(app_data): AppState,
+                       Path(day_id): Path<u32>,
+                       Query(filter): Query<events::EventListQueryParams>,
+                       Query(pagination): Query<api::PaginationQueryParams>| {
                     let mut ext_cxn = app_data.ext_cxn.clone();
 
                     list_events_by_day(day_id, &filter, &pagination, &mut ext_cxn).await

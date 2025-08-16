@@ -13,7 +13,7 @@ use fake::{Dummy, Fake, Faker, Opt, Optional};
 use rand::prelude::*;
 use serde::{Deserialize, Serialize};
 use utoipa::openapi::{RefOr, Schema};
-use utoipa::{openapi, OpenApi, ToSchema};
+use utoipa::{OpenApi, ToSchema, openapi};
 use validator::ValidationErrors;
 
 use crate::domain;
@@ -23,6 +23,9 @@ use crate::dto::IngestEventConvertErr::{UnrecognizedAgeRequirement, Unrecognized
 #[derive(OpenApi)]
 #[openapi(components(
     schemas(
+        EventImportRequest,
+        ImportedEvent,
+        NumberOrString,
         DaysResponse,
         EventDay,
         TimeInfoResponse,
@@ -509,45 +512,110 @@ pub struct LocationPart {
     pub name: String,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug, ToSchema)]
 #[serde(rename_all = "camelCase")]
-#[expect(dead_code)]
 pub struct EventImportRequest {
+    /// List of GenCon events to import
     pub event_data: Vec<ImportedEvent>,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug, ToSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct ImportedEvent {
+    #[schema(example = "everyone (6+)")]
+    /// Event age requirement
+    ///
+    /// Valid values:
+    /// * "Everyone (6+)"
+    /// * "Kids Only (12 and under)"
+    /// * "Teen (13+)"
+    /// * "Mature (18+)"
+    /// * "21+"
     pub age_requirement: String,
+
+    #[schema(example = "jdoe22@somewhere.com")]
+    /// The contact e-mail for the event organizer. Empty string for no contact.
     pub contact: String,
-    pub cost: u16,
+
+    #[schema(example = 10)]
+    /// The cost of the event (in dollars). 0 if the event is free.
+    pub cost: u32,
+
+    #[schema(
+        example = "This is a description of the event. It can be as long as you want. It can even contain multiple paragraphs."
+    )]
+    /// Description of the event
     pub description_short: String,
+
+    /// The end date of the event.
     pub end_date: DateDto,
+
+    #[schema(example = "12:00")]
+    /// The end time of the event.
     pub end_time: TimeDto,
+
+    #[schema(example = "BGM - Board Game")]
+    /// The type of event.
     pub event_type: String,
+
+    #[schema(example = "Some (You've played it a bit and understand the basics)")]
+    /// The required experience for the event.
+    ///
+    /// Valid values:
+    /// * None (You've never played before - rules will be taught)"
+    /// * Some (You've played it a bit and understand the basics)"
+    /// * Expert (You play it regularly and know all the rules)"
     pub experience_type: String,
+
+    #[schema(example = "BGM23ND0192830")]
+    /// The GenCon ID for the game
     pub game_id: String,
+
+    #[schema(example = "Dungeons & Dragons")]
+    /// The game system used by the event. Empty string if this is not applicable.
     pub game_system: NumberOrString,
+
+    #[schema(example = "John Doe, Jane Smith")]
+    /// The names of the game masters for the event, comma-separated.
     pub gm_names: String,
+
+    #[schema(example = "Super Cool Group Ltd.")]
+    /// The group running the event. Empty string if not applicable.
     pub group: String,
+
+    #[schema(example = "ICC")]
+    /// The building where the game will occur. May include a room, separated by a colon. Empty if this is not applicable.
     pub location: String,
+
+    #[schema(example = "Paper and a pen")]
+    /// Required materials for the event. May
     pub materials: String,
+    #[schema(example = 3)]
     pub players_min: u16,
+    #[schema(example = 8)]
     pub players_max: u16,
     pub start_date: DateDto,
+    #[schema(example = "11:00")]
     pub start_time: TimeDto,
+    #[schema(example = 10)]
     pub table_num: u16,
+    #[schema(example = 3)]
     pub tickets_available: i16,
+    #[schema(example = "Delve into the Underdark")]
     pub title: String,
+    #[schema(example = true)]
     pub tournament: bool,
+    #[schema(example = 213)]
     pub room: NumberOrString,
+    #[schema(example = 1)]
     pub round: u8,
+    #[schema(example = 3)]
     pub round_total: u8,
+    #[schema(example = "www.supercoolgroup.com")]
     pub website: String,
 }
 
-#[derive(Serialize, Deserialize, Clone, ToSchema)]
+#[derive(Serialize, Deserialize, Clone, ToSchema, Debug)]
 #[serde(try_from = "String", into = "String")]
 #[schema(example = "7/28/2024", value_type = String)]
 pub struct DateDto(pub NaiveDate);
@@ -596,7 +664,6 @@ impl From<TimeDto> for String {
 }
 
 #[derive(Debug)]
-#[expect(dead_code)]
 pub enum IngestEventConvertErr {
     BadStartTime,
     BadEndTime,
@@ -736,7 +803,7 @@ impl TryFrom<ImportedEvent> for domain::event::IngestEvent {
     }
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug, ToSchema)]
 #[serde(untagged)]
 pub enum NumberOrString {
     Number(u16),

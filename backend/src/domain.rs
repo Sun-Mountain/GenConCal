@@ -5,3 +5,7 @@ pub mod metadata;
 #[cfg(test)]
 mod test_util;
 pub mod tournament;
+pub mod unique;
+
+/// Alias for the result of a "bulk read" operation
+pub type BulkLookupResult<T, E> = Result<Vec<Option<T>>, E>;

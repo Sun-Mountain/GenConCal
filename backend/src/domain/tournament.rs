@@ -1,10 +1,26 @@
+use crate::domain::event::FullEvent;
+use chrono_tz::Tz;
 #[cfg(test)]
 use serde::Serialize;
 use std::collections::HashMap;
 
-use crate::domain::event;
-use crate::domain::event::FullEvent;
+#[derive(Debug)]
+/// Lightweight view of an event used when assembling tournaments
+pub struct EventSummary<'evt> {
+    #[expect(dead_code)]
+    pub id: i32,
+    pub title: &'evt str,
+    pub start_time: chrono::DateTime<Tz>,
+}
 
+#[derive(Debug)]
+/// Input representing a single tournament-related event used for detection
+pub struct RawTournamentIngest<'evt> {
+    event_info: EventSummary<'evt>,
+    round_info: RoundInfoIngest,
+}
+
+/// Represents a tournament composed of one or more rounds
 #[expect(dead_code)]
 pub struct Tournament {
     pub id: i32,
@@ -12,21 +28,29 @@ pub struct Tournament {
     pub total_rounds: u8,
 }
 
+/// A single round of a tournament with its member events
 #[expect(dead_code)]
 pub struct TournamentSegment {
     pub round: u8,
     pub segment_events: Vec<FullEvent>,
 }
 
+/// A segment reference storing event IDs instead of full events
+#[expect(dead_code)]
+pub struct TournamentSegmentRef {
+    pub round: u8,
+    pub segment_events: Vec<i32>,
+}
+
 #[derive(Debug)]
-#[cfg_attr(test, derive(Serialize))]
+/// Round metadata for a tournament event (current and total rounds)
 pub struct RoundInfoIngest {
     pub round: u8,
     pub total_rounds: u8,
 }
 
 #[derive(Debug)]
-#[cfg_attr(test, derive(Serialize))]
+/// A detected tournament with overall metadata and grouped segments by round.
 pub struct TournamentIngest<'evt> {
     #[expect(dead_code)]
     pub total_rounds: u8,
@@ -37,33 +61,28 @@ pub struct TournamentIngest<'evt> {
 }
 
 #[derive(Debug)]
-#[cfg_attr(test, derive(Serialize))]
 #[expect(dead_code)]
+/// A tournament segment containing all events that belong to a particular round.
 pub struct TournamentSegmentIngest<'evt> {
     pub round: u8,
-    pub round_members: Vec<&'evt event::IngestEvent>,
+    pub round_members: Vec<&'evt EventSummary<'evt>>,
 }
+
+pub mod driven_ports {}
 
 #[expect(dead_code)]
 /// Looks through the set of events in an event ingest and attempts to assemble tournaments
 /// based on similarly named events
-pub fn detect_tournaments<'evt>(events: &'evt [event::IngestEvent]) -> Vec<TournamentIngest<'evt>> {
+pub fn detect_tournaments<'evt>(
+    events: &'evt [RawTournamentIngest],
+) -> Vec<TournamentIngest<'evt>> {
     // Get the set of events that are actually part of a tournament
     let (single_event_tourney, multi_event_tourney): (
-        Vec<&event::IngestEvent>,
-        Vec<&event::IngestEvent>,
+        Vec<&RawTournamentIngest>,
+        Vec<&RawTournamentIngest>,
     ) = events
         .iter()
-        .filter(|evt| {
-            matches!(
-                evt,
-                event::IngestEvent {
-                    tournament: Some(_),
-                    ..
-                }
-            )
-        })
-        .partition(|evt| evt.tournament.as_ref().unwrap().total_rounds == 1);
+        .partition(|evt| evt.round_info.total_rounds == 1);
 
     let mut tournaments: Vec<TournamentIngest<'_>> = Vec::new();
 
@@ -71,20 +90,20 @@ pub fn detect_tournaments<'evt>(events: &'evt [event::IngestEvent]) -> Vec<Tourn
     for event in single_event_tourney.into_iter() {
         tournaments.push(TournamentIngest {
             total_rounds: 1,
-            name: event.title.as_str(),
+            name: event.event_info.title,
             segment_events: vec![TournamentSegmentIngest {
                 round: 1,
-                round_members: vec![event],
+                round_members: vec![&event.event_info],
             }],
         })
     }
 
     // For multi-round tournaments, we need to find events with the same title prefix and the same number of rounds
     // to consider them as part of the same tournament
-    let mut events_by_rounds: HashMap<u8, Vec<&'evt event::IngestEvent>> = HashMap::new();
+    let mut events_by_rounds: HashMap<u8, Vec<&'evt RawTournamentIngest>> = HashMap::new();
     for event in multi_event_tourney.into_iter() {
         let tournament_length_vec = events_by_rounds
-            .entry(event.tournament.as_ref().unwrap().total_rounds)
+            .entry(event.round_info.total_rounds)
             .or_default();
         tournament_length_vec.push(event);
     }
@@ -93,7 +112,7 @@ pub fn detect_tournaments<'evt>(events: &'evt [event::IngestEvent]) -> Vec<Tourn
     struct SanitizedTitleEvent<'evt> {
         sanitized_title: String,
         removed_indices: Vec<usize>,
-        event: &'evt event::IngestEvent,
+        event: &'evt RawTournamentIngest<'evt>,
     }
 
     #[derive(Clone, Debug)]
@@ -110,7 +129,7 @@ pub fn detect_tournaments<'evt>(events: &'evt [event::IngestEvent]) -> Vec<Tourn
         let mut events_by_sanitized_title: Vec<SanitizedTitleEvent> = event_list
             .iter()
             .map(|evt| {
-                let sanitized_title = sanitize_title(&evt.title);
+                let sanitized_title = sanitize_title(evt.event_info.title);
                 SanitizedTitleEvent {
                     sanitized_title: sanitized_title.new_title,
                     removed_indices: sanitized_title.removed_indices,
@@ -186,16 +205,19 @@ pub fn detect_tournaments<'evt>(events: &'evt [event::IngestEvent]) -> Vec<Tourn
         }
 
         for mut pfx_group in tournament_groups.into_iter() {
-            pfx_group
-                .group_entries
-                .sort_by(|evt1, evt2| evt1.event.start.cmp(&evt2.event.start));
+            pfx_group.group_entries.sort_by(|evt1, evt2| {
+                evt1.event
+                    .event_info
+                    .start_time
+                    .cmp(&evt2.event.event_info.start_time)
+            });
 
             let initial_entry = *pfx_group
                 .group_entries
                 .first()
                 .expect("There must be at least one event in the group");
             let unsanitized_prefix_len = match pfx_group.prefix_size {
-                None => initial_entry.event.title.len(),
+                None => initial_entry.event.event_info.title.len(),
 
                 // To get the true prefix length, we have to add one extra character for every
                 // removed character from the original string as long as it was before the
@@ -244,19 +266,14 @@ pub fn detect_tournaments<'evt>(events: &'evt [event::IngestEvent]) -> Vec<Tourn
                 .collect();
 
             for tournament_event in pfx_group.group_entries.iter() {
-                let event_round = tournament_event
-                    .event
-                    .tournament
-                    .as_ref()
-                    .expect("This is guaranteed to be a tournament event")
-                    .round;
+                let event_round = tournament_event.event.round_info.round;
 
                 tournament_segments[(event_round - 1) as usize]
                     .round_members
-                    .push(tournament_event.event);
+                    .push(&tournament_event.event.event_info);
             }
 
-            let tournament_title = &initial_entry.event.title[0..unsanitized_prefix_len];
+            let tournament_title = &initial_entry.event.event_info.title[0..unsanitized_prefix_len];
             tournaments.push(TournamentIngest {
                 total_rounds: *round_total,
                 name: trim_punc_and_spaces(tournament_title),
@@ -290,13 +307,10 @@ fn common_prefix_length(str1: &str, str2: &str) -> usize {
         prefix_length += 1;
     }
 
-    if space_seen {
-        prefix_length
-    } else {
-        0
-    }
+    if space_seen { prefix_length } else { 0 }
 }
 
+/// Result of sanitizing a title: lowercase, punctuation-stripped text plus indices removed from the original string.
 struct SanitizedTitle {
     new_title: String,
     removed_indices: Vec<usize>,
@@ -381,21 +395,5 @@ mod tests {
 
     use super::*;
 
-    #[test]
-    fn try_out_tourney_detection() {
-        let sample_json_reader = BufReader::new(File::open("./example_events.json").unwrap());
-        let file_data: dto::EventImportRequest =
-            serde_json::from_reader(sample_json_reader).unwrap();
-
-        let domain_objects: Vec<event::IngestEvent> = file_data
-            .event_data
-            .into_iter()
-            .map(|evt| event::IngestEvent::try_from(evt).unwrap())
-            .collect();
-
-        let detected_tournaments = detect_tournaments(&domain_objects);
-        let mut detected_groups_json =
-            BufWriter::new(File::create("./detected_tournaments.json").unwrap());
-        serde_json::to_writer_pretty(&mut detected_groups_json, &detected_tournaments).unwrap();
-    }
+    // TODO write unit tests for tournament detection
 }

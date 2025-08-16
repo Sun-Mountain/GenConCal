@@ -4,11 +4,11 @@ use std::fs::File;
 use std::io::BufReader;
 use std::sync::{Arc, Mutex, MutexGuard, OnceLock};
 
+use axum::Router;
 use axum::extract::{Path, Query, State};
 use axum::http::StatusCode;
 use axum::response::ErrorResponse;
 use axum::routing::get;
-use axum::Router;
 use chrono::NaiveTime;
 use fake::Fake;
 use serde::Deserialize;
@@ -16,14 +16,14 @@ use tracing::*;
 use utoipa::{IntoParams, OpenApi};
 use validator::{Validate, ValidationError};
 
-use crate::api::{determine_page_limits, PageRange};
+use crate::api::{PageRange, determine_page_limits};
 use crate::dto::{
     CommaSeparated, EventBlock, EventDay, EventDetailResponse, EventSummary, GameSystem, Location,
     TimeDto,
 };
 use crate::external_connections::ExternalConnectivity;
 use crate::routing_utils::{Json, ValidationErrorResponse};
-use crate::{dto, AppState, SharedData};
+use crate::{AppState, SharedData, dto};
 
 #[derive(OpenApi)]
 #[openapi(paths(
@@ -33,8 +33,10 @@ use crate::{dto, AppState, SharedData};
     retrieve_event_types,
     retrieve_locations
 ))]
+/// OpenAPI struct which registers documentation for "event" API endpoints with swagger
 pub struct EventsApi;
 
+/// Constant string which defines the API group for "event" endpoints in swagger
 pub const EVENTS_API_GROUP: &str = "Events";
 
 #[derive(Validate, Deserialize, IntoParams)]
@@ -42,6 +44,7 @@ pub const EVENTS_API_GROUP: &str = "Events";
 #[validate(schema(function = "validate_eventlist_query"))]
 #[serde(rename_all = "kebab-case")]
 #[expect(dead_code)]
+/// Query parameters for filtering events in the event list
 pub struct EventListQueryParams {
     /// Lower bound for available tickets in returned events (default 0)
     pub min_available_tickets: Option<u16>,
@@ -81,6 +84,7 @@ pub struct EventListQueryParams {
 }
 
 #[instrument(skip(query_params))]
+/// Performs custom validation to ensure the validity of event filters
 fn validate_eventlist_query(query_params: &EventListQueryParams) -> Result<(), ValidationError> {
     // Validate start_time <= end_time
     if let (Some(TimeDto(start_time)), Some(TimeDto(end_time))) =
@@ -120,6 +124,7 @@ fn validate_eventlist_query(query_params: &EventListQueryParams) -> Result<(), V
 }
 
 #[instrument]
+/// Validates experience requirement values in filters
 fn validate_experience_list(type_list: &CommaSeparated<String>) -> Result<(), ValidationError> {
     for str_to_check in type_list.0.iter() {
         match str_to_check.as_str() {
@@ -133,6 +138,7 @@ fn validate_experience_list(type_list: &CommaSeparated<String>) -> Result<(), Va
 }
 
 #[instrument]
+/// Validates age requirement values in filters
 fn validate_age_list(age_list: &CommaSeparated<String>) -> Result<(), ValidationError> {
     for str_to_check in age_list.0.iter() {
         match str_to_check.as_str() {
@@ -145,6 +151,8 @@ fn validate_age_list(age_list: &CommaSeparated<String>) -> Result<(), Validation
     Ok(())
 }
 
+/// Performs filtering on generated event data. This will eventually be moved into database queries
+/// once we remove the current API stubs.
 pub(super) fn matches_event_filter(
     evt_summary: &dto::EventSummary,
     filter: &EventListQueryParams,
@@ -203,6 +211,11 @@ pub(super) fn matches_event_filter(
 }
 
 #[instrument(skip(blocks))]
+/// Removes events from event blocks if they are outside the range of the requested page, skipping
+/// [results_already_processed] events if a previous pagination already ran on the set of blocks.
+/// Returns the total number of events that were examined during the pagination process.
+/// This function is temporary and will be replaced with database filters once we remove the event
+/// stubs.
 pub(super) fn paginate_additional_events(
     blocks: &mut [EventBlock],
     page: u16,
@@ -255,6 +268,9 @@ pub(super) fn paginate_additional_events(
 }
 
 #[instrument(skip(blocks))]
+/// Removes events outside the requested page starting from the beginning, assuming no events
+/// have already been processed. Returns the number of total events encountered across all blocks.
+/// This will be replaced with database filters once we remove the stubbed out APIs.
 pub(super) fn paginate_events(
     blocks: &mut [EventBlock],
     page: u16,
@@ -263,12 +279,13 @@ pub(super) fn paginate_events(
     paginate_additional_events(blocks, page, results_per_page, 0)
 }
 
+/// Returns a router containing all "/api/events" routes
 pub fn events_routes() -> Router<Arc<SharedData>> {
     Router::new()
         .route(
             "/counts/daily",
             get(
-                |State(app_data): AppState, Query(filter): Query<EventListQueryParams>| async move {
+                async |State(app_data): AppState, Query(filter): Query<EventListQueryParams>| {
                     let mut ext_cxn = app_data.ext_cxn.clone();
 
                     list_event_counts_by_day(&filter, &mut ext_cxn).await
@@ -278,7 +295,7 @@ pub fn events_routes() -> Router<Arc<SharedData>> {
         .route(
             "/:event_id",
             get(
-                |State(app_data): AppState, Path(event_id): Path<u32>| async move {
+                async |State(app_data): AppState, Path(event_id): Path<u32>| {
                     let mut ext_cxn = app_data.ext_cxn.clone();
 
                     retrieve_event_detail(event_id, &mut ext_cxn).await
@@ -287,7 +304,7 @@ pub fn events_routes() -> Router<Arc<SharedData>> {
         )
         .route(
             "/game-systems",
-            get(|State(app_data): AppState| async move {
+            get(async |State(app_data): AppState| {
                 let mut ext_cxn = app_data.ext_cxn.clone();
 
                 retrieve_game_systems(&mut ext_cxn).await
@@ -295,7 +312,7 @@ pub fn events_routes() -> Router<Arc<SharedData>> {
         )
         .route(
             "/locations",
-            get(|State(app_data): AppState| async move {
+            get(async |State(app_data): AppState| {
                 let mut ext_cxn = app_data.ext_cxn.clone();
 
                 retrieve_locations(&mut ext_cxn).await
@@ -303,7 +320,7 @@ pub fn events_routes() -> Router<Arc<SharedData>> {
         )
         .route(
             "/types",
-            get(|State(app_data): AppState| async move {
+            get(async |State(app_data): AppState| {
                 let mut ext_cxn = app_data.ext_cxn.clone();
 
                 retrieve_event_types(&mut ext_cxn).await
@@ -311,6 +328,7 @@ pub fn events_routes() -> Router<Arc<SharedData>> {
         )
 }
 
+/// Generates and caches a random set of events for a day for the stubbed out APIs.
 fn gen_day_blocks() -> Vec<dto::EventBlock> {
     let mut ten_am_events: Vec<dto::EventSummary> = (dto::event_in_time_slot(10), 5..20).fake();
     let mut eleven_am_events: Vec<dto::EventSummary> = (dto::event_in_time_slot(11), 10..40).fake();
@@ -337,9 +355,10 @@ fn gen_day_blocks() -> Vec<dto::EventBlock> {
 }
 
 #[instrument]
+/// Generates and caches all event data to be returned by the stubbed out APIs.
 pub(super) fn event_data() -> &'static dto::DailyTimeBlockedEventsResponse {
     static EVENTS_CELL: OnceLock<dto::DailyTimeBlockedEventsResponse> = OnceLock::new();
-    let events = EVENTS_CELL.get_or_init(|| {
+    EVENTS_CELL.get_or_init(|| {
         info_span!("events_generation").in_scope(|| dto::DailyTimeBlockedEventsResponse {
             events_by_day: HashMap::from([
                 (20240731, gen_day_blocks()),
@@ -348,15 +367,14 @@ pub(super) fn event_data() -> &'static dto::DailyTimeBlockedEventsResponse {
                 (20240803, gen_day_blocks()),
             ]),
         })
-    });
-
-    events
+    })
 }
 
 #[instrument]
+/// Caches unique game systems for data generation from the "unique-games.json" file.
 fn game_systems() -> &'static [dto::GameSystem] {
     static SYSTEMS_CELL: OnceLock<Vec<dto::GameSystem>> = OnceLock::new();
-    let game_systems = SYSTEMS_CELL.get_or_init(|| {
+    SYSTEMS_CELL.get_or_init(|| {
         let file_reader = File::open("./unique-games.json")
             .expect("unique-games.json should exist and be readable!");
         let buf_reader = BufReader::new(file_reader);
@@ -371,15 +389,14 @@ fn game_systems() -> &'static [dto::GameSystem] {
                 name,
             })
             .collect()
-    });
-
-    game_systems
+    })
 }
 
 #[instrument]
+/// Generates and caches a set of locations for sample data to pull from.
 fn locations() -> &'static [dto::Location] {
     static LOCATIONS_CELL: OnceLock<[dto::Location; 3]> = OnceLock::new();
-    let locations = LOCATIONS_CELL.get_or_init(|| {
+    LOCATIONS_CELL.get_or_init(|| {
         [
             Location {
                 building: Some(dto::LocationPart {
@@ -421,15 +438,14 @@ fn locations() -> &'static [dto::Location] {
                 table_num: None,
             },
         ]
-    });
-
-    locations
+    })
 }
 
 #[instrument]
+/// Creates and caches a set of event types that can be used by sample event data.
 fn event_types() -> &'static [String] {
     static EVT_TYPE_CELL: OnceLock<[String; 5]> = OnceLock::new();
-    let events = EVT_TYPE_CELL.get_or_init(|| {
+    EVT_TYPE_CELL.get_or_init(|| {
         [
             "BGM".to_owned(),
             "RPG".to_owned(),
@@ -437,12 +453,12 @@ fn event_types() -> &'static [String] {
             "MHE".to_owned(),
             "ENT".to_owned(),
         ]
-    });
-
-    events
+    })
 }
 
 #[instrument]
+/// Returns a mutex which caches details for individual events. This is performed on the fly
+/// as individual events are requested.
 fn event_detail_cache() -> MutexGuard<'static, HashMap<u32, dto::EventDetailResponse>> {
     static DETAIL_MUTEX: OnceLock<Mutex<HashMap<u32, dto::EventDetailResponse>>> = OnceLock::new();
     let retrieved_mutex = DETAIL_MUTEX.get_or_init(|| Mutex::new(HashMap::new()));
@@ -575,7 +591,7 @@ async fn retrieve_event_detail(
         Some(evt) => evt.clone(),
         None => {
             let newly_created_detail: EventDetailResponse = dto::DetailFromBlock {
-                event_date: evt_ref.0 .0,
+                event_date: evt_ref.0.0,
                 summary: evt_ref.1,
                 event_types: event_types(),
                 event_locations: locations(),
