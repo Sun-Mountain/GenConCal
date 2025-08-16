@@ -20,6 +20,8 @@ When running the full stack with `docker compose up`, the following interfaces a
 
 The Swagger UI (provided by the [utoipa](https://github.com/juhaku/utoipa) crate) can be accessed at http://localhost:8080/swagger-ui when starting the application.
 
+**NOTE:** You can use `example-events.json` as the payload to the `POST /api/data-ingests` endpoint to load GenCon events into the backend.
+
 ## Tests
 
 Unit tests for both API routers and business logic can be run via `cargo test`.
